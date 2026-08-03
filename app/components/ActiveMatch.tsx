@@ -235,9 +235,13 @@ export function ActiveMatch({
                     )}
                   </div>
                   <div className="pick-row-op-name">{rec.opName}</div>
-                  {rec.playstyle && (
-                    <div className="pick-row-playstyle">{rec.playstyle}</div>
-                  )}
+                  {rec.coveredRole ? (
+                    <div className="pick-row-playstyle covered-role-tag">
+                      ✓ Cubre: {rec.coveredRole}
+                    </div>
+                  ) : rec.role ? (
+                    <div className="pick-row-playstyle">{rec.role}</div>
+                  ) : null}
                 </div>
 
                 {/* Side badge + reroll */}

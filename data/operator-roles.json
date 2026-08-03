@@ -1,0 +1,95 @@
+{
+  "_comment": "Mapeo de cada operador a sus roles tácticos. Agregar o modificar operadores acá actualiza el motor de recomendación.",
+
+  "Thermite":    { "attack": ["hard-breach"] },
+  "Hibana":      { "attack": ["hard-breach"] },
+  "Maverick":    { "attack": ["hard-breach", "entry-frag"] },
+  "Ace":         { "attack": ["hard-breach"] },
+
+  "Sledge":      { "attack": ["soft-breach"] },
+  "Buck":        { "attack": ["soft-breach", "entry-frag"] },
+  "Ram":         { "attack": ["soft-breach"] },
+  "Fuze":        { "attack": ["soft-breach", "zone-control"] },
+
+  "Ash":         { "attack": ["entry-frag", "anti-gadget"] },
+  "Zofia":       { "attack": ["entry-frag", "zone-control"] },
+  "Amaru":       { "attack": ["entry-frag"] },
+  "Nøkk":        { "attack": ["entry-frag"] },
+  "Blackbeard":  { "attack": ["entry-frag"] },
+  "Finka":       { "attack": ["support"] },
+  "Deimos":      { "attack": ["entry-frag", "intel"] },
+
+  "IQ":          { "attack": ["intel", "anti-gadget"] },
+  "Jackal":      { "attack": ["intel"] },
+  "Dokkaebi":    { "attack": ["intel"] },
+  "Lion":        { "attack": ["intel", "support"] },
+  "Iana":        { "attack": ["intel", "entry-frag"] },
+  "Zero":        { "attack": ["intel"] },
+  "Grim":        { "attack": ["intel", "zone-control"] },
+  "Solid Snake": { "attack": ["intel"] },
+
+  "Thatcher":    { "attack": ["anti-gadget"] },
+  "Twitch":      { "attack": ["anti-gadget"] },
+  "Kali":        { "attack": ["anti-gadget", "entry-frag"] },
+  "Flores":      { "attack": ["anti-gadget"] },
+  "Brava":       { "attack": ["anti-gadget", "intel"] },
+
+  "Capitão":     { "attack": ["zone-control"] },
+  "Nomad":       { "attack": ["zone-control"] },
+  "Gridlock":    { "attack": ["zone-control"] },
+  "Sens":        { "attack": ["zone-control", "support"] },
+  "Osa":         { "attack": ["zone-control"] },
+  "Rauora":      { "attack": ["zone-control"] },
+
+  "Montagne":    { "attack": ["zone-control"] },
+  "Blitz":       { "attack": ["entry-frag", "zone-control"] },
+
+  "Ying":        { "attack": ["entry-frag"] },
+  "Glaz":        { "attack": ["entry-frag"] },
+
+  "Striker":     { "attack": ["support"] },
+
+  "Doc":         { "defense": ["objective-anchor", "support-def"] },
+  "Rook":        { "defense": ["support-def"] },
+  "Smoke":       { "defense": ["objective-anchor"] },
+  "Tachanka":    { "defense": ["objective-anchor", "zone-deny"] },
+  "Echo":        { "defense": ["objective-anchor", "intel-def"] },
+  "Maestro":     { "defense": ["objective-anchor", "intel-def"] },
+  "Warden":      { "defense": ["objective-anchor"] },
+  "Clash":       { "defense": ["intel-def", "zone-deny"] },
+  "Thunderbird": { "defense": ["support-def"] },
+  "Sentry":      { "defense": ["support-def"] },
+
+  "Pulse":       { "defense": ["intel-def"] },
+  "Valkyrie":    { "defense": ["intel-def"] },
+  "Mira":        { "defense": ["intel-def", "access-denial"] },
+  "Mozzie":      { "defense": ["intel-def", "anti-gadget-def"] },
+  "Solis":       { "defense": ["intel-def"] },
+  "Skopós":      { "defense": ["intel-def"] },
+
+  "Kapkan":      { "defense": ["trap-setter"] },
+  "Frost":       { "defense": ["trap-setter"] },
+  "Lesion":      { "defense": ["trap-setter"] },
+  "Ela":         { "defense": ["trap-setter"] },
+  "Goyo":        { "defense": ["trap-setter", "zone-deny"] },
+  "Thorn":       { "defense": ["trap-setter"] },
+  "Fenrir":      { "defense": ["trap-setter", "zone-deny"] },
+  "Denari":      { "defense": ["trap-setter"] },
+
+  "Castle":      { "defense": ["access-denial"] },
+  "Melusi":      { "defense": ["access-denial", "intel-def"] },
+  "Aruni":       { "defense": ["access-denial"] },
+  "Azami":       { "defense": ["access-denial"] },
+
+  "Mute":        { "defense": ["anti-gadget-def", "access-denial"] },
+  "Bandit":      { "defense": ["anti-gadget-def"] },
+  "Kaid":        { "defense": ["anti-gadget-def"] },
+  "Tubarão":     { "defense": ["anti-gadget-def"] },
+  "Jäger":       { "defense": ["anti-gadget-def", "roamer"] },
+  "Wamai":       { "defense": ["anti-gadget-def"] },
+
+  "Caveira":     { "defense": ["roamer", "intel-def"] },
+  "Vigil":       { "defense": ["roamer"] },
+  "Alibi":       { "defense": ["roamer", "intel-def"] },
+  "Oryx":        { "defense": ["roamer"] }
+}

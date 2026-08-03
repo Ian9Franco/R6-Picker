@@ -1,0 +1,25 @@
+{
+  "pibes": [
+    {
+      "id": "el_notorious",
+      "name": "El_Notorious",
+      "tag": "El_Notorious",
+      "attackMains": ["Ash", "Zofia", "Deimos", "Ace", "Buck"],
+      "defenseMains": ["Jäger", "Doc", "Vigil", "Mozzie", "Alibi"]
+    },
+    {
+      "id": "chango_nocturno",
+      "name": "ChangoNocturno",
+      "tag": "ChangoNocturno",
+      "attackMains": ["Thermite", "Hibana", "Thatcher", "Ace", "Sledge"],
+      "defenseMains": ["Smoke", "Mira", "Kaid", "Mute", "Bandit"]
+    },
+    {
+      "id": "azusa_cooper09",
+      "name": "AzusaCooper09",
+      "tag": "AzusaCooper09",
+      "attackMains": ["Dokkaebi", "IQ", "Gridlock", "Zero", "Iana"],
+      "defenseMains": ["Lesion", "Kapkan", "Valkyrie", "Echo", "Aruni"]
+    }
+  ]
+}

@@ -42,6 +42,9 @@ export function MatchSetup({
   // Hidden: PibesManager not exposed until DB is implemented
   const [showPibesManager, setShowPibesManager] = useState(false);
 
+  // The start button is blocked in pibes mode when no pibe is selected
+  const isStartBlocked = mode === "pibes" && activePibeIds.length === 0;
+
   const togglePibeActive = (pibeId: string) => {
     const isActive = activePibeIds.includes(pibeId);
 
@@ -87,7 +90,8 @@ export function MatchSetup({
               className={`party-card ${partySize === 1 ? "active" : ""}`}
               onClick={() => {
                 setPartySize(1);
-                setActivePibeIds([activePibeIds[0]]);
+                // Only trim excess; never auto-fill
+                if (activePibeIds.length > 1) setActivePibeIds([activePibeIds[0]]);
               }}
             >
               <Users size={18} />
@@ -99,12 +103,8 @@ export function MatchSetup({
               className={`party-card ${partySize === 2 ? "active" : ""}`}
               onClick={() => {
                 setPartySize(2);
-                const next = activePibeIds.slice(0, 2);
-                if (next.length < 2) {
-                  const missing = pibes.find((p) => !next.includes(p.id))?.id;
-                  if (missing) next.push(missing);
-                }
-                setActivePibeIds(next);
+                // Only trim excess; never auto-fill
+                if (activePibeIds.length > 2) setActivePibeIds(activePibeIds.slice(0, 2));
               }}
             >
               <Users size={18} />
@@ -114,10 +114,7 @@ export function MatchSetup({
 
             <button
               className={`party-card ${partySize === 3 ? "active" : ""}`}
-              onClick={() => {
-                setPartySize(3);
-                setActivePibeIds(pibes.map((p) => p.id));
-              }}
+              onClick={() => setPartySize(3)}
             >
               <Users size={18} />
               <span className="party-title">Trío</span>
@@ -139,6 +136,10 @@ export function MatchSetup({
                 {pibes.map((pibe) => {
                   const isActive = activePibeIds.includes(pibe.id);
                   const isDisabled = !isActive && activePibeIds.length >= partySize;
+                  // Show top attack role label derived from mains
+                  const roleHint = isActive
+                    ? (pibe.attackRoles[0] ?? pibe.defenseRoles[0])
+                    : undefined;
 
                   return (
                     <button
@@ -231,9 +232,16 @@ export function MatchSetup({
       </div>
 
       {/* Start */}
-      <button className="start-match-btn" onClick={onStartMatch}>
+      <button
+        className={`start-match-btn ${isStartBlocked ? "start-blocked" : ""}`}
+        onClick={isStartBlocked ? undefined : onStartMatch}
+        disabled={isStartBlocked}
+        title={isStartBlocked ? "Seleccioná al menos 1 pibe para iniciar" : undefined}
+      >
         <Dice5 size={20} />
-        Iniciar en {matchMap}
+        {isStartBlocked
+          ? "Seleccioná pibes para iniciar"
+          : `Iniciar en ${matchMap}`}
       </button>
 
       {/* Hidden PibesManager modal until DB ready */}

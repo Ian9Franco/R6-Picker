@@ -45,11 +45,8 @@ export function Picker() {
   const [mode, setMode] = useState<"default" | "pibes">("pibes");
   const [partySize, setPartySize] = useState<1 | 2 | 3>(3);
   const [pibes, setPibes] = useState<PibeProfile[]>(DEFAULT_PIBES);
-  const [activePibeIds, setActivePibeIds] = useState<string[]>([
-    "el_notorious",
-    "chango_nocturno",
-    "azusa_cooper09",
-  ]);
+  // No pibes selected by default — the user must pick
+  const [activePibeIds, setActivePibeIds] = useState<string[]>([]);
 
   // Match State
   const [matchState, setMatchState] = useState<"setup" | "active" | "finished">("setup");
@@ -120,12 +117,14 @@ export function Picker() {
   };
 
   // Roll operator recommendations for current round side
-  const rollRecommendationsForSide = (sideToUse: Side) => {
+  // Accepts an optional override for site (used on first roll when state hasn't updated yet)
+  const rollRecommendationsForSide = (sideToUse: Side, siteOverride?: BombSite) => {
     let recs: Recommendation[];
-    if (mode === "pibes") {
-      recs = getPibesRecommendations(sideToUse, activePibeProfiles);
+    const site = siteOverride ?? currentBombSiteObj;
+    if (mode === "pibes" && activePibeProfiles.length > 0) {
+      recs = getPibesRecommendations(sideToUse, activePibeProfiles, site);
     } else {
-      recs = getStandardRecommendations(sideToUse, partySize);
+      recs = getStandardRecommendations(sideToUse, Math.max(1, activePibeProfiles.length || partySize));
     }
     setRecommendations(recs);
     setOpRoll((v) => v + 1);
@@ -161,11 +160,13 @@ export function Picker() {
     setEnemyLockedSites([]);
     setMatchState("active");
 
-    rollRecommendationsForSide(startingSide);
-
     const firstPool = mapBombSites[matchMap] || [];
-    if (firstPool.length > 0) {
-      setSelectedSiteName(firstPool[0].name);
+    const firstSite = firstPool[0] ?? undefined;
+    // Pass firstSite directly since state hasn't updated yet
+    rollRecommendationsForSide(startingSide, firstSite);
+
+    if (firstSite) {
+      setSelectedSiteName(firstSite.name);
     } else {
       setSelectedSiteName("");
     }
@@ -401,7 +402,7 @@ export function Picker() {
                 currentOperator={recommendations[0]?.opName ?? ""}
                 onSelectOperator={(opName) => {
                   setRecommendations([
-                    { playerLabel: "Tu Pick", opName, playstyle: "Manual" },
+                    { playerLabel: "Tu Pick", opName, role: "Manual" },
                   ]);
                   setActiveTab("picker");
                 }}

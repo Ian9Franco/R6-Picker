@@ -481,6 +481,18 @@ button {
   box-shadow: 0 4px 16px rgba(232, 35, 58, 0.35);
 }
 
+.start-match-btn.start-blocked {
+  background: var(--surface-2);
+  box-shadow: none;
+  color: var(--muted);
+  cursor: not-allowed;
+  border: 1px dashed var(--border-mid);
+}
+
+.start-match-btn.start-blocked:hover::before {
+  left: -100%;
+}
+
 /* ============================
    SCOREBOARD (HUD)
    ============================ */
@@ -2304,6 +2316,35 @@ button {
   color: var(--white);
   border-color: var(--border-mid);
   background: var(--surface-3);
+}
+
+/* Pick row typography */
+.pick-row-op-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pick-row-playstyle {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Green badge when pick covers a site requirement */
+.covered-role-tag {
+  color: #10b981 !important;
+  font-weight: 600;
 }
 
 /* Pibes Manager Modal */
