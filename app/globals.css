@@ -2861,8 +2861,10 @@ button {
   font-size: 11px;
   color: var(--muted-bright);
   line-height: 1.45;
+}
 
-  li { margin-bottom: 4px; }
+.sw-list li {
+  margin-bottom: 4px;
 }
 
 /* Operator Category Groups & Pills */
@@ -3059,8 +3061,10 @@ button {
   font-size: 11px;
   color: var(--muted-bright);
   line-height: 1.5;
+}
 
-  li { margin-bottom: 6px; }
+.pick-order-list li {
+  margin-bottom: 6px;
 }
 
 .synergies-grid {
@@ -3122,6 +3126,265 @@ button {
   color: var(--muted-bright);
   line-height: 1.4;
   margin: 0;
+}
+
+/* Custom Sleek Scrollbars & Touch Scrollable Containers */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-mid);
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Afinidad Explanation Banner */
+.affinity-explanation-banner {
+  padding: 10px 14px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 8px;
+  font-size: 11px;
+  color: #93c5fd;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+/* Enriched Tryout Cards */
+.tryout-op-card-enriched {
+  padding: 12px;
+  background: var(--surface-1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tryout-ctx-line {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.35;
+}
+
+.tryout-ctx-line strong {
+  color: var(--white);
+}
+
+.tryout-ctx-line.warning strong {
+  color: #fbbf24;
+}
+
+/* Enriched Avoid Cards */
+.avoid-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.avoid-op-card-enriched {
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.avoid-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avoid-op-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fca5a5;
+}
+
+.avoid-side-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.avoid-op-reason {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Team Usage Card (Uso en Escuadrón) */
+.team-usage-card {
+  padding: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tu-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tu-label {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.tu-label.best { color: #10b981; }
+.tu-label.warning { color: #fbbf24; }
+
+.tu-text {
+  font-size: 12px;
+  color: var(--muted-bright);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.tu-sublist {
+  margin: 4px 0 0 0;
+  padding-left: 18px;
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.45;
+}
+
+.tu-sublist li {
+  margin-bottom: 3px;
+}
+
+/* Squad Comparison Table (Matriz de Cobertura) */
+.squad-comparison-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-1);
+}
+
+.squad-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+.squad-comparison-table th {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.squad-comparison-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-bright);
+}
+
+.squad-comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.player-tag-pill {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.player-tag-pill.chango { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.player-tag-pill.notorious { background: rgba(232, 35, 58, 0.15); color: var(--atk); border: 1px solid rgba(232, 35, 58, 0.3); }
+.player-tag-pill.azusa { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+/* Squad Risks Grid */
+.squad-risks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.squad-risk-card {
+  padding: 14px;
+  background: rgba(251, 191, 36, 0.05);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.risk-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fbbf24;
+}
+
+.risk-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.risk-desc {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.risk-correction {
+  font-size: 11px;
+  color: #fde68a;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 10px;
+  border-radius: 6px;
+  line-height: 1.35;
 }
 
 /* Pibes Manager Modal */
