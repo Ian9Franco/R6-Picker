@@ -1901,10 +1901,52 @@ button {
    ============================ */
 
 /* Segmented Control Mode Toggle */
-.mode-toggle button.active-pibes {
-  background: linear-gradient(135deg, var(--atk), #7e001e) !important;
+.segmented-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  background: var(--surface-0);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.segmented-control button {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  background: transparent;
+  border: 1.5px solid transparent;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.segmented-control button:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.segmented-control button.active {
+  color: var(--white);
+  background: var(--surface-2);
+  border-color: var(--border-bright);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.segmented-control button.active-pibes {
+  background: linear-gradient(135deg, rgba(232, 35, 58, 0.25), var(--surface-2)) !important;
+  border-color: var(--atk) !important;
   color: white !important;
-  box-shadow: 0 4px 16px var(--atk-glow);
+  box-shadow: 0 0 16px var(--atk-dim) !important;
 }
 
 /* Party Size Selector */
@@ -1915,45 +1957,63 @@ button {
 }
 
 .party-card {
-  padding: 12px 8px;
-  border-radius: 12px;
+  padding: 14px 10px;
+  border-radius: 14px;
   background: var(--surface-2);
   border: 1.5px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  transition: all 0.15s ease;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  transition: all 0.18s ease;
+  color: var(--muted);
 }
 
 .party-card:hover {
   background: var(--surface-3);
   border-color: var(--border-mid);
+  color: var(--muted-bright);
+  transform: translateY(-1px);
 }
 
 .party-card.active {
-  background: var(--surface-3);
+  background: linear-gradient(160deg, rgba(232, 35, 58, 0.18) 0%, var(--surface-2) 100%);
   border-color: var(--atk);
   color: var(--white);
-  box-shadow: 0 0 14px var(--atk-dim);
+  box-shadow: 0 0 16px var(--atk-dim);
+}
+
+.party-card svg {
+  color: var(--muted);
+  transition: color 0.18s ease;
+}
+
+.party-card.active svg {
+  color: var(--atk);
+  filter: drop-shadow(0 0 6px var(--atk-glow));
 }
 
 .party-title {
   font-family: "Rajdhani", sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--white);
+  line-height: 1;
 }
 
 .party-sub {
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
+  line-height: 1;
 }
 
 .party-card.active .party-sub {
-  color: var(--atk);
-  font-weight: 600;
+  color: rgba(232, 35, 58, 0.9);
 }
 
 /* Pibes Setup Box */
