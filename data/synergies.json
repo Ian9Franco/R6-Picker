@@ -1,96 +1,85 @@
 {
-  "trioCombos": {
-    "attack": [
-      {
-        "id": "atk_base_standard",
-        "name": "Estructura & Apertura Estándar",
-        "order": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
-        "composition": ["Hibana", "Zofia", "Osa"],
-        "roles": {
-          "chango_nocturno": "hard-breach",
-          "el_notorious": "second-entry / flex",
-          "azusa_cooper09": "execution-support"
-        },
-        "description": "Composición de oro del trío: Hibana abre escotillas/pared, Zofia limpia utilidad y anclas con conmoción, y Osa sella la línea de visión para que se realice el plantado a salvo.",
-        "duoPlan": "Hibana abre la brecha y Zofia entra inmediatamente detrás del espacio creado.",
-        "trioPlan": "Hibana abre pared; Zofia desaloja anclas con proyectiles; Osa instala escudo transparente y asegura el plantado."
-      },
-      {
-        "id": "atk_heavy_breach",
-        "name": "Brecha Pesada & Limpieza de Sitio",
-        "order": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
-        "composition": ["Thermite", "Thatcher", "Montagne"],
-        "roles": {
-          "chango_nocturno": "hard-breach",
-          "el_notorious": "anti-gadget / support",
-          "azusa_cooper09": "shield-scout"
-        },
-        "description": "Entrada de brecha total. Thatcher limpia la pared electrificada, Thermite crea un boquete gigante y Montagne camina adelante absorbiendo el fuego enemigo.",
-        "duoPlan": "Thatcher lanza EMP a la pared; Thermite coloca la carga exotérmica al instante.",
-        "trioPlan": "Thatcher inhabilita la pared; Thermite abre apertura masiva; Montagne cubre el ángulo y bloquea puertas mientras se planta."
-      },
-      {
-        "id": "atk_anti_roam",
-        "name": "Cacería Anti-Roamer & Control de Mapa",
-        "order": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
-        "composition": ["Lion", "Deimos", "Blitz"],
-        "roles": {
-          "chango_nocturno": "flank-control",
-          "el_notorious": "intel-hunter",
-          "azusa_cooper09": "aggressive-shield"
-        },
-        "description": "Composición de cacería directa para castigar defensores sueltos. Deimos rastrea la posición, Lion congela el movimiento y Blitz embiste con destello.",
-        "duoPlan": "Deimos marca al roamer y Blitz avanza a corta distancia para cegarlo.",
-        "trioPlan": "Lion activa escáner EE-ONE-D; Deimos marca latido del roamer; Blitz embiste mientras Lion/Deimos rematan al enemigo acorralado."
-      }
-    ],
-    "defense": [
-      {
-        "id": "def_base_standard",
-        "name": "Negación de Brecha & Intel Colectiva",
-        "order": ["chango_nocturno", "azusa_cooper09", "el_notorious"],
-        "composition": ["Tubarão", "Smoke", "Valkyrie"],
-        "roles": {
-          "chango_nocturno": "anti-breach",
-          "azusa_cooper09": "objective-anchor",
-          "el_notorious": "intel-fragger / roam-short"
-        },
-        "description": "Defensa de torneo clásica: Tubarão congela la pared para frenar al Hard Breacher, Smoke guarda el gas para los últimos 30 segundos, y Valkyrie brinda cámaras externas.",
-        "duoPlan": "Tubarão congela la brecha y Smoke arroja gas si intentan cruzar la zona congelada.",
-        "trioPlan": "Tubarão congela pared; Valkyrie da la callout de dónde vienen; Smoke lanza gas en los 30 segundos finales mientras Valkyrie o Notorious buscan el trade."
-      },
-      {
-        "id": "def_trap_fortress",
-        "name": "Fortaleza de Trampas & Desaceleración",
-        "order": ["chango_nocturno", "azusa_cooper09", "el_notorious"],
-        "composition": ["Kapkan", "Mute", "Vigil"],
-        "roles": {
-          "chango_nocturno": "trap-setter",
-          "azusa_cooper09": "site-denial",
-          "el_notorious": "deep-roam"
-        },
-        "description": "Mute bloquea drones para que el rival no sepa dónde están las trampas. Kapkan mina los marcos y Vigil consume tiempo oculto de cámaras.",
-        "duoPlan": "Mute sella información con inhibidores y Kapkan coloca trampas invisibles para el dron.",
-        "trioPlan": "Mute bloquea drones; Kapkan mina accesos clave; Vigil desgasta al enemigo desde el piso superior sin dejarse ver."
-      },
-      {
-        "id": "def_hard_wall_lock",
-        "name": "Bloqueo Absoluto de Muro",
-        "order": ["chango_nocturno", "azusa_cooper09", "el_notorious"],
-        "composition": ["Bandit", "Kaid", "Fenrir"],
-        "roles": {
-          "chango_nocturno": "anti-breach",
-          "azusa_cooper09": "hatch-deny",
-          "el_notorious": "zone-control"
-        },
-        "description": "Doble electrificación (paredes y escotillas) respaldada por las minas de miedo F-NATT de Fenrir para castigar a quien intente empujar por la puerta.",
-        "duoPlan": "Bandit electrifica paredes bajas y Kaid sella escotillas superiores.",
-        "trioPlan": "Kaid/Bandit imposibilitan la apertura de muros; Fenrir coloca minas de gas en las puertas; Notorious elimina a los rivales cegados."
-      }
-    ]
+  "scoreWeights": {
+    "coveredNeed": 4,
+    "complementaryRole": 3,
+    "playerFit": 3,
+    "explicitSynergyBonus": 5,
+    "duplicatedRolePenalty": -2,
+    "uncoveredCriticalNeedPenalty": -5,
+    "forbiddenPatternPenalty": -6
   },
-  "rotationRules": {
-    "roundBreathingIndex": 3,
-    "description": "En las rondas 1 y 2 los pibes juegan sus roles principales. En la ronda 3, un pibe cambia de rol (respiración) sin desequilibrar la estructura general."
-  }
+  "explicitSynergies": [
+    {
+      "id": "thermite-thatcher-zofia",
+      "side": "attack",
+      "operators": ["Thermite", "Thatcher", "Zofia"],
+      "strength": 9,
+      "tags": ["reinforced-entry", "utility-clear", "second-entry"],
+      "pickOrder": ["Thermite", "Thatcher", "Zofia"],
+      "plan": {
+        "setup": "Thatcher limpia la pared electrificada con EMP y Thermite la abre.",
+        "execute": "Zofia limpia la posición detrás de la brecha con conmoción y entra segunda.",
+        "defuser": "Thermite",
+        "primaryDrone": "Thatcher",
+        "firstEntry": "Zofia",
+        "secondEntry": "Thatcher",
+        "flankWatch": "Thermite",
+        "shotCaller": "Zofia"
+      }
+    },
+    {
+      "id": "hibana-zofia-osa",
+      "side": "attack",
+      "operators": ["Hibana", "Zofia", "Osa"],
+      "strength": 9,
+      "tags": ["hatch-breach", "utility-clear", "shield-cover"],
+      "pickOrder": ["Hibana", "Zofia", "Osa"],
+      "plan": {
+        "setup": "Hibana abre escotillas a distancia; Zofia desplaza anclas.",
+        "execute": "Osa fija escudo transparente en puerta/corte y asegura el plantado.",
+        "defuser": "Osa",
+        "primaryDrone": "Hibana",
+        "firstEntry": "Zofia",
+        "secondEntry": "Osa",
+        "flankWatch": "Hibana",
+        "shotCaller": "El_Notorious"
+      }
+    },
+    {
+      "id": "tubarao-smoke-valkyrie",
+      "side": "defense",
+      "operators": ["Tubarão", "Smoke", "Valkyrie"],
+      "strength": 9,
+      "tags": ["breach-freeze", "plant-denial", "external-intel"],
+      "pickOrder": ["Tubarão", "Smoke", "Valkyrie"],
+      "plan": {
+        "setup": "Tubarão congela brecha; Valkyrie coloca cámaras exteriores; Smoke ancla en bomba.",
+        "execute": "Smoke niega plantado en los 30s finales con gas guiado por la info de Valkyrie.",
+        "defuser": "Smoke",
+        "primaryDrone": "Valkyrie",
+        "firstEntry": "Valkyrie",
+        "secondEntry": "Tubarão",
+        "flankWatch": "Tubarão",
+        "shotCaller": "Valkyrie"
+      }
+    },
+    {
+      "id": "kapkan-mute-vigil",
+      "side": "defense",
+      "operators": ["Kapkan", "Mute", "Vigil"],
+      "strength": 8,
+      "tags": ["drone-deny", "entry-traps", "time-waste"],
+      "pickOrder": ["Kapkan", "Mute", "Vigil"],
+      "plan": {
+        "setup": "Mute bloquea drones; Kapkan mina marcos invisibles al dron; Vigil roamea arriba.",
+        "execute": "Vigil consume tiempo en piso superior mientras los atacantes tropiezan con las EDD.",
+        "defuser": "Mute",
+        "primaryDrone": "Mute",
+        "firstEntry": "Vigil",
+        "secondEntry": "Kapkan",
+        "flankWatch": "Vigil",
+        "shotCaller": "Mute"
+      }
+    }
+  ]
 }

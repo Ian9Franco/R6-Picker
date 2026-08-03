@@ -2,7 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  AlertTriangle,
   Check,
+  Compass,
   Flame,
   Layers,
   Lock,
@@ -13,10 +15,16 @@ import {
   Shuffle,
   Star,
   Swords,
+  Target,
+  UserCheck,
   XCircle,
 } from "lucide-react";
 import type { BombSite, Side } from "../../data/catalog";
-import type { Recommendation } from "../../data/pibes";
+import type {
+  PlayerPick,
+  RecommendationEngineOutput,
+  SquadRecommendation,
+} from "../../data/pibes";
 
 type RoundLog = {
   roundNum: number;
@@ -33,7 +41,11 @@ type ActiveMatchProps = {
   currentRoundNum: number;
   isOvertime: boolean;
   currentSide: Side;
-  recommendations: Recommendation[];
+  recommendations: PlayerPick[];
+  squadRecommendation?: SquadRecommendation;
+  engineOutput?: RecommendationEngineOutput | null;
+  activeVariantTab?: "primary" | "safe" | "breathing";
+  setActiveVariantTab?: (tab: "primary" | "safe" | "breathing") => void;
   opRoll: number;
   allMapSites: BombSite[];
   lockedSites: string[];
@@ -58,6 +70,10 @@ export function ActiveMatch({
   isOvertime,
   currentSide,
   recommendations,
+  squadRecommendation,
+  engineOutput,
+  activeVariantTab = "primary",
+  setActiveVariantTab,
   opRoll,
   allMapSites,
   lockedSites,
@@ -72,6 +88,7 @@ export function ActiveMatch({
   onRollAvailableSite,
 }: ActiveMatchProps) {
   const isMulti = recommendations.length > 1;
+  const hasBreathingVariant = Boolean(engineOutput?.breathingVariant);
 
   return (
     <div className="tab-panel">
@@ -202,9 +219,43 @@ export function ActiveMatch({
           </button>
         </div>
 
+        {/* Dynamic Engine Variants Tabs */}
+        {engineOutput && setActiveVariantTab && (
+          <div className="variant-tabs-bar">
+            <button
+              className={`variant-tab-btn ${activeVariantTab === "primary" ? "active" : ""}`}
+              onClick={() => setActiveVariantTab("primary")}
+            >
+              <Flame size={12} /> Principal ({Math.round(engineOutput.primary.confidence * 100)}%)
+            </button>
+            <button
+              className={`variant-tab-btn ${activeVariantTab === "safe" ? "active" : ""}`}
+              onClick={() => setActiveVariantTab("safe")}
+            >
+              <Shield size={12} /> Variante Segura
+            </button>
+            {hasBreathingVariant && (
+              <button
+                className={`variant-tab-btn ${activeVariantTab === "breathing" ? "active" : ""}`}
+                onClick={() => setActiveVariantTab("breathing")}
+              >
+                <RefreshCw size={12} /> Rotación / Tryout
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Order Reason Header */}
+        {squadRecommendation?.orderReason && (
+          <div className="order-reason-banner">
+            <Compass size={13} style={{ flexShrink: 0, marginTop: 1 }} />
+            <span>{squadRecommendation.orderReason}</span>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
-            key={`op-group-${opRoll}`}
+            key={`op-group-${opRoll}-${activeVariantTab}`}
             className={isMulti ? "picks-list" : "single-pick-box"}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -293,20 +344,61 @@ export function ActiveMatch({
           </motion.div>
         </AnimatePresence>
 
-        {/* Squad Tactical Synergy Plan */}
-        {recommendations.some((r) => r.trioPlan || r.duoPlan) && (
-          <div className="squad-plan-box">
-            <div className="squad-plan-header">
-              <span className="squad-plan-title">
-                <Flame size={13} style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }} />
-                Plan Táctico de Ronda ({recommendations.length > 2 ? "Trío" : "Dúo"})
+        {/* 3 Compact Tactical Blocks: Por qué este pick, Cómo coordinarlo, Qué evitar */}
+        {squadRecommendation && (
+          <div className="tactical-blocks-grid">
+            <div className="tac-block">
+              <span className="tac-block-title">
+                <Target size={11} /> ¿Por qué este pick?
               </span>
+              <p className="tac-block-text">
+                {squadRecommendation.picks.map((p) => `${p.playerLabel}: ${p.opName} (${p.role})`).join(" · ")}
+              </p>
             </div>
-            <p className="squad-plan-text">
-              {recommendations.length > 2
-                ? (recommendations.find((r) => r.trioPlan)?.trioPlan || recommendations[0]?.trioPlan || recommendations[0]?.duoPlan)
-                : (recommendations.find((r) => r.duoPlan)?.duoPlan || recommendations[0]?.duoPlan)}
-            </p>
+
+            <div className="tac-block">
+              <span className="tac-block-title">
+                <Flame size={11} /> ¿Cómo coordinarlo?
+              </span>
+              <p className="tac-block-text">
+                {squadRecommendation.trioPlan || squadRecommendation.duoPlan || "Avanzar con la brecha, tomar espacio y asegurar el plantado."}
+              </p>
+            </div>
+
+            {squadRecommendation.warnings.length > 0 && (
+              <div className="tac-block warning-block">
+                <span className="tac-block-title warning-title">
+                  <AlertTriangle size={11} /> ¿Qué evitar?
+                </span>
+                <p className="tac-block-text warning-text">
+                  {squadRecommendation.warnings.map((w) => w.message).join(" ")}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Responsabilidades Asignadas al Squad */}
+        {squadRecommendation?.responsibilities && (
+          <div className="responsibilities-bar">
+            <span className="resp-bar-title">Responsabilidades:</span>
+            <div className="resp-chips">
+              {squadRecommendation.responsibilities.shotCaller && (
+                <span className="resp-chip">🎯 Callouts: {squadRecommendation.responsibilities.shotCaller}</span>
+              )}
+              {squadRecommendation.responsibilities.defuserCarrier && (
+                <span className="resp-chip">💣 Defuser: {squadRecommendation.responsibilities.defuserCarrier}</span>
+              )}
+              {squadRecommendation.responsibilities.primaryDrone && (
+                <span className="resp-chip">📡 Dron: {squadRecommendation.responsibilities.primaryDrone}</span>
+              )}
+              {squadRecommendation.responsibilities.firstEntry && (
+                <span className="resp-chip">⚡ Entry 1: {squadRecommendation.responsibilities.firstEntry}</span>
+              )}
+              {squadRecommendation.responsibilities.secondEntry && (
+                <span className="resp-chip">🛡️ Entry 2: {squadRecommendation.responsibilities.secondEntry}</span>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -1,0 +1,84 @@
+{
+  "rules": {
+    "el_notorious": {
+      "avoid": [
+        {
+          "id": "duplicate-structural-support",
+          "side": "attack",
+          "condition": "hasOtherHardBreachOrAntiGadget",
+          "severity": "medium",
+          "message": "La tarea estructural ya está cubierta por otro pibe. Convendría pasar a flex o segundo entry (Zofia, Ash, Ram).",
+          "operators": ["Thatcher", "Ace", "Thermite"]
+        },
+        {
+          "id": "deep-roam-without-return",
+          "side": "defense",
+          "condition": "isDeepRoam",
+          "severity": "medium",
+          "message": "En roaming profundo con Vigil o Pulse, asegurá una ruta de regreso al sitio antes de que comience la ejecución.",
+          "operators": ["Vigil", "Pulse"]
+        }
+      ]
+    },
+    "chango_nocturno": {
+      "avoid": [
+        {
+          "id": "first-entry-attempt",
+          "side": "attack",
+          "condition": "isFirstEntryRole",
+          "severity": "high",
+          "message": "Evitá ser el primer entry. Tu mejor impacto es brecha, apoyo o control de flancos.",
+          "operators": ["Ash", "Amaru", "Nøkk"]
+        },
+        {
+          "id": "deep-roam-anchor",
+          "side": "defense",
+          "condition": "isDeepRoam",
+          "severity": "high",
+          "message": "Jugá en sitio o extensión cercana. El roaming profundo disminuye el valor de tu preparación defensiva.",
+          "operators": ["Vigil", "Caveira", "Oryx"]
+        }
+      ]
+    },
+    "azusa_cooper09": {
+      "avoid": [
+        {
+          "id": "isolated-shield",
+          "side": "attack",
+          "condition": "isIsolatedShield",
+          "severity": "high",
+          "message": "Montagne/Blitz sin un compañero pegado atrás pierde la capacidad de convertir presión en bajas.",
+          "operators": ["Montagne", "Blitz"]
+        },
+        {
+          "id": "deep-roam-anchor",
+          "side": "defense",
+          "condition": "isDeepRoam",
+          "severity": "high",
+          "message": "Rendís mejor en sitio con Mute, Smoke o Kapkan. El roaming lejano expone al sitio.",
+          "operators": ["Caveira", "Vigil", "Oryx"]
+        }
+      ]
+    }
+  },
+  "compositionWarnings": [
+    {
+      "id": "no-entry-pressure",
+      "side": "attack",
+      "severity": "high",
+      "message": "La composición puede abrir el sitio, pero carece de presión o agresión para cruzar la brecha."
+    },
+    {
+      "id": "duplicate-hard-breach",
+      "side": "attack",
+      "severity": "medium",
+      "message": "Hay más brecha dura de la necesaria para esta zona de bomba."
+    },
+    {
+      "id": "passive-defense",
+      "side": "defense",
+      "severity": "high",
+      "message": "Los tres jugadores dependen de permanecer encerrados en el objetivo sin control de mapa ni roaming."
+    }
+  ]
+}

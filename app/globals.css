@@ -2436,6 +2436,140 @@ button {
   line-height: 1.45;
 }
 
+/* Variant Selector Tabs Bar */
+.variant-tabs-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.variant-tab-btn {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.variant-tab-btn.active {
+  background: rgba(232, 35, 58, 0.15);
+  border-color: var(--atk);
+  color: var(--white);
+}
+
+/* Order Reason Banner */
+.order-reason-banner {
+  padding: 8px 14px;
+  background: rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  font-size: 11px;
+  color: #93c5fd;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.35;
+}
+
+/* 3 Compact Tactical Blocks Grid */
+.tactical-blocks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid var(--border);
+}
+
+.tac-block {
+  padding: 8px 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tac-block.warning-block {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.06);
+}
+
+.tac-block-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--atk);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tac-block-title.warning-title {
+  color: #fbbf24;
+}
+
+.tac-block-text {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.35;
+}
+
+.tac-block-text.warning-text {
+  color: #fde68a;
+}
+
+/* Squad Responsibilities Bar */
+.responsibilities-bar {
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.resp-bar-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.resp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.resp-chip {
+  font-size: 10px;
+  color: var(--white);
+  background: var(--surface-2);
+  border: 1px solid var(--border-mid);
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
 /* Pibes Manager Modal */
 .modal-backdrop {
   position: fixed;

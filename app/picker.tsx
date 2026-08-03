@@ -15,7 +15,9 @@ import {
   getPibesRecommendations,
   getStandardRecommendations,
   type PibeProfile,
-  type Recommendation,
+  type PlayerPick,
+  type RecommendationEngineOutput,
+  type SquadRecommendation,
 } from "../data/pibes";
 import { ActiveMatch } from "./components/ActiveMatch";
 import { FinishedMatch } from "./components/FinishedMatch";
@@ -63,8 +65,10 @@ export function Picker() {
   const [enemyLockedSites, setEnemyLockedSites] = useState<string[]>([]);
   const [selectedSiteName, setSelectedSiteName] = useState<string>("");
 
-  // Current Round Recommendations
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  // Current Round Recommendations Engine Output
+  const [engineOutput, setEngineOutput] = useState<RecommendationEngineOutput | null>(null);
+  const [activeVariantTab, setActiveVariantTab] = useState<"primary" | "safe" | "breathing">("primary");
+  const [standardRecs, setStandardRecs] = useState<PlayerPick[]>([]);
   const [opRoll, setOpRoll] = useState<number>(0);
 
   const currentRoundNum = history.length + 1;
@@ -111,36 +115,77 @@ export function Picker() {
       .slice(0, partySize);
   }, [pibes, activePibeIds, partySize]);
 
+  // Active Squad Recommendation computed from activeVariantTab
+  const currentSquadRecommendation: SquadRecommendation | undefined = useMemo(() => {
+    if (mode !== "pibes" || !engineOutput) return undefined;
+    if (activeVariantTab === "safe") return engineOutput.safeVariant;
+    if (activeVariantTab === "breathing" && engineOutput.breathingVariant) {
+      return engineOutput.breathingVariant;
+    }
+    return engineOutput.primary;
+  }, [mode, engineOutput, activeVariantTab]);
+
+  // Picks displayed in UI
+  const displayedRecommendations: PlayerPick[] = useMemo(() => {
+    if (mode === "pibes" && currentSquadRecommendation) {
+      return currentSquadRecommendation.picks;
+    }
+    return standardRecs;
+  }, [mode, currentSquadRecommendation, standardRecs]);
+
   // Update a Pibe profile
   const handleUpdatePibe = (updated: PibeProfile) => {
     setPibes((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
   };
 
   // Roll operator recommendations for current round side
-  // Accepts an optional override for site (used on first roll when state hasn't updated yet)
   const rollRecommendationsForSide = (sideToUse: Side, siteOverride?: BombSite) => {
-    let recs: Recommendation[];
     const site = siteOverride ?? currentBombSiteObj;
     if (mode === "pibes" && activePibeProfiles.length > 0) {
-      recs = getPibesRecommendations(sideToUse, activePibeProfiles, site, currentRoundNum);
+      const output = getPibesRecommendations(sideToUse, activePibeProfiles, site, currentRoundNum);
+      setEngineOutput(output);
     } else {
-      recs = getStandardRecommendations(sideToUse, Math.max(1, activePibeProfiles.length || partySize));
+      const recs = getStandardRecommendations(sideToUse, Math.max(1, activePibeProfiles.length || partySize));
+      setStandardRecs(recs);
+      setEngineOutput(null);
     }
-    setRecommendations(recs);
     setOpRoll((v) => v + 1);
   };
 
   // Re-roll single player pick
   const rollSinglePlayer = (index: number) => {
     const pool = currentSide === "attack" ? attackers : defenders;
-    const used = new Set(recommendations.map((r) => r.opName));
+    const currentRecs = displayedRecommendations;
+    const used = new Set(currentRecs.map((r) => r.opName));
     const available = pool.filter((op) => !used.has(op.name));
     const fallback = available.length > 0 ? available : pool;
     const newOp = randomItem(fallback).name;
 
-    setRecommendations((prev) =>
-      prev.map((rec, i) => (i === index ? { ...rec, opName: newOp } : rec))
-    );
+    if (mode === "pibes" && engineOutput) {
+      // Create a shallow copy with modified pick
+      setEngineOutput((prev) => {
+        if (!prev) return null;
+        const currentTarget = activeVariantTab === "safe"
+          ? prev.safeVariant
+          : activeVariantTab === "breathing" && prev.breathingVariant
+          ? prev.breathingVariant
+          : prev.primary;
+
+        const updatedPicks = currentTarget.picks.map((rec, i) =>
+          i === index ? { ...rec, opName: newOp } : rec
+        );
+
+        const updatedTarget = { ...currentTarget, picks: updatedPicks };
+
+        if (activeVariantTab === "safe") return { ...prev, safeVariant: updatedTarget };
+        if (activeVariantTab === "breathing") return { ...prev, breathingVariant: updatedTarget };
+        return { ...prev, primary: updatedTarget };
+      });
+    } else {
+      setStandardRecs((prev) =>
+        prev.map((rec, i) => (i === index ? { ...rec, opName: newOp } : rec))
+      );
+    }
   };
 
   // Roll available bomb site
@@ -177,7 +222,7 @@ export function Picker() {
     const nextMyScore = result === "win" ? myScore + 1 : myScore;
     const nextOpScore = result === "loss" ? opponentScore + 1 : opponentScore;
 
-    const opSummary = recommendations.map((r) => r.opName).join(", ");
+    const opSummary = displayedRecommendations.map((r) => r.opName).join(", ");
 
     const newLog: RoundLog = {
       roundNum: currentRoundNum,
@@ -360,7 +405,11 @@ export function Picker() {
                   currentRoundNum={currentRoundNum}
                   isOvertime={isOvertime}
                   currentSide={currentSide}
-                  recommendations={recommendations}
+                  recommendations={displayedRecommendations}
+                  squadRecommendation={currentSquadRecommendation}
+                  engineOutput={engineOutput}
+                  activeVariantTab={activeVariantTab}
+                  setActiveVariantTab={setActiveVariantTab}
                   opRoll={opRoll}
                   allMapSites={allMapSites}
                   lockedSites={lockedSites}
@@ -399,10 +448,30 @@ export function Picker() {
               transition={{ duration: 0.2 }}
             >
               <OperatorsCatalog
-                currentOperator={recommendations[0]?.opName ?? ""}
+                currentOperator={displayedRecommendations[0]?.opName ?? ""}
                 onSelectOperator={(opName) => {
-                  setRecommendations([
-                    { playerLabel: "Tu Pick", opName, role: "Manual" },
+                  setStandardRecs([
+                    {
+                      playerLabel: "Tu Pick",
+                      playerId: "manual",
+                      opName,
+                      operatorProfile: {
+                        name: opName,
+                        side: "attack",
+                        roles: ["support"],
+                        position: "flex",
+                        tempo: "flexible",
+                        provides: [],
+                        needs: [],
+                        best_with_roles: [],
+                        duo_plan: "",
+                        trio_plan: "",
+                        player_fit: ["flex"],
+                        difficulty: "medium",
+                      },
+                      role: "Manual",
+                      pickOrderNumber: 1,
+                    },
                   ]);
                   setActiveTab("picker");
                 }}
