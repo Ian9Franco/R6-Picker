@@ -122,7 +122,7 @@ export function Picker() {
     let recs: Recommendation[];
     const site = siteOverride ?? currentBombSiteObj;
     if (mode === "pibes" && activePibeProfiles.length > 0) {
-      recs = getPibesRecommendations(sideToUse, activePibeProfiles, site);
+      recs = getPibesRecommendations(sideToUse, activePibeProfiles, site, currentRoundNum);
     } else {
       recs = getStandardRecommendations(sideToUse, Math.max(1, activePibeProfiles.length || partySize));
     }

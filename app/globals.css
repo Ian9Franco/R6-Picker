@@ -2347,6 +2347,95 @@ button {
   font-weight: 600;
 }
 
+.pick-order-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--atk);
+  background: rgba(232, 35, 58, 0.12);
+  border: 1px solid rgba(232, 35, 58, 0.3);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.tryout-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.breathing-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tryout-goal-tag {
+  color: #c084fc !important;
+  font-weight: 600;
+}
+
+.pick-row-warning {
+  margin-top: 4px;
+  font-size: 10px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  padding: 3px 6px;
+  border-radius: 6px;
+  line-height: 1.3;
+}
+
+/* Squad Tactical Synergy Plan Box */
+.squad-plan-box {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.squad-plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.squad-plan-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--atk);
+}
+
+.squad-plan-text {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.45;
+}
+
 /* Pibes Manager Modal */
 .modal-backdrop {
   position: fixed;

@@ -1,63 +1,91 @@
 /**
  * pibes.ts
  * --------
- * Motor de recomendación de operadores.
- * Soporta dos modos:
- *   - Estándar: picks aleatorios del pool general.
- *   - Los Pibes: picks priorizados según mains y roles requeridos por la zona.
+ * Motor de recomendación de operadores y orden táctico de escuadrón.
+ * Incorpora:
+ *   - Parseo enriquecido de operator-roles.json y pibes.json
+ *   - Orden de Selección de Squad (ATK: Chango -> Notorious -> Azusa; DEF: Chango -> Azusa -> Notorious)
+ *   - Regla de Respiración / Rotación (Rondas múltiplo de 3)
+ *   - Sinergias de Dúo/Trío y advertencias tácticas de queno.md
  */
 
 import { attackers, defenders, type BombSite, type Side } from "./catalog";
 import operatorRolesRaw from "./operator-roles.json";
-import pibesData from "./pibes.json";
+import pibesDataRaw from "./pibes.json";
+import synergiesRaw from "./synergies.json";
 import type { AttackRole, DefenseRole, TacticalRole } from "./roles";
 
-// ─── Tipos ───────────────────────────────────────────────────────────────────
+// ─── Tipos Enriquecidos ──────────────────────────────────────────────────────
+
+export type TryoutOpInfo = {
+  operator: string;
+  developmentGoal: string;
+};
 
 export type PibeProfile = {
   id: string;
   name: string;
   tag: string;
-  /** Playstyle derivado de los roles principales */
   playstyle: string;
+  primaryRole?: string;
   attackMains: string[];
   defenseMains: string[];
-  /** Roles de ataque derivados de los mains */
   attackRoles: AttackRole[];
-  /** Roles de defensa derivados de los mains */
   defenseRoles: DefenseRole[];
+  tryoutAttack: TryoutOpInfo[];
+  tryoutDefense: TryoutOpInfo[];
 };
 
 export type Recommendation = {
   playerLabel: string;
   opName: string;
-  /** Rol del operador elegido */
   role?: string;
-  /** True si el operador es main del pibe */
   isMain?: boolean;
-  /** True si el operador cubre un requerimiento del site */
+  isTryout?: boolean;
+  isBreathing?: boolean;
+  pickOrderNumber?: number;
   coversRequirement?: boolean;
-  /** Nombre del rol táctico que cubre, para mostrar en UI */
   coveredRole?: string;
+  duoPlan?: string;
+  trioPlan?: string;
+  avoidWarning?: string;
+  developmentGoal?: string;
 };
 
-// ─── Mapeo de roles a roles tácticos desde el JSON ───────────────────────────
+// ─── Parseo de Operadores y Roles ───────────────────────────────────────────
 
-type OperatorRolesMap = Record<
-  string,
-  { attack?: string[]; defense?: string[] }
->;
+type OperatorRoleEntry = {
+  side?: Side;
+  roles?: TacticalRole[];
+  attack?: TacticalRole[];
+  defense?: TacticalRole[];
+  duo_plan?: string;
+  trio_plan?: string;
+  provides?: string[];
+  needs?: string[];
+};
 
-const operatorRoles = operatorRolesRaw as OperatorRolesMap;
+const operatorRoles = operatorRolesRaw as Record<string, OperatorRoleEntry>;
 
-function getOperatorRoles(opName: string, side: Side): TacticalRole[] {
+export function getOperatorRoles(opName: string, side: Side): TacticalRole[] {
   const entry = operatorRoles[opName];
   if (!entry) return [];
+  if (entry.roles && Array.isArray(entry.roles)) {
+    return entry.roles;
+  }
   const raw = side === "attack" ? entry.attack : entry.defense;
   return (raw ?? []) as TacticalRole[];
 }
 
-// ─── Playstyle automático a partir de roles ───────────────────────────────────
+export function getOperatorDuoPlan(opName: string): string | undefined {
+  return operatorRoles[opName]?.duo_plan;
+}
+
+export function getOperatorTrioPlan(opName: string): string | undefined {
+  return operatorRoles[opName]?.trio_plan;
+}
+
+// ─── Playstyle y Roles Derivados ─────────────────────────────────────────────
 
 const ROLE_PLAYSTYLE_LABELS: Record<string, string> = {
   "hard-breach":      "Brecha dura",
@@ -86,8 +114,6 @@ function derivePlaystyle(attackRoles: string[], defenseRoles: string[]): string 
   return parts.join(" & ") || "Flexible";
 }
 
-// ─── Derivar roles de los mains ───────────────────────────────────────────────
-
 function deriveRoles<T extends TacticalRole>(mains: string[], side: Side): T[] {
   const roleSet = new Set<T>();
   for (const opName of mains) {
@@ -98,12 +124,15 @@ function deriveRoles<T extends TacticalRole>(mains: string[], side: Side): T[] {
   return Array.from(roleSet);
 }
 
-// ─── Construir perfiles de pibes desde el JSON ───────────────────────────────
+// ─── Construir Perfiles ─────────────────────────────────────────────────────
 
 export function buildPibeProfiles(): PibeProfile[] {
-  return pibesData.pibes.map((raw) => {
+  return pibesDataRaw.pibes.map((raw: any) => {
     const attackRoles = deriveRoles<AttackRole>(raw.attackMains, "attack");
     const defenseRoles = deriveRoles<DefenseRole>(raw.defenseMains, "defense");
+    const tryoutAttack: TryoutOpInfo[] = raw.tryoutOperators?.attack ?? [];
+    const tryoutDefense: TryoutOpInfo[] = raw.tryoutOperators?.defense ?? [];
+
     return {
       id: raw.id,
       name: raw.name,
@@ -112,12 +141,16 @@ export function buildPibeProfiles(): PibeProfile[] {
       defenseMains: raw.defenseMains,
       attackRoles,
       defenseRoles,
-      playstyle: derivePlaystyle(attackRoles, defenseRoles),
+      tryoutAttack,
+      tryoutDefense,
+      playstyle: raw.profile?.summary
+        ? derivePlaystyle(attackRoles, defenseRoles)
+        : derivePlaystyle(attackRoles, defenseRoles),
+      primaryRole: raw.profile?.primaryRole,
     };
   });
 }
 
-/** Lista de perfiles construida en tiempo de módulo (se puede re-calcular si se refresca el JSON) */
 export const DEFAULT_PIBES: PibeProfile[] = buildPibeProfiles();
 
 // ─── Modo Estándar ────────────────────────────────────────────────────────────
@@ -134,64 +167,146 @@ export function getStandardRecommendations(
     playerLabel: count === 1 ? "Tu Pick" : `Jugador ${idx + 1}`,
     opName: op.name,
     role: op.role,
+    pickOrderNumber: idx + 1,
   }));
 }
 
-// ─── Modo Los Pibes — Motor inteligente ──────────────────────────────────────
+// ─── Squad Pick Order & Engine ───────────────────────────────────────────────
 
 /**
- * Genera picks para Los Pibes priorizando:
- * 1. Mains del pibe que cubren requerimientos del site no cubiertos aún.
- * 2. Mains del pibe disponibles (no usados por otro pibe).
- * 3. Pool general (fallback).
+ * Orden de Pick según plan.md:
+ * Ataque:  1. ChangoNocturno (Estructura) -> 2. El_Notorious (Flex/Presión) -> 3. AzusaCooper09 (Ejecución/Escudo)
+ * Defensa: 1. ChangoNocturno (Estructura) -> 2. AzusaCooper09 (Ancla/Control) -> 3. El_Notorious (Intel/Flex/Roam)
  */
+function sortPibesByPickOrder(pibes: PibeProfile[], side: Side): PibeProfile[] {
+  const orderMap: Record<string, number> =
+    side === "attack"
+      ? { chango_nocturno: 1, el_notorious: 2, azusa_cooper09: 3 }
+      : { chango_nocturno: 1, azusa_cooper09: 2, el_notorious: 3 };
+
+  return [...pibes].sort((a, b) => (orderMap[a.id] ?? 99) - (orderMap[b.id] ?? 99));
+}
+
+/**
+ * Revisa reglas anti-patrones de queno.md
+ */
+function checkForAntiPatternWarnings(
+  recs: Recommendation[],
+  side: Side
+): Recommendation[] {
+  const opNames = recs.map((r) => r.opName);
+  const isAttack = side === "attack";
+
+  return recs.map((rec) => {
+    let warning: string | undefined = undefined;
+
+    // Regla 1: 3 Hard supports en ataque
+    if (
+      isAttack &&
+      ["Thermite", "Thatcher", "Ace", "Hibana"].includes(rec.opName) &&
+      opNames.filter((name) => ["Thermite", "Thatcher", "Ace", "Hibana"].includes(name)).length >= 3
+    ) {
+      warning = "⚠️ Cuidado: 3 soportes estructurales en ataque. Falta alguien que genere espacio.";
+    }
+
+    // Regla 2: Escudo sin acompañante o aislado (Azusa)
+    if (isAttack && ["Montagne", "Blitz"].includes(rec.opName) && rec.playerLabel === "AzusaCooper09") {
+      warning = "⚠️ Escudo requiere un compañero avanzando inmediatamente detrás para tradear.";
+    }
+
+    // Regla 3: Duplicar brecha de El_Notorious si Chango ya abrió
+    if (
+      isAttack &&
+      rec.playerLabel === "El_Notorious" &&
+      ["Thatcher", "Ace"].includes(rec.opName) &&
+      opNames.some((n) => ["Thermite", "Hibana"].includes(n))
+    ) {
+      warning = "⚠️ Notorious duplica brecha. Rendiría mejor pasando a flex agresivo (Ash/Zofia/Ram).";
+    }
+
+    // Regla 4: Roaming profundo sin plan
+    if (!isAttack && rec.opName === "Vigil") {
+      warning = "⚠️ Consume tiempo en pisos superiores pero asegura ruta de regreso antes de la ejecución.";
+    }
+
+    return { ...rec, avoidWarning: warning };
+  });
+}
+
+// ─── Motor Principal Los Pibes ───────────────────────────────────────────────
+
 export function getPibesRecommendations(
   side: Side,
   activePibes: PibeProfile[],
-  currentSite?: BombSite
+  currentSite?: BombSite,
+  currentRoundNum: number = 1
 ): Recommendation[] {
   const fullPool = side === "attack" ? attackers : defenders;
   const siteReqs: string[] =
     currentSite?.requirements?.[side === "attack" ? "attack" : "defense"] ?? [];
 
+  // 1. Ordenar pibes según secuencia de pick del squad (plan.md)
+  const orderedPibes = sortPibesByPickOrder(activePibes, side);
+
+  // 2. Evaluar si esta ronda es "Ronda de Respiración / Rotación" (ej. Ronda 3, 6)
+  const isBreathingRound = currentRoundNum > 0 && currentRoundNum % 3 === 0;
+
+  // Elegir quién rota en la ronda de respiración (1 solo pibe)
+  const breathingPibeId = isBreathingRound
+    ? orderedPibes[(currentRoundNum / 3 - 1) % orderedPibes.length]?.id
+    : undefined;
+
   const usedOps = new Set<string>();
   const coveredRoles = new Set<string>();
-  const recommendations: Recommendation[] = [];
+  let rawRecommendations: Recommendation[] = [];
 
-  for (const pibe of activePibes) {
+  orderedPibes.forEach((pibe, index) => {
+    const isBreathingPlayer = pibe.id === breathingPibeId;
     const mains = side === "attack" ? pibe.attackMains : pibe.defenseMains;
+    const tryouts = side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense;
 
-    // Mains disponibles (no elegidos ya por otro pibe)
-    const availableMains = mains.filter((m) => !usedOps.has(m));
-
-    // Mains que cubren al menos un requerimiento del site aún no cubierto
-    const mainsWithReq = availableMains.filter((m) => {
-      const roles = getOperatorRoles(m, side);
-      return roles.some((r) => siteReqs.includes(r) && !coveredRoles.has(r));
-    });
-
-    let chosenOpName: string;
+    let chosenOpName: string = "";
     let isMain = false;
+    let isTryout = false;
     let coversRequirement = false;
     let coveredRole: string | undefined;
+    let developmentGoal: string | undefined;
 
-    if (mainsWithReq.length > 0 && Math.random() < 0.85) {
-      // Alta probabilidad de elegir un main que cubre un requerimiento
-      chosenOpName = mainsWithReq[Math.floor(Math.random() * mainsWithReq.length)];
-      isMain = true;
-      coversRequirement = true;
-      const roles = getOperatorRoles(chosenOpName, side);
-      coveredRole = roles.find((r) => siteReqs.includes(r) && !coveredRoles.has(r));
-    } else if (availableMains.length > 0 && Math.random() < 0.75) {
-      // Elegir de mains disponibles
-      chosenOpName = availableMains[Math.floor(Math.random() * availableMains.length)];
-      isMain = true;
-    } else {
-      // Fallback: pool general excluyendo ya usados
-      const pool = fullPool.filter((op) => !usedOps.has(op.name));
-      chosenOpName = (pool.length > 0 ? pool : fullPool)[
-        Math.floor(Math.random() * (pool.length > 0 ? pool.length : fullPool.length))
-      ].name;
+    // Si es ronda de respiración y este jugador debe rotar, intentar un tryoutOp
+    if (isBreathingPlayer && tryouts.length > 0 && Math.random() < 0.8) {
+      const availableTryouts = tryouts.filter((t) => !usedOps.has(t.operator));
+      if (availableTryouts.length > 0) {
+        const pickedTryout =
+          availableTryouts[Math.floor(Math.random() * availableTryouts.length)];
+        chosenOpName = pickedTryout.operator;
+        isTryout = true;
+        developmentGoal = pickedTryout.developmentGoal;
+      }
+    }
+
+    // Si no se eligió tryout, seguir flujo habitual de mains y requerimientos
+    if (!chosenOpName) {
+      const availableMains = mains.filter((m) => !usedOps.has(m));
+      const mainsWithReq = availableMains.filter((m) => {
+        const roles = getOperatorRoles(m, side);
+        return roles.some((r) => siteReqs.includes(r) && !coveredRoles.has(r));
+      });
+
+      if (mainsWithReq.length > 0 && Math.random() < 0.85) {
+        chosenOpName = mainsWithReq[Math.floor(Math.random() * mainsWithReq.length)];
+        isMain = true;
+        coversRequirement = true;
+        const roles = getOperatorRoles(chosenOpName, side);
+        coveredRole = roles.find((r) => siteReqs.includes(r) && !coveredRoles.has(r));
+      } else if (availableMains.length > 0 && Math.random() < 0.75) {
+        chosenOpName = availableMains[Math.floor(Math.random() * availableMains.length)];
+        isMain = true;
+      } else {
+        const pool = fullPool.filter((op) => !usedOps.has(op.name));
+        chosenOpName = (pool.length > 0 ? pool : fullPool)[
+          Math.floor(Math.random() * (pool.length > 0 ? pool.length : fullPool.length))
+        ].name;
+      }
     }
 
     // Marcar roles cubiertos por este pick
@@ -201,15 +316,23 @@ export function getPibesRecommendations(
     usedOps.add(chosenOpName);
 
     const opData = fullPool.find((op) => op.name === chosenOpName);
-    recommendations.push({
+
+    rawRecommendations.push({
       playerLabel: pibe.name,
       opName: chosenOpName,
       role: opData?.role,
       isMain,
+      isTryout,
+      isBreathing: isBreathingPlayer,
+      pickOrderNumber: index + 1,
       coversRequirement,
       coveredRole: coveredRole ? ROLE_PLAYSTYLE_LABELS[coveredRole] : undefined,
+      duoPlan: getOperatorDuoPlan(chosenOpName),
+      trioPlan: getOperatorTrioPlan(chosenOpName),
+      developmentGoal,
     });
-  }
+  });
 
-  return recommendations;
+  // Revisar reglas anti-patrón de queno.md
+  return checkForAntiPatternWarnings(rawRecommendations, side);
 }

@@ -227,10 +227,25 @@ export function ActiveMatch({
                 {/* Info */}
                 <div className="pick-row-info">
                   <div className="pick-row-top">
+                    {rec.pickOrderNumber && (
+                      <span className="pick-order-badge">
+                        {rec.pickOrderNumber}.º PICK
+                      </span>
+                    )}
                     <span className="pick-player-tag">{rec.playerLabel}</span>
                     {rec.isMain && (
                       <span className="main-star-badge">
                         <Star size={9} /> MAIN
+                      </span>
+                    )}
+                    {rec.isTryout && (
+                      <span className="tryout-badge">
+                        <Flame size={9} /> PRUEBA
+                      </span>
+                    )}
+                    {rec.isBreathing && (
+                      <span className="breathing-badge">
+                        <RefreshCw size={9} /> ROTACIÓN
                       </span>
                     )}
                   </div>
@@ -239,9 +254,19 @@ export function ActiveMatch({
                     <div className="pick-row-playstyle covered-role-tag">
                       ✓ Cubre: {rec.coveredRole}
                     </div>
+                  ) : rec.developmentGoal ? (
+                    <div className="pick-row-playstyle tryout-goal-tag">
+                      🎯 Objetivo: {rec.developmentGoal}
+                    </div>
                   ) : rec.role ? (
                     <div className="pick-row-playstyle">{rec.role}</div>
                   ) : null}
+
+                  {rec.avoidWarning && (
+                    <div className="pick-row-warning">
+                      {rec.avoidWarning}
+                    </div>
+                  )}
                 </div>
 
                 {/* Side badge + reroll */}
@@ -267,6 +292,23 @@ export function ActiveMatch({
             ))}
           </motion.div>
         </AnimatePresence>
+
+        {/* Squad Tactical Synergy Plan */}
+        {recommendations.some((r) => r.trioPlan || r.duoPlan) && (
+          <div className="squad-plan-box">
+            <div className="squad-plan-header">
+              <span className="squad-plan-title">
+                <Flame size={13} style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }} />
+                Plan Táctico de Ronda ({recommendations.length > 2 ? "Trío" : "Dúo"})
+              </span>
+            </div>
+            <p className="squad-plan-text">
+              {recommendations.length > 2
+                ? (recommendations.find((r) => r.trioPlan)?.trioPlan || recommendations[0]?.trioPlan || recommendations[0]?.duoPlan)
+                : (recommendations.find((r) => r.duoPlan)?.duoPlan || recommendations[0]?.duoPlan)}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Outcome Buttons */}

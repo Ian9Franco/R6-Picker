@@ -1,25 +1,435 @@
 {
+  "_comment": "Perfiles tácticos de los jugadores. Los mains representan su identidad operativa, no un ranking automático por partidas. La información adicional permite recomendar composiciones según fortalezas, debilidades, roles complementarios y contexto de ronda.",
+
   "pibes": [
     {
       "id": "el_notorious",
       "name": "El_Notorious",
       "tag": "El_Notorious",
-      "attackMains": ["Ash", "Zofia", "Deimos", "Ace", "Buck"],
-      "defenseMains": ["Jäger", "Doc", "Vigil", "Mozzie", "Alibi"]
+
+      "profile": {
+        "summary": "Flex utilitario con buena capacidad de frag, especialmente fuerte en defensa. Puede cubrir tareas estructurales, aportar información o asumir un rol más agresivo cuando el resto del equipo ya cubre la utilidad principal.",
+        "primaryRole": "flex",
+        "secondaryRole": "intel-control",
+        "attackRole": "utility-flex",
+        "defenseRole": "intel-fragger",
+        "preferredTempo": "adaptive",
+        "preferredPosition": {
+          "attack": "midline",
+          "defense": "flex-roam"
+        },
+        "playstyleTags": [
+          "analytical",
+          "utility-focused",
+          "adaptable",
+          "second-entry",
+          "intel-driven",
+          "defensive-fragger"
+        ]
+      },
+
+      "strengths": [
+        "Puede cubrir brecha o antiutilidad cuando la composición lo necesita.",
+        "Rinde bien con operadores que combinan información y capacidad de frag.",
+        "Puede alternar entre soporte, segundo entry, lurker y roamer.",
+        "Convierte información defensiva en kills con bastante eficacia.",
+        "Tiene suficiente versatilidad para completar composiciones incompletas."
+      ],
+
+      "weaknesses": [
+        "Puede quedar desperdiciado si siempre se lo obliga a jugar hard support.",
+        "Tiende a cargar responsabilidades estructurales incluso cuando otro jugador podría cubrirlas.",
+        "En ataque necesita mejorar la conversión de utilidad en rondas ganadas.",
+        "Puede perseguir kills o información sin integrarlas correctamente a la ejecución."
+      ],
+
+      "attackMains": [
+        "Thatcher",
+        "Kali",
+        "Thermite",
+        "Ying",
+        "Ash"
+      ],
+
+      "defenseMains": [
+        "Kaid",
+        "Valkyrie",
+        "Mute",
+        "Vigil",
+        "Bandit"
+      ],
+
+      "signatureOperators": {
+        "attack": [
+          {
+            "operator": "Kali",
+            "reason": "Combina limpieza de utilidad, soporte de brecha y capacidad para sostener líneas."
+          },
+          {
+            "operator": "Thatcher",
+            "reason": "Representa su tendencia a tomar responsabilidades estructurales."
+          },
+          {
+            "operator": "Ash",
+            "reason": "Muestra que puede asumir un papel más agresivo cuando no necesita cubrir soporte."
+          }
+        ],
+        "defense": [
+          {
+            "operator": "Kaid",
+            "reason": "Es su referente de negación de brecha y utilidad defensiva."
+          },
+          {
+            "operator": "Valkyrie",
+            "reason": "Es uno de sus mejores cruces entre información, flexibilidad e impacto individual."
+          },
+          {
+            "operator": "Vigil",
+            "reason": "Representa su capacidad para consumir tiempo y generar kills como roamer."
+          }
+        ]
+      },
+
+      "tryoutOperators": {
+        "attack": [
+          {
+            "operator": "Zofia",
+            "developmentGoal": "Desarrollar un segundo entry utilitario capaz de limpiar posiciones y generar espacio."
+          },
+          {
+            "operator": "Zero",
+            "developmentGoal": "Trasladar su lectura de información defensiva hacia un flex informativo de ataque."
+          },
+          {
+            "operator": "Flores",
+            "developmentGoal": "Especializarse en limpieza coordinada de utilidad y desplazamiento de anclas."
+          }
+        ],
+        "defense": [
+          {
+            "operator": "Azami",
+            "developmentGoal": "Agregar construcción dinámica de posiciones a su capacidad de lectura defensiva."
+          },
+          {
+            "operator": "Wamai",
+            "developmentGoal": "Combinar protección de utilidad con roaming corto y juego flexible."
+          },
+          {
+            "operator": "Aruni",
+            "developmentGoal": "Ampliar su control de accesos y su capacidad para remodelar el sitio."
+          }
+        ]
+      },
+
+      "teamUsage": {
+        "bestUse": "Debe ocupar el rol que falte en la composición. Si la utilidad estructural ya está cubierta, debería pasar a flex agresivo, intel o segundo entry.",
+        "avoid": "Asignarlo automáticamente a hard support en todas las rondas.",
+        "idealDuoPartners": [
+          "Un hard support estable que le permita jugar más agresivo.",
+          "Un ancla que aproveche su información defensiva.",
+          "Un jugador de control de flancos que proteja sus avances."
+        ],
+        "idealTrioFunction": "Generador principal de espacio, información o kills según la composición.",
+        "shouldCoverRoles": [
+          "entry-frag",
+          "intel",
+          "anti-gadget",
+          "roamer",
+          "intel-def"
+        ],
+        "shouldNotDuplicateRoles": [
+          "hard-breach cuando ChangoNocturno ya lo cubre",
+          "objective-anchor cuando AzusaCooper09 ya sostiene el sitio"
+        ]
+      }
     },
+
     {
       "id": "chango_nocturno",
       "name": "ChangoNocturno",
       "tag": "ChangoNocturno",
-      "attackMains": ["Thermite", "Hibana", "Thatcher", "Ace", "Sledge"],
-      "defenseMains": ["Smoke", "Mira", "Kaid", "Mute", "Bandit"]
+
+      "profile": {
+        "summary": "Support estructural y ancla orientado a preparar la ronda, controlar rutas y aportar utilidad persistente. Su valor aumenta cuando recibe una responsabilidad concreta y puede jugar de manera ordenada.",
+        "primaryRole": "hard-support",
+        "secondaryRole": "trap-control",
+        "attackRole": "breach-support",
+        "defenseRole": "utility-anchor",
+        "preferredTempo": "structured",
+        "preferredPosition": {
+          "attack": "backline",
+          "defense": "site-shallow-roam"
+        },
+        "playstyleTags": [
+          "patient",
+          "structured",
+          "utility-focused",
+          "anchor",
+          "trap-oriented",
+          "team-dependent"
+        ]
+      },
+
+      "strengths": [
+        "Acepta y sostiene responsabilidades estructurales.",
+        "Rinde mejor con utilidad persistente y rutas predecibles.",
+        "Puede preparar el sitio y consumir tiempo sin depender de kills.",
+        "Tiene afinidad natural con negación de brecha y trampas.",
+        "Su mejor impacto aparece en defensas ordenadas y coordinadas."
+      ],
+
+      "weaknesses": [
+        "No debería ser utilizado como primer entry.",
+        "Tiene dificultades para convertir el soporte ofensivo en rondas ganadas.",
+        "Puede quedar demasiado pasivo después de utilizar su utilidad.",
+        "Su impacto disminuye en composiciones caóticas o sin coordinación.",
+        "Necesita evitar perseguir duelos alejados de la función asignada."
+      ],
+
+      "attackMains": [
+        "Thermite",
+        "Thatcher",
+        "Hibana",
+        "Blitz",
+        "Fuze"
+      ],
+
+      "defenseMains": [
+        "Tubarão",
+        "Thorn",
+        "Mute",
+        "Bandit",
+        "Kapkan"
+      ],
+
+      "signatureOperators": {
+        "attack": [
+          {
+            "operator": "Thermite",
+            "reason": "Representa su papel habitual como responsable de la apertura principal."
+          },
+          {
+            "operator": "Hibana",
+            "reason": "Le permite mantener el hard support desde una posición más segura y flexible."
+          },
+          {
+            "operator": "Fuze",
+            "reason": "Encaja con su preferencia por utilidad física, limpieza y desplazamiento."
+          }
+        ],
+        "defense": [
+          {
+            "operator": "Tubarão",
+            "reason": "Es su mejor combinación de negación, timing defensivo e impacto individual."
+          },
+          {
+            "operator": "Thorn",
+            "reason": "Resume su estilo de preparación, información pasiva y control de rutas."
+          },
+          {
+            "operator": "Kapkan",
+            "reason": "Premia su capacidad para anticipar recorridos y castigar ataques desordenados."
+          }
+        ]
+      },
+
+      "tryoutOperators": {
+        "attack": [
+          {
+            "operator": "Osa",
+            "developmentGoal": "Participar más activamente en la toma de espacio y el apoyo de plantado."
+          },
+          {
+            "operator": "Brava",
+            "developmentGoal": "Expandir su soporte hacia la manipulación paciente de utilidad enemiga."
+          },
+          {
+            "operator": "Nomad",
+            "developmentGoal": "Asumir control de flancos y estabilizar el avance del equipo."
+          }
+        ],
+        "defense": [
+          {
+            "operator": "Castle",
+            "developmentGoal": "Convertir su preparación defensiva en planificación completa de rutas."
+          },
+          {
+            "operator": "Lesion",
+            "developmentGoal": "Agregar información pasiva y control progresivo sin abandonar el sitio."
+          },
+          {
+            "operator": "Aruni",
+            "developmentGoal": "Combinar control de accesos, gasto de utilidad y remodelación."
+          }
+        ]
+      },
+
+      "teamUsage": {
+        "bestUse": "Debe asumir la responsabilidad estructural principal: brecha, negación de pared, control de flancos o preparación defensiva.",
+        "avoid": "Exigirle que genere la primera baja o que realice roaming profundo.",
+        "idealDuoPartners": [
+          "Un entry que capitalice la utilidad que prepara.",
+          "Un jugador de información que le indique dónde usar negación o trampas.",
+          "Un flex agresivo que le permita mantenerse en su función estructural."
+        ],
+        "idealTrioFunction": "Estabilizador de la composición y responsable de la utilidad imprescindible.",
+        "shouldCoverRoles": [
+          "hard-breach",
+          "zone-control",
+          "anti-gadget-def",
+          "trap-setter",
+          "objective-anchor"
+        ],
+        "shouldNotDuplicateRoles": [
+          "entry-frag",
+          "deep-roam",
+          "intel-hunter"
+        ]
+      }
     },
+
     {
       "id": "azusa_cooper09",
       "name": "AzusaCooper09",
       "tag": "AzusaCooper09",
-      "attackMains": ["Dokkaebi", "IQ", "Gridlock", "Zero", "Iana"],
-      "defenseMains": ["Lesion", "Kapkan", "Valkyrie", "Echo", "Aruni"]
+
+      "profile": {
+        "summary": "Jugador paciente de primera línea protegida y ancla defensiva. En ataque se especializa en ocupar espacio, absorber presión y facilitar ejecuciones; en defensa obtiene valor mediante control, información y supervivencia.",
+        "primaryRole": "frontline-support",
+        "secondaryRole": "objective-anchor",
+        "attackRole": "shield-execute-support",
+        "defenseRole": "site-control",
+        "preferredTempo": "slow-execute",
+        "preferredPosition": {
+          "attack": "frontline-protected",
+          "defense": "site"
+        },
+        "playstyleTags": [
+          "patient",
+          "shield-specialist",
+          "anchor",
+          "team-oriented",
+          "space-taking",
+          "execution-support"
+        ]
+      },
+
+      "strengths": [
+        "Tiene experiencia ocupando espacio y absorbiendo presión con escudos.",
+        "Puede aportar valor sin depender de ganar muchos duelos.",
+        "Se adapta bien a operadores de ancla y control del objetivo.",
+        "Sus mejores resultados defensivos aparecen con utilidad colectiva.",
+        "Puede facilitar plantados, cruces y posiciones para compañeros agresivos."
+      ],
+
+      "weaknesses": [
+        "Los escudos requieren coordinación para que su impacto sea real.",
+        "Su ataque pierde mucho valor cuando juega aislado.",
+        "Tiene dificultades para transformar presión frontal en victorias.",
+        "No debería ser utilizado como entry convencional.",
+        "Puede permanecer demasiado pasivo o separado de quien debe aprovechar su espacio."
+      ],
+
+      "attackMains": [
+        "Montagne",
+        "Blitz",
+        "Thatcher",
+        "Thermite",
+        "Fuze"
+      ],
+
+      "defenseMains": [
+        "Mute",
+        "Thorn",
+        "Tachanka",
+        "Kaid",
+        "Bandit"
+      ],
+
+      "signatureOperators": {
+        "attack": [
+          {
+            "operator": "Montagne",
+            "reason": "Define su identidad como jugador de espacio, información frontal y cobertura."
+          },
+          {
+            "operator": "Blitz",
+            "reason": "Representa su variante más agresiva para presionar posiciones cerradas."
+          },
+          {
+            "operator": "Thermite",
+            "reason": "Le permite mantener un ritmo paciente y una responsabilidad clara."
+          }
+        ],
+        "defense": [
+          {
+            "operator": "Mute",
+            "reason": "Es su defensor estructural más confiable y combina preparación con negación."
+          },
+          {
+            "operator": "Tachanka",
+            "reason": "Refleja su capacidad para ganar tiempo y aportar sin depender del frag."
+          },
+          {
+            "operator": "Thorn",
+            "reason": "Le permite controlar accesos y obtener información pasiva cerca del objetivo."
+          }
+        ]
+      },
+
+      "tryoutOperators": {
+        "attack": [
+          {
+            "operator": "Rauora",
+            "developmentGoal": "Convertir su experiencia de protección frontal en control flexible de accesos."
+          },
+          {
+            "operator": "Gridlock",
+            "developmentGoal": "Especializarse en control territorial, plantado y postplantado."
+          },
+          {
+            "operator": "Sens",
+            "developmentGoal": "Aprender a proteger ejecuciones mediante cobertura visual y coordinación."
+          }
+        ],
+        "defense": [
+          {
+            "operator": "Echo",
+            "developmentGoal": "Ampliar su rol de ancla hacia información y negación remota de plantado."
+          },
+          {
+            "operator": "Wamai",
+            "developmentGoal": "Probar un defensor intermedio que proteja posiciones sin quedar fijo en sitio."
+          },
+          {
+            "operator": "Alibi",
+            "developmentGoal": "Introducir movilidad e información mediante roaming corto controlado."
+          }
+        ]
+      },
+
+      "teamUsage": {
+        "bestUse": "Debe facilitar el avance, el plantado o la supervivencia del equipo. En defensa debería sostener el sitio y administrar utilidad de cierre.",
+        "avoid": "Dejarlo solo con Montagne o Blitz sin un compañero preparado para aprovechar la presión.",
+        "idealDuoPartners": [
+          "Un fragger que juegue pegado al escudo y convierta sus calls.",
+          "Un jugador de antiutilidad que elimine C4, trampas y obstáculos.",
+          "Un roamer defensivo que aproveche sus cámaras o su control de sitio."
+        ],
+        "idealTrioFunction": "Protector de la ejecución en ataque y ancla principal en defensa.",
+        "shouldCoverRoles": [
+          "zone-control",
+          "support",
+          "objective-anchor",
+          "intel-def",
+          "zone-deny"
+        ],
+        "shouldNotDuplicateRoles": [
+          "entry-frag puro",
+          "deep-roam",
+          "segundo escudo sin un plan específico"
+        ]
+      }
     }
   ]
 }
