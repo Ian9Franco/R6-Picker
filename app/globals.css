@@ -2922,53 +2922,6 @@ button {
   color: #fca5a5;
 }
 
-/* Tryout Cards Grid */
-.tryout-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px;
-}
-
-.tryout-op-card {
-  padding: 10px 12px;
-  background: var(--surface-1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tryout-op-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.tryout-op-name {
-  font-family: "Rajdhani", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: #c084fc;
-}
-
-.tryout-side-tag {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-
-.tryout-side-tag.atk { background: rgba(232, 35, 58, 0.2); color: var(--atk); }
-.tryout-side-tag.def { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-
-.tryout-goal-text {
-  font-size: 11px;
-  color: var(--muted-bright);
-  line-height: 1.35;
-  margin: 0;
-}
-
 /* Rules List & Rule Cards */
 .rules-list {
   display: flex;
@@ -3158,59 +3111,142 @@ button {
 
 /* Afinidad Explanation Banner */
 .affinity-explanation-banner {
-  padding: 10px 14px;
+  padding: 12px 16px;
   background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 11px;
   color: #93c5fd;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  line-height: 1.4;
-  margin-bottom: 12px;
+  gap: 10px;
+  line-height: 1.45;
+  margin-bottom: 14px;
 }
 
-/* Enriched Tryout Cards */
+/* Pibes Enriched View Shell */
+.tryout-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
 .tryout-op-card-enriched {
-  padding: 12px;
-  background: var(--surface-1);
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(18, 20, 28, 0.95) 100%);
   border: 1px solid rgba(168, 85, 247, 0.3);
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
-.tryout-ctx-line {
+.tryout-op-card-enriched:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  transform: translateY(-2px);
+}
+
+.tryout-op-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.tryout-op-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #c084fc;
+  letter-spacing: 0.02em;
+}
+
+.tryout-side-tag {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.tryout-side-tag.atk {
+  background: rgba(232, 35, 58, 0.2);
+  color: var(--atk);
+  border: 1px solid rgba(232, 35, 58, 0.3);
+}
+
+.tryout-side-tag.def {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.tryout-micro-box {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tryout-micro-box.develops {
+  border-color: rgba(168, 85, 247, 0.25);
+  background: rgba(168, 85, 247, 0.05);
+}
+
+.tryout-micro-box.when {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.tryout-micro-box.avoid {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.06);
+}
+
+.tryout-box-label {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: block;
+}
+
+.tryout-micro-box.develops .tryout-box-label { color: #c084fc; }
+.tryout-micro-box.when .tryout-box-label { color: #93c5fd; }
+.tryout-micro-box.avoid .tryout-box-label { color: #fbbf24; }
+
+.tryout-box-text {
   font-size: 11px;
-  color: var(--muted-bright);
-  line-height: 1.35;
-}
-
-.tryout-ctx-line strong {
   color: var(--white);
+  line-height: 1.4;
+  display: block;
 }
 
-.tryout-ctx-line.warning strong {
-  color: #fbbf24;
+.tryout-micro-box.avoid .tryout-box-text {
+  color: #fde68a;
 }
 
 /* Enriched Avoid Cards */
 .avoid-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
 }
 
 .avoid-op-card-enriched {
-  padding: 12px;
-  background: rgba(239, 68, 68, 0.05);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 10px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .avoid-card-top {
@@ -3221,110 +3257,175 @@ button {
 
 .avoid-op-title {
   font-family: "Rajdhani", sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: #fca5a5;
 }
 
 .avoid-side-badge {
+  font-family: "Rajdhani", sans-serif;
   font-size: 9px;
   font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
   background: rgba(239, 68, 68, 0.2);
   color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .avoid-op-reason {
   font-size: 11px;
   color: var(--muted-bright);
-  line-height: 1.35;
+  line-height: 1.4;
   margin: 0;
 }
 
-/* Team Usage Card (Uso en Escuadrón) */
-.team-usage-card {
+/* Team Usage Grid & Cards (Uso en Escuadrón) */
+.team-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.team-usage-card-item {
   padding: 16px;
+  border-radius: 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.team-usage-card-item.best {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.team-usage-card-item.warning {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.team-usage-card-item.duo {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.team-usage-card-item.trio {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.tu-card-header {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-usage-card-item.best .tu-card-header { color: #10b981; }
+.team-usage-card-item.warning .tu-card-header { color: #fbbf24; }
+.team-usage-card-item.duo .tu-card-header { color: #60a5fa; }
+.team-usage-card-item.trio .tu-card-header { color: #c084fc; }
+
+.tu-card-body {
+  font-size: 12px;
+  color: var(--white);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.tu-card-body.warning-text {
+  color: #fde68a;
+}
+
+.tu-duo-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.45;
+}
+
+.tu-duo-list li {
+  margin-bottom: 4px;
+}
+
+/* Squad Matrix Coverage Grid (Matriz de Cobertura de Roles) */
+.squad-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.squad-matrix-card {
+  padding: 14px;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
-.tu-block {
+.matrix-card-header {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.matrix-card-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.matrix-role-box {
+  padding: 8px 10px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.tu-label {
+.matrix-role-box.primary {
+  background: rgba(232, 35, 58, 0.06);
+  border: 1px solid rgba(232, 35, 58, 0.25);
+}
+
+.matrix-role-box.alt {
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.matrix-role-label {
   font-family: "Rajdhani", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--white);
-}
-
-.tu-label.best { color: #10b981; }
-.tu-label.warning { color: #fbbf24; }
-
-.tu-text {
-  font-size: 12px;
-  color: var(--muted-bright);
-  line-height: 1.45;
-  margin: 0;
-}
-
-.tu-sublist {
-  margin: 4px 0 0 0;
-  padding-left: 18px;
-  font-size: 11px;
-  color: var(--muted-bright);
-  line-height: 1.45;
-}
-
-.tu-sublist li {
-  margin-bottom: 3px;
-}
-
-/* Squad Comparison Table (Matriz de Cobertura) */
-.squad-comparison-table-wrapper {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface-1);
-}
-
-.squad-comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  text-align: left;
-}
-
-.squad-comparison-table th {
-  font-family: "Rajdhani", sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: var(--surface-2);
-  color: var(--muted);
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
 }
 
-.squad-comparison-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
+.matrix-role-box.primary .matrix-role-label { color: var(--atk); }
+.matrix-role-box.alt .matrix-role-label { color: #60a5fa; }
+
+.matrix-op-names {
+  font-size: 11px;
   color: var(--muted-bright);
-}
-
-.squad-comparison-table tr:last-child td {
-  border-bottom: none;
+  margin-top: 2px;
 }
 
 .player-tag-pill {
@@ -3333,6 +3434,8 @@ button {
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .player-tag-pill.chango { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
@@ -3348,12 +3451,12 @@ button {
 
 .squad-risk-card {
   padding: 14px;
-  background: rgba(251, 191, 36, 0.05);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .risk-card-top {
@@ -3365,7 +3468,7 @@ button {
 
 .risk-title {
   font-family: "Rajdhani", sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3381,10 +3484,11 @@ button {
 .risk-correction {
   font-size: 11px;
   color: #fde68a;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 6px 10px;
-  border-radius: 6px;
-  line-height: 1.35;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  padding: 8px 12px;
+  border-radius: 8px;
+  line-height: 1.4;
 }
 
 /* Pibes Manager Modal */

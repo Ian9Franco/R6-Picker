@@ -78,22 +78,22 @@ const AVOID_OP_MOTIVES: Record<string, { title: string; reason: string }> = {
 
 const TRYOUT_CONTEXTS: Record<string, { develops: string; whenToUse: string; whatNotToDo: string }> = {
   "Zofia": {
-    develops: "Segundo entry utilitario con capacidad de respuesta y limpieza.",
+    develops: "Segundo entry utilitario con capacidad de respuesta y limpieza de trampas.",
     whenToUse: "Cuando ya existe brecha dura asegurada en el squad.",
     whatNotToDo: "Gastar proyectiles de impacto antes de identificar utilidad pesada clave.",
   },
   "Zero": {
-    develops: "Flex informativo de ataque con cámaras persistentes.",
+    develops: "Flex informativo de ataque con cámaras Argus persistentes.",
     whenToUse: "Mapas grandes con rotaciones largas de defensas (ej. Bank, Clubhouse).",
     whatNotToDo: "Quedarse dronando demasiado tiempo sin avanzar con la línea.",
   },
   "Flores": {
-    develops: "Limpieza paciente de dispositivos y desplazamiento de anclas.",
+    develops: "Limpieza paciente de dispositivos Ratero y desplazamiento de anclas.",
     whenToUse: "Zonas defensivas saturadas de trampas (ej. Oregon Lavandería).",
     whatNotToDo: "Lanzar drones Ratero sin cobertura cercana de un compañero.",
   },
   "Azami": {
-    develops: "Construcción dinámica de coberturas y bloqueo de ángulos.",
+    develops: "Construcción dinámica de coberturas Kiba y bloqueo de ángulos.",
     whenToUse: "Sitios con líneas de visión largas de ataque difíciles de tapar.",
     whatNotToDo: "Colocar barreras Kiba que obstaculicen el retake de los compañeros.",
   },
@@ -103,22 +103,22 @@ const TRYOUT_CONTEXTS: Record<string, { develops: string; whenToUse: string; wha
     whatNotToDo: "Morir temprano acumulando discos MAG-NET en el inventario.",
   },
   "Aruni": {
-    develops: "Control de accesos y consumo de recursos del atacante.",
+    develops: "Control de accesos con portones Surya y consumo de recursos.",
     whenToUse: "Puertas y escotillas principales de entrada enemiga.",
     whatNotToDo: "Desperdiciar el golpe de cuerpo a cuerpo sin remodelar el sitio.",
   },
   "Osa": {
-    develops: "Soporte de toma de espacio y cobertura frontal de plantado.",
+    develops: "Soporte de toma de espacio y cobertura frontal Talon para plantado.",
     whenToUse: "Ataques a sitios con ventanas o pasillos largos (ej. Consulado).",
     whatNotToDo: "Desplegar el escudo Talon en lugares que bloqueen el paso al propio equipo.",
   },
   "Brava": {
-    develops: "Manipulación de dispositivos defensivos para volverlos en contra.",
+    develops: "Manipulación Kludge de dispositivos defensivos para devolver la utilidad.",
     whenToUse: "Defensas cargadas de Maestro, Echo, Kapkan o Aruni.",
     whatNotToDo: "Perder los drones Kludge escaneando gadgets secundarios sin impacto.",
   },
   "Nomad": {
-    develops: "Control territorial automático de flancos y re-tomas.",
+    develops: "Control territorial automático de flancos mediante Airjabs.",
     whenToUse: "Mapas con flanqueos constantes de roamers (ej. Kafe, Coastline).",
     whatNotToDo: "Disparar Airjabs en posiciones expuestas a destrucción directa.",
   },
@@ -128,7 +128,7 @@ const TRYOUT_CONTEXTS: Record<string, { develops: string; whenToUse: string; wha
     whatNotToDo: "Encerrar a los defensores dejándolos sin rotación interna.",
   },
   "Lesion": {
-    develops: "Información pasiva progresiva y retraso del ejecutor.",
+    develops: "Información pasiva progresiva con minas Gu y retraso del ejecutor.",
     whenToUse: "Sitios donde el ataque suele presionar en los últimos 30 segundos.",
     whatNotToDo: "Morir en los primeros 45 segundos guardando minas Gu.",
   },
@@ -138,17 +138,17 @@ const TRYOUT_CONTEXTS: Record<string, { develops: string; whenToUse: string; wha
     whatNotToDo: "Avanzar aislado sin apoyo del segundo entry.",
   },
   "Gridlock": {
-    develops: "Control territorial masivo post-plantado.",
+    develops: "Control territorial masivo Trax para asegurar el post-plantado.",
     whenToUse: "Sitios con múltiples accesos de retake defensivo.",
     whatNotToDo: "Lanzar Trax Stingers antes de asegurar la zona de plantado.",
   },
   "Sens": {
-    develops: "Cobertura visual masiva para plantado rápido.",
+    develops: "Cobertura visual masiva ROU para plantado rápido.",
     whenToUse: "Líneas de tiro defensivas largas imposibles de fumar con humo regular.",
     whatNotToDo: "Tirar la rueda ROU sin coordinar la posición del defuser.",
   },
   "Echo": {
-    develops: "Negación remota de plantado e intel de sitio.",
+    develops: "Negación remota de plantado e intel de sitio mediante Yokai.",
     whenToUse: "Rondas donde el enemigo busca plantado en los segundos finales.",
     whatNotToDo: "Perder ambos drones Yokai por usarlos como cámaras estáticas al descubierto.",
   },
@@ -209,53 +209,119 @@ export function PibesView() {
             </div>
           </div>
 
-          {/* Matriz Comparativa de Jugadores por Rol */}
+          {/* Matriz Comparativa de Cobertura de Roles Tarjetas */}
           <div className="pibe-section-title">
             <Layers size={16} /> Matriz Comparativa de Cobertura de Roles
           </div>
 
-          <div className="squad-comparison-table-wrapper">
-            <table className="squad-comparison-table">
-              <thead>
-                <tr>
-                  <th>Rol Táctico</th>
-                  <th>Titular Principal</th>
-                  <th>Alternativa de Resguardo</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Hard Breach (Brecha)</strong></td>
-                  <td><span className="player-tag-pill chango">ChangoNocturno</span> (Thermite / Hibana)</td>
-                  <td><span className="player-tag-pill notorious">El_Notorious</span> (Ace / Support)</td>
-                </tr>
-                <tr>
-                  <td><strong>Entry / Presión Frontal</strong></td>
-                  <td><span className="player-tag-pill notorious">El_Notorious</span> (Ash / Zofia)</td>
-                  <td><span className="player-tag-pill azusa">AzusaCooper09</span> (Blitz agresivo)</td>
-                </tr>
-                <tr>
-                  <td><strong>Soporte de Plantado</strong></td>
-                  <td><span className="player-tag-pill azusa">AzusaCooper09</span> (Montagne / Osa)</td>
-                  <td><span className="player-tag-pill chango">ChangoNocturno</span> (Gridlock)</td>
-                </tr>
-                <tr>
-                  <td><strong>Ancla de Objetivo (DEF)</strong></td>
-                  <td><span className="player-tag-pill azusa">AzusaCooper09</span> (Smoke / Mute)</td>
-                  <td><span className="player-tag-pill chango">ChangoNocturno</span> (Tubarão / Tachanka)</td>
-                </tr>
-                <tr>
-                  <td><strong>Roaming / Flanqueo (DEF)</strong></td>
-                  <td><span className="player-tag-pill notorious">El_Notorious</span> (Valkyrie / Vigil)</td>
-                  <td><span className="player-tag-pill chango">ChangoNocturno</span> (Roam corto)</td>
-                </tr>
-                <tr>
-                  <td><strong>Información & Intel</strong></td>
-                  <td><span className="player-tag-pill notorious">El_Notorious</span> (Zero / Valkyrie)</td>
-                  <td><span className="player-tag-pill azusa">AzusaCooper09</span> (Echo / Lion)</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="squad-matrix-grid">
+            <div className="squad-matrix-card">
+              <div className="matrix-card-header">
+                <Swords size={14} /> Hard Breach (Brecha Dura)
+              </div>
+              <div className="matrix-card-roles">
+                <div className="matrix-role-box primary">
+                  <span className="matrix-role-label">★ Titular Principal</span>
+                  <span className="player-tag-pill chango">ChangoNocturno</span>
+                  <span className="matrix-op-names">Thermite / Hibana</span>
+                </div>
+                <div className="matrix-role-box alt">
+                  <span className="matrix-role-label">🛡️ Alternativa</span>
+                  <span className="player-tag-pill notorious">El_Notorious</span>
+                  <span className="matrix-op-names">Ace / Support</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="squad-matrix-card">
+              <div className="matrix-card-header">
+                <Flame size={14} /> Entry / Presión Frontal
+              </div>
+              <div className="matrix-card-roles">
+                <div className="matrix-role-box primary">
+                  <span className="matrix-role-label">★ Titular Principal</span>
+                  <span className="player-tag-pill notorious">El_Notorious</span>
+                  <span className="matrix-op-names">Ash / Zofia</span>
+                </div>
+                <div className="matrix-role-box alt">
+                  <span className="matrix-role-label">🛡️ Alternativa</span>
+                  <span className="player-tag-pill azusa">AzusaCooper09</span>
+                  <span className="matrix-op-names">Blitz agresivo</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="squad-matrix-card">
+              <div className="matrix-card-header">
+                <Shield size={14} /> Soporte de Plantado
+              </div>
+              <div className="matrix-card-roles">
+                <div className="matrix-role-box primary">
+                  <span className="matrix-role-label">★ Titular Principal</span>
+                  <span className="player-tag-pill azusa">AzusaCooper09</span>
+                  <span className="matrix-op-names">Montagne / Osa</span>
+                </div>
+                <div className="matrix-role-box alt">
+                  <span className="matrix-role-label">🛡️ Alternativa</span>
+                  <span className="player-tag-pill chango">ChangoNocturno</span>
+                  <span className="matrix-op-names">Gridlock</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="squad-matrix-card">
+              <div className="matrix-card-header">
+                <Crosshair size={14} /> Ancla de Objetivo (DEF)
+              </div>
+              <div className="matrix-card-roles">
+                <div className="matrix-role-box primary">
+                  <span className="matrix-role-label">★ Titular Principal</span>
+                  <span className="player-tag-pill azusa">AzusaCooper09</span>
+                  <span className="matrix-op-names">Smoke / Mute</span>
+                </div>
+                <div className="matrix-role-box alt">
+                  <span className="matrix-role-label">🛡️ Alternativa</span>
+                  <span className="player-tag-pill chango">ChangoNocturno</span>
+                  <span className="matrix-op-names">Tubarão / Tachanka</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="squad-matrix-card">
+              <div className="matrix-card-header">
+                <Target size={14} /> Roaming / Flanqueo (DEF)
+              </div>
+              <div className="matrix-card-roles">
+                <div className="matrix-role-box primary">
+                  <span className="matrix-role-label">★ Titular Principal</span>
+                  <span className="player-tag-pill notorious">El_Notorious</span>
+                  <span className="matrix-op-names">Valkyrie / Vigil</span>
+                </div>
+                <div className="matrix-role-box alt">
+                  <span className="matrix-role-label">🛡️ Alternativa</span>
+                  <span className="player-tag-pill chango">ChangoNocturno</span>
+                  <span className="matrix-op-names">Roam corto</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="squad-matrix-card">
+              <div className="matrix-card-header">
+                <Zap size={14} /> Información & Intel
+              </div>
+              <div className="matrix-card-roles">
+                <div className="matrix-role-box primary">
+                  <span className="matrix-role-label">★ Titular Principal</span>
+                  <span className="player-tag-pill notorious">El_Notorious</span>
+                  <span className="matrix-op-names">Zero / Valkyrie</span>
+                </div>
+                <div className="matrix-role-box alt">
+                  <span className="matrix-role-label">🛡️ Alternativa</span>
+                  <span className="player-tag-pill azusa">AzusaCooper09</span>
+                  <span className="matrix-op-names">Echo / Lion</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Riesgos y Huecos Colectivos del Squad */}
@@ -267,13 +333,13 @@ export function PibesView() {
             <div className="squad-risk-card">
               <div className="risk-card-top">
                 <AlertTriangle size={14} className="risk-icon" />
-                <span className="risk-title">Riesgo: Tendencia a composiciones pasivas en ataque</span>
+                <span className="risk-title">Riesgo: Composiciones pasivas en ataque</span>
               </div>
               <p className="risk-desc">
                 Si Chango y Azusa eligen soportes pesados al mismo tiempo, Notorious queda como única fuente de agresión.
               </p>
               <div className="risk-correction">
-                <strong>Corrección:</strong> Liberar a Notorious para 2nd entry utilitario cuando Chango cubra la brecha principal.
+                <strong>💡 Corrección Recomendada:</strong> Liberar a Notorious para 2nd entry utilitario cuando Chango cubra la brecha principal.
               </div>
             </div>
 
@@ -286,20 +352,20 @@ export function PibesView() {
                 Montagne o Blitz de Azusa pueden quedar aislados si el resto se queda atrás cubriendo la brecha.
               </p>
               <div className="risk-correction">
-                <strong>Corrección:</strong> Avanzar pegados a Azusa para tradear disparos inmediatamente cuando absorba presión.
+                <strong>💡 Corrección Recomendada:</strong> Avanzar pegados a Azusa para tradear disparos inmediatamente cuando absorba presión.
               </div>
             </div>
 
             <div className="squad-risk-card">
               <div className="risk-card-top">
                 <AlertTriangle size={14} className="risk-icon" />
-                <span className="risk-title">Riesgo: Encierro en sitio defensivo sin control de mapa</span>
+                <span className="risk-title">Riesgo: Encierro en sitio defensivo</span>
               </div>
               <p className="risk-desc">
                 Composiciones con 3 anclas de sitio regalan el control vertical y las ventanas sin resistencia.
               </p>
               <div className="risk-correction">
-                <strong>Corrección:</strong> Asignar a Notorious o Chango para roaming corto en pisos clave.
+                <strong>💡 Corrección Recomendada:</strong> Asignar a Notorious o Chango para roaming corto en pisos clave.
               </div>
             </div>
           </div>
@@ -523,7 +589,7 @@ export function PibesView() {
                 </div>
               </div>
 
-              {/* Tryout Operators (En Prueba) con Contexto 3 Líneas */}
+              {/* Tryout Operators (En Prueba) con Contexto 3 Micro-Tarjetas */}
               <div className="pibe-section-title" style={{ marginTop: 24 }}>
                 <Flame size={15} /> Operadores de Tryout (En Prueba) — Guía Accionable
               </div>
@@ -542,14 +608,17 @@ export function PibesView() {
                           {t.side === "attack" ? "ATK" : "DEF"}
                         </span>
                       </div>
-                      <div className="tryout-ctx-line">
-                        <strong>Qué desarrolla:</strong> {ctx.develops}
+                      <div className="tryout-micro-box develops">
+                        <span className="tryout-box-label">🔹 Qué desarrolla:</span>
+                        <span className="tryout-box-text">{ctx.develops}</span>
                       </div>
-                      <div className="tryout-ctx-line">
-                        <strong>Cuándo usarlo:</strong> {ctx.whenToUse}
+                      <div className="tryout-micro-box when">
+                        <span className="tryout-box-label">🎯 Cuándo usarlo:</span>
+                        <span className="tryout-box-text">{ctx.whenToUse}</span>
                       </div>
-                      <div className="tryout-ctx-line warning">
-                        <strong>Qué no hacer:</strong> {ctx.whatNotToDo}
+                      <div className="tryout-micro-box avoid">
+                        <span className="tryout-box-label">⚠️ Qué no hacer:</span>
+                        <span className="tryout-box-text">{ctx.whatNotToDo}</span>
                       </div>
                     </div>
                   );
@@ -609,36 +678,47 @@ export function PibesView() {
             </div>
           )}
 
-          {/* TAB 4: USO EN ESCUADRÓN (Con Estilos Completos) */}
+          {/* TAB 4: USO EN ESCUADRÓN (Tarjetas Estilizadas) */}
           {activeTab === "synergies" && (
             <div className="pibe-tab-content">
               <div className="pibe-section-title">
                 <Users size={15} /> Uso Recomendado en Escuadrón
               </div>
-              <div className="team-usage-card">
-                <div className="tu-block">
-                  <span className="tu-label best">✓ Mejor Uso Táctico:</span>
-                  <p className="tu-text">{currentPibe.teamUsage?.bestUse}</p>
+
+              <div className="team-usage-grid">
+                <div className="team-usage-card-item best">
+                  <div className="tu-card-header">
+                    <CheckCircle2 size={16} /> Mejor Uso Táctico
+                  </div>
+                  <p className="tu-card-body">{currentPibe.teamUsage?.bestUse}</p>
                 </div>
 
-                <div className="tu-block avoid">
-                  <span className="tu-label warning">⚠️ Qué Evitar:</span>
-                  <p className="tu-text warning-text">{currentPibe.teamUsage?.avoid}</p>
+                <div className="team-usage-card-item warning">
+                  <div className="tu-card-header">
+                    <AlertTriangle size={16} /> Qué Evitar
+                  </div>
+                  <p className="tu-card-body warning-text">{currentPibe.teamUsage?.avoid}</p>
                 </div>
 
-                <div className="tu-block">
-                  <span className="tu-label">🤝 Dúos Ideales:</span>
-                  <ul className="tu-sublist">
-                    {currentPibe.teamUsage?.idealDuoPartners?.map((duo, i) => (
-                      <li key={i}>{duo}</li>
-                    ))}
-                  </ul>
+                <div className="team-usage-card-item duo">
+                  <div className="tu-card-header">
+                    <Users size={16} /> Dúos Ideales
+                  </div>
+                  <div className="tu-card-body">
+                    <ul className="tu-duo-list">
+                      {currentPibe.teamUsage?.idealDuoPartners?.map((duo, i) => (
+                        <li key={i}>{duo}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
 
                 {currentPibe.teamUsage?.idealTrioFunction && (
-                  <div className="tu-block">
-                    <span className="tu-label">⚡ Función en Trío:</span>
-                    <p className="tu-text">{currentPibe.teamUsage.idealTrioFunction}</p>
+                  <div className="team-usage-card-item trio">
+                    <div className="tu-card-header">
+                      <Zap size={16} /> Función en Trío
+                    </div>
+                    <p className="tu-card-body">{currentPibe.teamUsage.idealTrioFunction}</p>
                   </div>
                 )}
               </div>
