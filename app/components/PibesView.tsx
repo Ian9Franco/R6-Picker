@@ -11,6 +11,7 @@ import {
   HelpCircle,
   Info,
   Layers,
+  Lightbulb,
   Shield,
   ShieldAlert,
   Star,
@@ -159,13 +160,137 @@ const TRYOUT_CONTEXTS: Record<string, { develops: string; whenToUse: string; wha
   },
 };
 
+const CONSEJOS_DATABANK: Record<string, {
+  generalRole: string;
+  attackAdvice: { condition: string; picks: string[]; tip: string }[];
+  defenseAdvice: { condition: string; picks: string[]; tip: string }[];
+}> = {
+  "el_notorious": {
+    generalRole: "Flex principal del equipo: adapta su rol según lo que falte en la ronda.",
+    attackAdvice: [
+      {
+        condition: "Si falta abrir pared",
+        picks: ["Kali", "Thermite", "Thatcher"],
+        tip: "Priorizar Kali o Thermite antes que Ace. Ace tiene malos resultados en su historial.",
+      },
+      {
+        condition: "Si ya hay hard breacher",
+        picks: ["Ash", "Ram", "Brava", "Iana", "Ying"],
+        tip: "No duplicar soporte. Cambiar inmediatamente a segundo entry o flex agresivo.",
+      },
+      {
+        condition: "Si el rival tiene mucho roam",
+        picks: ["Deimos", "Iana", "Ash", "Dokkaebi"],
+        tip: "Acompañar drones y convertir información en bajas tempranas sin obsesionarse con la kill.",
+      },
+      {
+        condition: "Si el rival juega muy encerrado",
+        picks: ["Ying", "Ram", "Fuze", "Brava"],
+        tip: "Encargarse de romper la estructura defensiva, no de buscar duelos aislados.",
+      },
+    ],
+    defenseAdvice: [
+      {
+        condition: "Si hace falta negar pared",
+        picks: ["Kaid", "Mute", "Bandit", "Tubarão"],
+        tip: "Kaid es su main defensivo más natural. Mute y Bandit ofrecen resultados sólidos.",
+      },
+      {
+        condition: "Si ya está cubierta la pared",
+        picks: ["Valkyrie", "Vigil", "Fenrir", "Pulse", "Mozzie"],
+        tip: "Su mejor situación: jugar libre, buscar información y fraggear.",
+      },
+      {
+        condition: "Si van ganando (Match Point)",
+        picks: ["Mute", "Valkyrie", "Fenrir", "Kaid", "Lesion"],
+        tip: "Cero improvisaciones de riesgo. Priorizar utilidad persistente y control seguro.",
+      },
+    ],
+  },
+  "chango_nocturno": {
+    generalRole: "Support estructural fijo y ancla defensiva principal.",
+    attackAdvice: [
+      {
+        condition: "Si falta hard breacher",
+        picks: ["Thermite", "Hibana", "Ace"],
+        tip: "Usar Hibana en mapas con escotillas y Thermite para aperturas grandes de sitio.",
+      },
+      {
+        condition: "Si falta apoyo de plantado",
+        picks: ["Gridlock", "Capitão", "Fuze"],
+        tip: "Guardar utilidad para la ejecución final y no gastarla antes de tiempo.",
+      },
+      {
+        condition: "Si el rival juega muy agresivo",
+        picks: ["Lion", "Gridlock", "Nomad"],
+        tip: "Castigar rotaciones enemigas y proteger flancos sin perseguir roamers solo.",
+      },
+      {
+        condition: "Si el equipo necesita soporte sin entrar 1.º",
+        picks: ["Lion", "Gridlock", "Hibana"],
+        tip: "Lion es su atacante más estable para aportar valor desde la línea media.",
+      },
+    ],
+    defenseAdvice: [
+      {
+        condition: "Si hace falta negar brecha",
+        picks: ["Tubarão", "Mute", "Bandit", "Kaid"],
+        tip: "Tubarão debe ser su primera opción siempre que el sitio lo permita. Excelente rendimiento.",
+      },
+      {
+        condition: "Si hace falta control de entrada",
+        picks: ["Thorn", "Kapkan", "Frost", "Ela"],
+        tip: "Kapkan y Thorn combinan utilidad pasiva simple con alta efectividad de sitio.",
+      },
+      {
+        condition: "Si van perdiendo y necesitan defensa segura",
+        picks: ["Tubarão", "Kapkan", "Mute", "Thorn", "Frost"],
+        tip: "Composición aburrida pero ganadora de ELO. Las trampas no tienen ego y aseguran sitio.",
+      },
+    ],
+  },
+  "azusa_cooper09": {
+    generalRole: "Especialista en escudos de primera línea e información/ancla de objetivo.",
+    attackAdvice: [
+      {
+        condition: "Si el equipo tiene buena comunicación",
+        picks: ["Montagne", "Blitz"],
+        tip: "Avanzar pegado a un compañero que aproveche la presión y haga calls.",
+      },
+      {
+        condition: "Si se juega sin comunicación",
+        picks: ["Lion", "Dokkaebi", "Brava", "Twitch"],
+        tip: "Evitar Montagne solo. Usar Lion o Twitch para aportar valor independiente.",
+      },
+      {
+        condition: "Si falta hard breacher",
+        picks: ["Thermite", "Thatcher"],
+        tip: "Priorizar Thermite antes que Ace. Ace es su peor pick frecuente.",
+      },
+    ],
+    defenseAdvice: [
+      {
+        condition: "Si hace falta ancla de sitio",
+        picks: ["Mute", "Tachanka", "Smoke", "Thorn"],
+        tip: "Tachanka tiene winrate altísimo con él porque su utilidad niega ejecuciones en tiempo final.",
+      },
+      {
+        condition: "Si el equipo necesita antigranadas",
+        picks: ["Wamai", "Jäger"],
+        tip: "Jugar Wamai o Jäger cerca del sitio sin alejarse a duelos lejanos.",
+      },
+    ],
+  },
+};
+
 export function PibesView() {
   const pibes = pibesDataRaw.pibes;
   const [selectedPibeId, setSelectedPibeId] = useState<string>("el_notorious");
-  const [activeTab, setActiveTab] = useState<"profile" | "operators" | "warnings" | "synergies">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "operators" | "warnings" | "synergies" | "advice">("profile");
 
   const currentPibe = pibes.find((p) => p.id === selectedPibeId) ?? pibes[0];
   const pibeRules = (playerRulesRaw as any).rules[selectedPibeId]?.avoid ?? [];
+  const consejos = CONSEJOS_DATABANK[selectedPibeId];
 
   return (
     <div className="pibes-shell">
@@ -478,6 +603,12 @@ export function PibesView() {
               <User size={13} /> Perfil & Afinidad
             </button>
             <button
+              className={`pibe-sub-btn ${activeTab === "advice" ? "active" : ""}`}
+              onClick={() => setActiveTab("advice")}
+            >
+              <Lightbulb size={13} /> Consejos Situacionales
+            </button>
+            <button
               className={`pibe-sub-btn ${activeTab === "operators" ? "active" : ""}`}
               onClick={() => setActiveTab("operators")}
             >
@@ -496,6 +627,59 @@ export function PibesView() {
               <Users size={13} /> Uso en Escuadrón
             </button>
           </div>
+
+          {/* TAB: CONSEJOS SITUACIONALES (consejos.md) */}
+          {activeTab === "advice" && consejos && (
+            <div className="pibe-tab-content">
+              {/* General Role Banner */}
+              <div className="general-role-banner">
+                <Star size={15} style={{ flexShrink: 0 }} />
+                <span>
+                  <strong>Línea de Juego Principal:</strong> {consejos.generalRole}
+                </span>
+              </div>
+
+              {/* Consejos en Ataque */}
+              <div className="pibe-section-title">
+                <Swords size={15} /> Recomendaciones Situacionales en Ataque (consejos.md)
+              </div>
+              <div className="advice-grid">
+                {consejos.attackAdvice.map((item, i) => (
+                  <div key={i} className="advice-card atk-advice">
+                    <div className="advice-card-header">
+                      <span className="advice-condition">{item.condition}</span>
+                    </div>
+                    <div className="advice-op-pills">
+                      {item.picks.map((op) => (
+                        <span key={op} className="op-pill main-pill">{op}</span>
+                      ))}
+                    </div>
+                    <p className="advice-tip-text">💡 {item.tip}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Consejos en Defensa */}
+              <div className="pibe-section-title" style={{ marginTop: 24 }}>
+                <Shield size={15} /> Recomendaciones Situacionales en Defensa (consejos.md)
+              </div>
+              <div className="advice-grid">
+                {consejos.defenseAdvice.map((item, i) => (
+                  <div key={i} className="advice-card def-advice">
+                    <div className="advice-card-header">
+                      <span className="advice-condition">{item.condition}</span>
+                    </div>
+                    <div className="advice-op-pills">
+                      {item.picks.map((op) => (
+                        <span key={op} className="op-pill main-pill">{op}</span>
+                      ))}
+                    </div>
+                    <p className="advice-tip-text">💡 {item.tip}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* TAB 1: PERFIL & AFINIDAD DE ROLES */}
           {activeTab === "profile" && (
