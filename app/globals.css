@@ -3124,6 +3124,64 @@ button {
   margin-bottom: 14px;
 }
 
+/* Explicit Breathing / Rotation Card */
+.breathing-role-card {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breathing-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.breathing-card-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.breathing-role-tag {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.breathing-freq-text {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.breathing-pills-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.op-pill.breathing-pill {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+}
+
 /* Pibes Enriched View Shell */
 .tryout-cards-grid {
   display: grid;

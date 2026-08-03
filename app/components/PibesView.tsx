@@ -12,6 +12,7 @@ import {
   Info,
   Layers,
   Lightbulb,
+  RefreshCw,
   Shield,
   ShieldAlert,
   Star,
@@ -752,7 +753,7 @@ export function PibesView() {
             <div className="pibe-tab-content">
               {/* Identity / Mains */}
               <div className="pibe-section-title">
-                <Star size={15} /> Agentes Insignia (Identidad)
+                <Star size={15} /> Agentes Insignia (Identidad Principal)
               </div>
               <div className="op-category-group">
                 <div className="op-side-subgroup">
@@ -769,6 +770,44 @@ export function PibesView() {
                     {currentPibe.identityOperators?.defense.map((op) => (
                       <span key={op} className="op-pill main-pill">{op}</span>
                     ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Explicit Rol & Picks de Respiro / Rotación */}
+              <div className="pibe-section-title" style={{ marginTop: 24 }}>
+                <RefreshCw size={15} /> Rol & Picks de Respiro / Rotación (Tryouts)
+              </div>
+              <div className="breathing-role-card">
+                <div className="breathing-card-top">
+                  <span className="breathing-card-title">Rol Secundario de Rotación:</span>
+                  <span className="breathing-role-tag">
+                    {currentPibe.profile?.secondaryRole?.toUpperCase() ?? "DEVELOPMENT FLEX"}
+                  </span>
+                </div>
+                <p className="breathing-freq-text">
+                  ⚡ <strong>Frecuencia:</strong> Se activa en la ronda 3 o ante rachas para romper previsibilidad enemiga sin desarmar la estructura base.
+                </p>
+                <div className="breathing-pills-container">
+                  <div className="op-side-subgroup">
+                    <span className="op-side-title"><Swords size={12} /> Respiro ATK:</span>
+                    <div className="op-pills-row">
+                      {currentPibe.tryoutOperators?.attack.map((t) => (
+                        <span key={t.operator} className="op-pill breathing-pill">
+                          🔄 {t.operator}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="op-side-subgroup">
+                    <span className="op-side-title"><Shield size={12} /> Respiro DEF:</span>
+                    <div className="op-pills-row">
+                      {currentPibe.tryoutOperators?.defense.map((t) => (
+                        <span key={t.operator} className="op-pill breathing-pill">
+                          🔄 {t.operator}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
