@@ -1,85 +1,377 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Crosshair, Dice5, MapPinned, Search, Shield, Shuffle, Sparkles, Swords } from "lucide-react";
 import { useMemo, useState } from "react";
-import { attackers, catalogMeta, defenders, maps, type Side } from "../data/catalog";
+import {
+  attackers,
+  defenders,
+  mapBombSites,
+  maps,
+  type BombSite,
+  type Side,
+} from "../data/catalog";
+import { ActiveMatch } from "./components/ActiveMatch";
+import { FinishedMatch } from "./components/FinishedMatch";
+import { Header } from "./components/Header";
+import { MapsCatalog } from "./components/MapsCatalog";
+import { MatchSetup } from "./components/MatchSetup";
+import { MobileTabBar } from "./components/MobileTabBar";
+import { OperatorsCatalog } from "./components/OperatorsCatalog";
 
-const randomItem = <T,>(items: readonly T[]) => items[Math.floor(Math.random() * items.length)];
+type Tab = "picker" | "operators" | "maps";
+
+type RoundLog = {
+  roundNum: number;
+  side: Side;
+  operator: string;
+  bombSite?: BombSite;
+  result: "win" | "loss";
+};
+
+const randomItem = <T,>(items: readonly T[]) =>
+  items[Math.floor(Math.random() * items.length)];
 
 export function Picker() {
-  const [side, setSide] = useState<Side>("attack");
-  const [query, setQuery] = useState("");
-  const [operator, setOperator] = useState("Sledge");
-  const [map, setMap] = useState("Clubhouse");
-  const [roll, setRoll] = useState(0);
-  const activeOperators = side === "attack" ? attackers : defenders;
-  const visibleOperators = useMemo(() => activeOperators.filter((item) => item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())), [activeOperators, query]);
+  const [activeTab, setActiveTab] = useState<Tab>("picker");
 
-  const pick = () => {
-    setOperator(randomItem(activeOperators).name);
-    setMap(randomItem(maps));
-    setRoll((value) => value + 1);
+  // Match State
+  const [matchState, setMatchState] = useState<"setup" | "active" | "finished">("setup");
+  const [matchMap, setMatchMap] = useState<string>("Clubhouse");
+  const [startingSide, setStartingSide] = useState<Side>("attack");
+
+  // Active Match Stats
+  const [myScore, setMyScore] = useState<number>(0);
+  const [opponentScore, setOpponentScore] = useState<number>(0);
+  const [history, setHistory] = useState<RoundLog[]>([]);
+
+  // Site Lockout States
+  const [lockedSites, setLockedSites] = useState<string[]>([]);
+  const [enemyLockedSites, setEnemyLockedSites] = useState<string[]>([]);
+  const [selectedSiteName, setSelectedSiteName] = useState<string>("");
+
+  // Current Round Operator
+  const [currentOperator, setCurrentOperator] = useState<string>("");
+  const [opRoll, setOpRoll] = useState<number>(0);
+
+  const currentRoundNum = history.length + 1;
+  const isOvertime = myScore >= 3 && opponentScore >= 3;
+
+  // Calculate current round side based on R6 Siege Rules
+  const currentSide: Side = useMemo(() => {
+    if (!isOvertime) {
+      return currentRoundNum <= 3
+        ? startingSide
+        : startingSide === "attack"
+        ? "defense"
+        : "attack";
+    } else {
+      const otRound = currentRoundNum - 6;
+      return otRound % 2 !== 0
+        ? startingSide
+        : startingSide === "attack"
+        ? "defense"
+        : "attack";
+    }
+  }, [currentRoundNum, startingSide, isOvertime]);
+
+  // All bomb sites for chosen map
+  const allMapSites = useMemo(() => {
+    return mapBombSites[matchMap] || [];
+  }, [matchMap]);
+
+  // Available (non-locked) sites for current side
+  const availableSites = useMemo(() => {
+    const currentLocks = currentSide === "defense" ? lockedSites : enemyLockedSites;
+    return allMapSites.filter((s) => !currentLocks.includes(s.name));
+  }, [allMapSites, currentSide, lockedSites, enemyLockedSites]);
+
+  // Current BombSite object
+  const currentBombSiteObj = useMemo(() => {
+    return allMapSites.find((s) => s.name === selectedSiteName);
+  }, [allMapSites, selectedSiteName]);
+
+  // Roll operator for current side
+  const rollOperatorForCurrentSide = (sideToUse: Side) => {
+    const pool = sideToUse === "attack" ? attackers : defenders;
+    setCurrentOperator(randomItem(pool).name);
+    setOpRoll((v) => v + 1);
   };
 
-  const changeSide = (nextSide: Side) => {
-    setSide(nextSide);
-    setQuery("");
-    setOperator(randomItem(nextSide === "attack" ? attackers : defenders).name);
-    setRoll((value) => value + 1);
+  // Roll available bomb site
+  const rollAvailableSite = () => {
+    const pool = availableSites.length > 0 ? availableSites : allMapSites;
+    if (pool.length > 0) {
+      setSelectedSiteName(randomItem(pool).name);
+    }
+  };
+
+  // Start match
+  const startMatch = () => {
+    setMyScore(0);
+    setOpponentScore(0);
+    setHistory([]);
+    setLockedSites([]);
+    setEnemyLockedSites([]);
+    setMatchState("active");
+
+    rollOperatorForCurrentSide(startingSide);
+
+    const firstPool = mapBombSites[matchMap] || [];
+    if (firstPool.length > 0) {
+      setSelectedSiteName(firstPool[0].name);
+    } else {
+      setSelectedSiteName("");
+    }
+  };
+
+  // Record round result
+  const recordRound = (result: "win" | "loss") => {
+    const nextMyScore = result === "win" ? myScore + 1 : myScore;
+    const nextOpScore = result === "loss" ? opponentScore + 1 : opponentScore;
+
+    const newLog: RoundLog = {
+      roundNum: currentRoundNum,
+      side: currentSide,
+      operator: currentOperator,
+      bombSite: currentBombSiteObj,
+      result,
+    };
+
+    const nextHistory = [...history, newLog];
+    setHistory(nextHistory);
+    setMyScore(nextMyScore);
+    setOpponentScore(nextOpScore);
+
+    // Site Lockout Updates
+    const isNowOvertime = nextMyScore >= 3 && nextOpScore >= 3;
+    const wasOvertime = isOvertime;
+
+    let nextLocked = [...lockedSites];
+    let nextEnemyLocked = [...enemyLockedSites];
+
+    if (isNowOvertime && !wasOvertime) {
+      nextLocked = [];
+      nextEnemyLocked = [];
+    } else if (result === "win" && selectedSiteName) {
+      if (currentSide === "defense") {
+        if (!nextLocked.includes(selectedSiteName)) {
+          nextLocked.push(selectedSiteName);
+        }
+      } else {
+        if (!nextEnemyLocked.includes(selectedSiteName)) {
+          nextEnemyLocked.push(selectedSiteName);
+        }
+      }
+    }
+
+    setLockedSites(nextLocked);
+    setEnemyLockedSites(nextEnemyLocked);
+
+    // Check Win/Loss conditions
+    const isWinner =
+      (nextMyScore === 4 && nextOpScore < 3) ||
+      (nextMyScore >= 4 && nextMyScore - nextOpScore >= 2) ||
+      nextMyScore === 5;
+
+    const isLoser =
+      (nextOpScore === 4 && nextMyScore < 3) ||
+      (nextOpScore >= 4 && nextOpScore - nextOpScore >= 2) ||
+      nextOpScore === 5;
+
+    if (isWinner || isLoser) {
+      setMatchState("finished");
+    } else {
+      const nextRoundNum = nextHistory.length + 1;
+      const nextIsOvertime = nextMyScore >= 3 && nextOpScore >= 3;
+      let nextSide: Side;
+      if (!nextIsOvertime) {
+        nextSide =
+          nextRoundNum <= 3
+            ? startingSide
+            : startingSide === "attack"
+            ? "defense"
+            : "attack";
+      } else {
+        const otRound = nextRoundNum - 6;
+        nextSide =
+          otRound % 2 !== 0
+            ? startingSide
+            : startingSide === "attack"
+            ? "defense"
+            : "attack";
+      }
+
+      rollOperatorForCurrentSide(nextSide);
+
+      const currentLocks = nextSide === "defense" ? nextLocked : nextEnemyLocked;
+      const nextAvail = allMapSites.filter((s) => !currentLocks.includes(s.name));
+      const pool = nextAvail.length > 0 ? nextAvail : allMapSites;
+      if (pool.length > 0) {
+        setSelectedSiteName(pool[0].name);
+      }
+    }
+  };
+
+  // Undo last round
+  const undoLastRound = () => {
+    if (history.length === 0) return;
+    const remainingHistory = history.slice(0, -1);
+    setHistory(remainingHistory);
+
+    let myS = 0;
+    let opS = 0;
+    let recomputedLocked: string[] = [];
+    let recomputedEnemyLocked: string[] = [];
+
+    for (const log of remainingHistory) {
+      if (log.result === "win") myS++;
+      if (log.result === "loss") opS++;
+
+      if (myS >= 3 && opS >= 3) {
+        recomputedLocked = [];
+        recomputedEnemyLocked = [];
+      } else if (log.result === "win" && log.bombSite) {
+        if (log.side === "defense") {
+          if (!recomputedLocked.includes(log.bombSite.name)) {
+            recomputedLocked.push(log.bombSite.name);
+          }
+        } else {
+          if (!recomputedEnemyLocked.includes(log.bombSite.name)) {
+            recomputedEnemyLocked.push(log.bombSite.name);
+          }
+        }
+      }
+    }
+
+    setMyScore(myS);
+    setOpponentScore(opS);
+    setLockedSites(recomputedLocked);
+    setEnemyLockedSites(recomputedEnemyLocked);
+
+    if (matchState === "finished") {
+      setMatchState("active");
+    }
+
+    const last = history[history.length - 1];
+    rollOperatorForCurrentSide(last.side);
+    if (last.bombSite) setSelectedSiteName(last.bombSite.name);
+  };
+
+  // Reset / New Match
+  const resetMatch = () => {
+    setMatchState("setup");
+    setHistory([]);
+    setMyScore(0);
+    setOpponentScore(0);
+    setLockedSites([]);
+    setEnemyLockedSites([]);
+    setSelectedSiteName("");
   };
 
   return (
-    <main>
-      <div className="ambient ambient-one" /><div className="ambient ambient-two" />
-      <nav className="nav shell" aria-label="Navegación principal">
-        <a className="brand" href="#top" aria-label="R6 Picker — inicio"><span className="brand-mark"><Crosshair size={19} /></span><span>R6<span className="brand-dim">/PICKER</span></span></a>
-        <div className="nav-links"><a href="#picker">Picker</a><a href="#catalogo">Catálogo</a></div>
-        <a className="source-link" href={catalogMeta.sourceUrl} target="_blank" rel="noreferrer">Fuente oficial <ArrowUpRight size={15} /></a>
-      </nav>
+    <div className="app-viewport">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <section className="hero shell" id="top">
-        <div className="hero-copy">
-          <motion.div className="eyebrow" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><Sparkles size={14} /> Decidí. Entrá. Ejecutá.</motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .08 }}>Tu próxima<br />ronda, <em>al azar.</em></motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .18 }}>Un picker rápido para salir de la zona de confort. Elegí el bando y dejá que el azar defina tu operador y el campo de batalla.</motion.p>
-          <motion.div className="hero-stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .25 }}>
-            <span><strong>{attackers.length}</strong> atacantes</span><span><strong>{defenders.length}</strong> defensores</span><span><strong>{maps.length}</strong> mapas</span>
-          </motion.div>
-        </div>
+      <main className="app-content">
+        <AnimatePresence mode="wait">
+          {activeTab === "picker" && (
+            <motion.section
+              key="tab-picker"
+              className="tab-panel"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {matchState === "setup" && (
+                <MatchSetup
+                  matchMap={matchMap}
+                  setMatchMap={setMatchMap}
+                  startingSide={startingSide}
+                  setStartingSide={setStartingSide}
+                  onStartMatch={startMatch}
+                  randomItem={randomItem}
+                />
+              )}
 
-        <motion.div className="picker-panel glass" id="picker" initial={{ opacity: 0, scale: .97, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: .12, duration: .55 }}>
-          <div className="panel-topline"><span>Generador de ronda</span><Dice5 size={18} /></div>
-          <div className="side-switch" role="group" aria-label="Elegir bando">
-            <button className={side === "attack" ? "active" : ""} onClick={() => changeSide("attack")}><Swords size={17} /> Ataque</button>
-            <button className={side === "defense" ? "active" : ""} onClick={() => changeSide("defense")}><Shield size={17} /> Defensa</button>
-          </div>
-          <div className="results">
-            <AnimatePresence mode="wait"><motion.div className="result-card result-primary" key={`${operator}-${roll}`} initial={{ opacity: 0, x: 16, filter: "blur(5px)" }} animate={{ opacity: 1, x: 0, filter: "blur(0px)" }} exit={{ opacity: 0, x: -12 }} transition={{ duration: .24 }}>
-              <span className="result-icon">{side === "attack" ? <Swords size={20} /> : <Shield size={20} />}</span><div><small>Operador</small><strong>{operator}</strong></div><span className="side-code">{side === "attack" ? "ATK" : "DEF"}</span>
-            </motion.div></AnimatePresence>
-            <AnimatePresence mode="wait"><motion.div className="result-card" key={`${map}-${roll}`} initial={{ opacity: 0, x: 16, filter: "blur(5px)" }} animate={{ opacity: 1, x: 0, filter: "blur(0px)" }} exit={{ opacity: 0, x: -12 }} transition={{ duration: .24, delay: .04 }}>
-              <span className="result-icon"><MapPinned size={20} /></span><div><small>Mapa</small><strong>{map}</strong></div><span className="side-code">MAP</span>
-            </motion.div></AnimatePresence>
-          </div>
-          <motion.button className="pick-button" onClick={pick} whileHover={{ scale: 1.015 }} whileTap={{ scale: .97 }}><Shuffle size={19} /> Sortear ronda</motion.button>
-          <p className="keyboard-hint">Catálogo actualizado · {catalogMeta.updatedAt}</p>
-        </motion.div>
-      </section>
+              {matchState === "active" && (
+                <ActiveMatch
+                  matchMap={matchMap}
+                  myScore={myScore}
+                  opponentScore={opponentScore}
+                  currentRoundNum={currentRoundNum}
+                  isOvertime={isOvertime}
+                  currentSide={currentSide}
+                  currentOperator={currentOperator}
+                  opRoll={opRoll}
+                  allMapSites={allMapSites}
+                  lockedSites={lockedSites}
+                  enemyLockedSites={enemyLockedSites}
+                  selectedSiteName={selectedSiteName}
+                  setSelectedSiteName={setSelectedSiteName}
+                  history={history}
+                  onRecordRound={recordRound}
+                  onUndoLastRound={undoLastRound}
+                  onRollOperator={() => rollOperatorForCurrentSide(currentSide)}
+                  onRollAvailableSite={rollAvailableSite}
+                />
+              )}
 
-      <section className="catalog shell" id="catalogo">
-        <div className="section-heading"><div><span className="section-kicker">Base de datos</span><h2>Todos los operadores.</h2></div><label className="search-box"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar operador" aria-label="Buscar operador" /></label></div>
-        <div className="catalog-tabs" role="tablist" aria-label="Filtrar operadores por bando">
-          <button className={side === "attack" ? "active" : ""} onClick={() => changeSide("attack")} role="tab" aria-selected={side === "attack"}>Atacantes <span>{attackers.length}</span></button>
-          <button className={side === "defense" ? "active" : ""} onClick={() => changeSide("defense")} role="tab" aria-selected={side === "defense"}>Defensores <span>{defenders.length}</span></button>
-        </div>
-        <motion.div className="operator-grid" layout><AnimatePresence mode="popLayout">
-          {visibleOperators.map((item, index) => <motion.button className="operator-card glass" key={item.name} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .96 }} transition={{ delay: Math.min(index * .012, .2) }} onClick={() => { setOperator(item.name); setRoll((value) => value + 1); document.querySelector("#picker")?.scrollIntoView({ behavior: "smooth" }); }}>
-            <span className="operator-monogram">{item.name.slice(0, 2).toUpperCase()}</span><span>{item.name}</span><ArrowUpRight size={14} />
-          </motion.button>)}
-        </AnimatePresence></motion.div>
-      </section>
-      <footer className="shell"><span>R6/PICKER</span><p>Catálogo local basado en información oficial de Ubisoft. Proyecto no afiliado a Ubisoft.</p></footer>
-    </main>
+              {matchState === "finished" && (
+                <FinishedMatch
+                  matchMap={matchMap}
+                  myScore={myScore}
+                  opponentScore={opponentScore}
+                  history={history}
+                  onResetMatch={resetMatch}
+                  onUndoLastRound={undoLastRound}
+                />
+              )}
+            </motion.section>
+          )}
+
+          {activeTab === "operators" && (
+            <motion.section
+              key="tab-operators"
+              className="tab-panel"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <OperatorsCatalog
+                currentOperator={currentOperator}
+                onSelectOperator={(opName) => {
+                  setCurrentOperator(opName);
+                  setActiveTab("picker");
+                }}
+              />
+            </motion.section>
+          )}
+
+          {activeTab === "maps" && (
+            <motion.section
+              key="tab-maps"
+              className="tab-panel"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <MapsCatalog
+                matchMap={matchMap}
+                onSelectMap={(mapName) => {
+                  setMatchMap(mapName);
+                  setActiveTab("picker");
+                }}
+                randomItem={randomItem}
+              />
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </main>
+
+      <MobileTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
+    </div>
   );
 }
