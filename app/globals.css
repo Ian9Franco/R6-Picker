@@ -2719,37 +2719,42 @@ button {
 /* Sub-Nav Bar */
 .pibe-sub-nav {
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
-  overflow-x: auto;
+  padding: 6px 0 12px 0;
+  align-items: center;
 }
 
 .pibe-sub-btn {
   font-family: "Rajdhani", sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  padding: 6px 12px;
-  border-radius: 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--muted);
-  display: flex;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--muted-bright);
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
 .pibe-sub-btn:hover {
+  background: var(--surface-2);
   color: var(--white);
+  border-color: var(--border-mid);
 }
 
 .pibe-sub-btn.active {
-  background: var(--surface-2);
-  border-color: var(--border-mid);
+  background: rgba(232, 35, 58, 0.15);
+  border-color: var(--atk);
   color: var(--white);
+  box-shadow: 0 0 12px rgba(232, 35, 58, 0.2);
 }
 
 /* Section Titles */
