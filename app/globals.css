@@ -2066,7 +2066,7 @@ button {
   gap: 8px;
 }
 
-@media (min-width: 480px) {
+@media (min-width: 580px) {
   .pibes-chips-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
@@ -2084,6 +2084,7 @@ button {
   gap: 3px;
   text-align: center;
   transition: all 0.15s ease;
+  min-width: 0;
 }
 
 .pibe-select-chip.chip-active {
