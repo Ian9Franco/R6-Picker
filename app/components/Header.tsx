@@ -1,9 +1,10 @@
 "use client";
 
-import { Crosshair } from "lucide-react";
+import { Crosshair, Users } from "lucide-react";
 import { maps, operators } from "../../data/catalog";
+import pibesData from "../../data/pibes.json";
 
-type Tab = "picker" | "operators" | "maps";
+export type Tab = "picker" | "operators" | "maps" | "pibes";
 
 type HeaderProps = {
   activeTab: Tab;
@@ -40,6 +41,12 @@ export function Header({ activeTab, setActiveTab }: HeaderProps) {
           onClick={() => setActiveTab("maps")}
         >
           Mapas <span style={{ color: "var(--muted)", fontWeight: 400 }}>({maps.length})</span>
+        </button>
+        <button
+          className={activeTab === "pibes" ? "active" : ""}
+          onClick={() => setActiveTab("pibes")}
+        >
+          Los Pibes <span style={{ color: "var(--muted)", fontWeight: 400 }}>({pibesData.pibes.length})</span>
         </button>
       </nav>
     </header>

@@ -1,8 +1,7 @@
 "use client";
 
-import { Dice5, MapPin, Users } from "lucide-react";
-
-type Tab = "picker" | "operators" | "maps";
+import { Dice5, MapPin, User, Users } from "lucide-react";
+import type { Tab } from "./Header";
 
 type MobileTabBarProps = {
   activeTab: Tab;
@@ -17,7 +16,7 @@ export function MobileTabBar({ activeTab, setActiveTab }: MobileTabBarProps) {
         onClick={() => setActiveTab("picker")}
       >
         <span className="tab-btn-icon">
-          <Dice5 size={22} />
+          <Dice5 size={20} />
         </span>
         <span className="tab-btn-label">Partido</span>
       </button>
@@ -27,7 +26,7 @@ export function MobileTabBar({ activeTab, setActiveTab }: MobileTabBarProps) {
         onClick={() => setActiveTab("operators")}
       >
         <span className="tab-btn-icon">
-          <Users size={22} />
+          <Users size={20} />
         </span>
         <span className="tab-btn-label">Agentes</span>
       </button>
@@ -37,9 +36,19 @@ export function MobileTabBar({ activeTab, setActiveTab }: MobileTabBarProps) {
         onClick={() => setActiveTab("maps")}
       >
         <span className="tab-btn-icon">
-          <MapPin size={22} />
+          <MapPin size={20} />
         </span>
         <span className="tab-btn-label">Mapas</span>
+      </button>
+
+      <button
+        className={`tab-btn ${activeTab === "pibes" ? "active" : ""}`}
+        onClick={() => setActiveTab("pibes")}
+      >
+        <span className="tab-btn-icon">
+          <User size={20} />
+        </span>
+        <span className="tab-btn-label">Los Pibes</span>
       </button>
     </nav>
   );

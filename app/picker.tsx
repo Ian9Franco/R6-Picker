@@ -21,13 +21,12 @@ import {
 } from "../data/pibes";
 import { ActiveMatch } from "./components/ActiveMatch";
 import { FinishedMatch } from "./components/FinishedMatch";
-import { Header } from "./components/Header";
+import { Header, type Tab } from "./components/Header";
 import { MapsCatalog } from "./components/MapsCatalog";
 import { MatchSetup } from "./components/MatchSetup";
 import { MobileTabBar } from "./components/MobileTabBar";
 import { OperatorsCatalog } from "./components/OperatorsCatalog";
-
-type Tab = "picker" | "operators" | "maps";
+import { PibesView } from "./components/PibesView";
 
 type RoundLog = {
   roundNum: number;
@@ -497,6 +496,19 @@ export function Picker() {
                 }}
                 randomItem={randomItem}
               />
+            </motion.section>
+          )}
+
+          {activeTab === "pibes" && (
+            <motion.section
+              key="tab-pibes"
+              className="tab-panel"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <PibesView />
             </motion.section>
           )}
         </AnimatePresence>

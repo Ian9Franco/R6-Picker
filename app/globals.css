@@ -2570,6 +2570,560 @@ button {
   white-space: nowrap;
 }
 
+/* Pibes Enriched View Shell */
+.pibes-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pibes-selector-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.pibe-select-btn {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--muted-bright);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pibe-select-btn:hover {
+  background: var(--surface-2);
+  color: var(--white);
+  border-color: var(--border-mid);
+}
+
+.pibe-select-btn.active {
+  background: rgba(232, 35, 58, 0.15);
+  border-color: var(--atk);
+  color: var(--white);
+}
+
+.pibe-select-btn.squad-tab-btn.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+}
+
+/* Header Card */
+.pibe-header-card {
+  padding: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.pibe-avatar-large {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--atk);
+  flex-shrink: 0;
+}
+
+.pibe-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.pibe-header-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pibe-name-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+  line-height: 1;
+}
+
+.pibe-role-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--atk);
+  background: rgba(232, 35, 58, 0.15);
+  border: 1px solid rgba(232, 35, 58, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.pibe-tempo-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.pibe-summary-text {
+  font-size: 12px;
+  color: var(--muted-bright);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.pibe-tags-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.pibe-tag-chip {
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Sub-Nav Bar */
+.pibe-sub-nav {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.pibe-sub-btn {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pibe-sub-btn:hover {
+  color: var(--white);
+}
+
+.pibe-sub-btn.active {
+  background: var(--surface-2);
+  border-color: var(--border-mid);
+  color: var(--white);
+}
+
+/* Section Titles */
+.pibe-section-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+/* Role Affinity Progress Bars */
+.role-affinity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.affinity-card {
+  padding: 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.affinity-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.affinity-role-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.affinity-val {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted-bright);
+}
+
+.affinity-bar-track {
+  height: 5px;
+  background: var(--surface-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.affinity-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Strengths & Weaknesses Grid */
+.strengths-weaknesses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sw-card {
+  padding: 14px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.strengths-card {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.weaknesses-card {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.sw-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.strengths-card .sw-title { color: #10b981; }
+.weaknesses-card .sw-title { color: #ef4444; }
+
+.sw-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.45;
+
+  li { margin-bottom: 4px; }
+}
+
+/* Operator Category Groups & Pills */
+.op-category-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.op-side-subgroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.op-side-title {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  min-width: 70px;
+}
+
+.op-pills-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.op-pill {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--white);
+}
+
+.op-pill.main-pill {
+  border-color: rgba(232, 35, 58, 0.4);
+  background: rgba(232, 35, 58, 0.1);
+  color: var(--white);
+}
+
+.op-pill.avoid-pill {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+}
+
+/* Tryout Cards Grid */
+.tryout-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.tryout-op-card {
+  padding: 10px 12px;
+  background: var(--surface-1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tryout-op-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tryout-op-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #c084fc;
+}
+
+.tryout-side-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.tryout-side-tag.atk { background: rgba(232, 35, 58, 0.2); color: var(--atk); }
+.tryout-side-tag.def { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+
+.tryout-goal-text {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Rules List & Rule Cards */
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rule-card {
+  padding: 12px;
+  background: rgba(251, 191, 36, 0.05);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rule-id {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.rule-sev-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.rule-sev-badge.high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.rule-sev-badge.medium { background: rgba(251, 191, 36, 0.2); color: #fde68a; }
+
+.rule-msg {
+  font-size: 11px;
+  color: var(--white);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.rule-ops {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Squad View Panel & Synergies */
+.squad-view-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pick-order-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.pick-order-card {
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pick-order-card-header {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pick-order-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.5;
+
+  li { margin-bottom: 6px; }
+}
+
+.synergies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.synergy-card {
+  padding: 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.synergy-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.synergy-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--atk);
+}
+
+.synergy-side-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  color: var(--muted-bright);
+}
+
+.synergy-ops-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.synergy-op-pill {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-mid);
+  color: var(--white);
+}
+
+.synergy-plan-desc {
+  font-size: 11px;
+  color: var(--muted-bright);
+  line-height: 1.4;
+  margin: 0;
+}
+
 /* Pibes Manager Modal */
 .modal-backdrop {
   position: fixed;
