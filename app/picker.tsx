@@ -42,8 +42,8 @@ export function Picker() {
   const [activeTab, setActiveTab] = useState<Tab>("picker");
 
   // Mode & Squad Setup
-  const [mode, setMode] = useState<"default" | "pibes">("default");
-  const [partySize, setPartySize] = useState<1 | 2 | 3>(1);
+  const [mode, setMode] = useState<"default" | "pibes">("pibes");
+  const [partySize, setPartySize] = useState<1 | 2 | 3>(3);
   const [pibes, setPibes] = useState<PibeProfile[]>(DEFAULT_PIBES);
   const [activePibeIds, setActivePibeIds] = useState<string[]>([
     "el_notorious",

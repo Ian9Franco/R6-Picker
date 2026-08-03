@@ -2030,6 +2030,9 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pibes-setup-header {
@@ -2062,15 +2065,9 @@ button {
 
 .pibes-chips-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-@media (min-width: 580px) {
-  .pibes-chips-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-  }
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
 }
 
 .pibe-select-chip {
@@ -2085,6 +2082,9 @@ button {
   text-align: center;
   transition: all 0.15s ease;
   min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .pibe-select-chip.chip-active {
@@ -2110,39 +2110,170 @@ button {
   max-width: 100%;
 }
 
-/* Multi-pick Recommendations Grid */
-.operator-recommendations-wrapper {
+/* chip disabled state */
+.pibe-select-chip.chip-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Picks list (active match) */
+.picks-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
-.multi-picks-grid {
+.single-pick-box {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pick row: one row per player recommendation */
+.pick-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.pick-row:last-child {
+  border-bottom: none;
+}
+
+.pick-row.pick-row-atk {
+  background: linear-gradient(135deg, rgba(232, 35, 58, 0.08) 0%, transparent 70%);
+}
+
+.pick-row.pick-row-def {
+  background: linear-gradient(135deg, rgba(30, 127, 255, 0.08) 0%, transparent 70%);
+}
+
+/* Vertical stripe on the left */
+.pick-row-stripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.pick-row-atk .pick-row-stripe {
+  background: linear-gradient(180deg, var(--atk), transparent);
+}
+
+.pick-row-def .pick-row-stripe {
+  background: linear-gradient(180deg, var(--def), transparent);
+}
+
+/* Avatar box */
+.pick-row-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  place-items: center;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: white;
+  flex-shrink: 0;
 }
 
-@media (min-width: 520px) {
-  .multi-picks-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
+.pick-row-atk .pick-row-avatar {
+  background: linear-gradient(135deg, var(--atk), #7e001e);
+  box-shadow: 0 4px 14px var(--atk-glow);
 }
 
-.player-tag-row {
+.pick-row-def .pick-row-avatar {
+  background: linear-gradient(135deg, var(--def), #0a3580);
+  box-shadow: 0 4px 14px var(--def-glow);
+}
+
+/* Info column */
+.pick-row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pick-row-top {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 2px;
+  flex-wrap: wrap;
 }
 
-.player-tag-name {
+.pick-player-tag {
   font-family: "Rajdhani", sans-serif;
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pick-row-atk .pick-player-tag { color: rgba(232, 35, 58, 0.7); }
+.pick-row-def .pick-player-tag { color: rgba(30, 127, 255, 0.7); }
+
+.pick-row-op-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pick-row-playstyle {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right column: side badge + reroll */
+.pick-row-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pick-side-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pick-row-atk .pick-side-badge {
   color: var(--atk);
+  background: var(--atk-dim);
+  border: 1px solid var(--atk-border);
+}
+
+.pick-row-def .pick-side-badge {
+  color: var(--def);
+  background: var(--def-dim);
+  border: 1px solid var(--def-border);
 }
 
 .main-star-badge {
@@ -2160,19 +2291,12 @@ button {
   gap: 3px;
 }
 
-.operator-playstyle {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
 .single-reroll-btn {
-  padding: 8px;
+  padding: 6px;
   border-radius: 8px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--muted);
-  align-self: center;
   transition: all 0.15s ease;
 }
 

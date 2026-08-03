@@ -71,6 +71,8 @@ export function ActiveMatch({
   onRollSinglePlayer,
   onRollAvailableSite,
 }: ActiveMatchProps) {
+  const isMulti = recommendations.length > 1;
+
   return (
     <div className="tab-panel">
       {/* Scoreboard HUD */}
@@ -191,19 +193,19 @@ export function ActiveMatch({
       <div className="operator-section">
         <div className="operator-header">
           <span className="operator-round-label">
-            R{currentRoundNum} · {currentSide === "attack" ? "Ataque" : "Defensa"} ({recommendations.length} {recommendations.length === 1 ? "Pick" : "Picks"})
+            R{currentRoundNum} · {currentSide === "attack" ? "Ataque" : "Defensa"}
+            {" · "}
+            {recommendations.length} {recommendations.length === 1 ? "Pick" : "Picks"}
           </span>
           <button className="reroll-btn" onClick={onRollOperator}>
-            <RefreshCw size={12} /> Re-sortear Squad
+            <RefreshCw size={12} /> Re-sortear
           </button>
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
             key={`op-group-${opRoll}`}
-            className={`operator-recommendations-wrapper ${
-              recommendations.length > 1 ? "multi-picks-grid" : "single-pick-box"
-            }`}
+            className={isMulti ? "picks-list" : "single-pick-box"}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -212,50 +214,51 @@ export function ActiveMatch({
             {recommendations.map((rec, index) => (
               <div
                 key={`${rec.playerLabel}-${rec.opName}-${index}`}
-                className={`operator-display ${
-                  currentSide === "attack" ? "atk-side" : "def-side"
-                }`}
+                className={`pick-row ${currentSide === "attack" ? "pick-row-atk" : "pick-row-def"}`}
               >
-                <div className="operator-avatar">
-                  <span className="operator-monogram">
-                    {rec.opName.slice(0, 2).toUpperCase()}
-                  </span>
+                {/* Left stripe */}
+                <div className="pick-row-stripe" />
+
+                {/* Avatar */}
+                <div className="pick-row-avatar">
+                  {rec.opName.slice(0, 2).toUpperCase()}
                 </div>
 
-                <div className="operator-info">
-                  <div className="player-tag-row">
-                    <span className="player-tag-name">{rec.playerLabel}</span>
+                {/* Info */}
+                <div className="pick-row-info">
+                  <div className="pick-row-top">
+                    <span className="pick-player-tag">{rec.playerLabel}</span>
                     {rec.isMain && (
-                      <span className="main-star-badge" title="Es uno de sus mains configurados">
-                        <Star size={10} /> MAIN
+                      <span className="main-star-badge">
+                        <Star size={9} /> MAIN
                       </span>
                     )}
                   </div>
-
-                  <h2 className="operator-name">{rec.opName}</h2>
-
+                  <div className="pick-row-op-name">{rec.opName}</div>
                   {rec.playstyle && (
-                    <p className="operator-playstyle">{rec.playstyle}</p>
+                    <div className="pick-row-playstyle">{rec.playstyle}</div>
                   )}
-
-                  <div className="operator-side-badge">
-                    {currentSide === "attack" ? (
-                      <><Swords size={10} style={{ display: "inline", marginRight: 4 }} />Atacante</>
-                    ) : (
-                      <><Shield size={10} style={{ display: "inline", marginRight: 4 }} />Defensor</>
-                    )}
-                  </div>
                 </div>
 
-                {recommendations.length > 1 && (
-                  <button
-                    className="single-reroll-btn"
-                    title={`Re-sortear solo para ${rec.playerLabel}`}
-                    onClick={() => onRollSinglePlayer(index)}
-                  >
-                    <RefreshCw size={12} />
-                  </button>
-                )}
+                {/* Side badge + reroll */}
+                <div className="pick-row-right">
+                  <div className="pick-side-badge">
+                    {currentSide === "attack" ? (
+                      <><Swords size={10} /> ATK</>
+                    ) : (
+                      <><Shield size={10} /> DEF</>
+                    )}
+                  </div>
+                  {isMulti && (
+                    <button
+                      className="single-reroll-btn"
+                      title={`Re-sortear para ${rec.playerLabel}`}
+                      onClick={() => onRollSinglePlayer(index)}
+                    >
+                      <RefreshCw size={12} />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </motion.div>

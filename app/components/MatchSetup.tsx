@@ -1,10 +1,10 @@
 "use client";
 
-import { Dice5, MapPinned, Settings2, Shield, Shuffle, Swords, UserCheck, Users } from "lucide-react";
-import { useState } from "react";
+import { Dice5, MapPinned, Shield, Shuffle, Swords, UserCheck, Users } from "lucide-react";
 import { competitiveMaps, mapBombSites, type Side } from "../../data/catalog";
 import type { PibeProfile } from "../../data/pibes";
 import { PibesManager } from "./PibesManager";
+import { useState } from "react";
 
 type MatchSetupProps = {
   mode: "default" | "pibes";
@@ -39,22 +39,21 @@ export function MatchSetup({
   onStartMatch,
   randomItem,
 }: MatchSetupProps) {
+  // Hidden: PibesManager not exposed until DB is implemented
   const [showPibesManager, setShowPibesManager] = useState(false);
 
   const togglePibeActive = (pibeId: string) => {
-    let next: string[];
-    if (activePibeIds.includes(pibeId)) {
-      if (activePibeIds.length <= 1) return; // keep at least 1
-      next = activePibeIds.filter((id) => id !== pibeId);
+    const isActive = activePibeIds.includes(pibeId);
+
+    if (isActive) {
+      // Can't deselect if it's the last one
+      if (activePibeIds.length <= 1) return;
+      setActivePibeIds(activePibeIds.filter((id) => id !== pibeId));
     } else {
-      if (activePibeIds.length >= partySize) {
-        // Replace oldest or keep max partySize
-        next = [...activePibeIds.slice(1), pibeId];
-      } else {
-        next = [...activePibeIds, pibeId];
-      }
+      // Can't add more than partySize
+      if (activePibeIds.length >= partySize) return;
+      setActivePibeIds([...activePibeIds, pibeId]);
     }
-    setActivePibeIds(next);
   };
 
   return (
@@ -88,7 +87,7 @@ export function MatchSetup({
               className={`party-card ${partySize === 1 ? "active" : ""}`}
               onClick={() => {
                 setPartySize(1);
-                if (activePibeIds.length > 1) setActivePibeIds([activePibeIds[0]]);
+                setActivePibeIds([activePibeIds[0]]);
               }}
             >
               <Users size={18} />
@@ -100,12 +99,12 @@ export function MatchSetup({
               className={`party-card ${partySize === 2 ? "active" : ""}`}
               onClick={() => {
                 setPartySize(2);
-                if (activePibeIds.length < 2) {
-                  const missing = pibes.find((p) => !activePibeIds.includes(p.id))?.id;
-                  if (missing) setActivePibeIds([...activePibeIds, missing]);
-                } else if (activePibeIds.length > 2) {
-                  setActivePibeIds(activePibeIds.slice(0, 2));
+                const next = activePibeIds.slice(0, 2);
+                if (next.length < 2) {
+                  const missing = pibes.find((p) => !next.includes(p.id))?.id;
+                  if (missing) next.push(missing);
                 }
+                setActivePibeIds(next);
               }}
             >
               <Users size={18} />
@@ -133,22 +132,21 @@ export function MatchSetup({
                 <span className="setup-label" style={{ margin: 0 }}>
                   Pibes en la Partida ({activePibeIds.length}/{partySize}):
                 </span>
-                <button
-                  className="customize-pibes-btn"
-                  onClick={() => setShowPibesManager(true)}
-                >
-                  <Settings2 size={13} /> Mains & Estilos
-                </button>
+                {/* Customize button hidden until DB is ready */}
               </div>
 
               <div className="pibes-chips-grid">
                 {pibes.map((pibe) => {
                   const isActive = activePibeIds.includes(pibe.id);
+                  const isDisabled = !isActive && activePibeIds.length >= partySize;
+
                   return (
                     <button
                       key={pibe.id}
-                      className={`pibe-select-chip ${isActive ? "chip-active" : ""}`}
+                      className={`pibe-select-chip ${isActive ? "chip-active" : ""} ${isDisabled ? "chip-disabled" : ""}`}
                       onClick={() => togglePibeActive(pibe.id)}
+                      disabled={isDisabled}
+                      title={isDisabled ? `Ya tenés ${partySize} jugador${partySize > 1 ? "es" : ""} seleccionado${partySize > 1 ? "s" : ""}` : undefined}
                     >
                       <span className="pibe-chip-name">{pibe.name}</span>
                       <span className="pibe-chip-style">{pibe.playstyle}</span>
@@ -238,7 +236,7 @@ export function MatchSetup({
         Iniciar en {matchMap}
       </button>
 
-      {/* Pibes Manager Modal */}
+      {/* Hidden PibesManager modal until DB ready */}
       {showPibesManager && (
         <PibesManager
           pibes={pibes}
