@@ -224,6 +224,14 @@ export const mapBombSites: Record<string, BombSite[]> = {
   ]
 };
 
+export const competitiveMaps = maps.filter(
+  (m) => (mapBombSites[m]?.length ?? 0) > 0
+);
+
+export const nonCompetitiveMaps = maps.filter(
+  (m) => !(mapBombSites[m]?.length ?? 0)
+);
+
 export const catalogMeta = {
   source: "Ubisoft Rainbow Six Siege",
   sourceUrl: "https://www.ubisoft.com/en-us/game/rainbow-six/siege/game-info",

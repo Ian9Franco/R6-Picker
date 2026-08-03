@@ -1,7 +1,7 @@
 "use client";
 
 import { Dice5, MapPinned, Shield, Shuffle, Swords } from "lucide-react";
-import { mapBombSites, maps, type Side } from "../../data/catalog";
+import { competitiveMaps, mapBombSites, type Side } from "../../data/catalog";
 
 type MatchSetupProps = {
   matchMap: string;
@@ -31,18 +31,18 @@ export function MatchSetup({
                 size={12}
                 style={{ display: "inline", marginRight: 6, verticalAlign: "middle" }}
               />
-              Mapa del Partido
+              Mapa Competitivo ({competitiveMaps.length})
             </span>
             <button
               className="label-action"
-              onClick={() => setMatchMap(randomItem(maps))}
+              onClick={() => setMatchMap(randomItem(competitiveMaps))}
             >
               <Shuffle size={11} /> Aleatorio
             </button>
           </div>
 
           <div className="map-grid">
-            {maps.map((m) => {
+            {competitiveMaps.map((m) => {
               const siteCount = mapBombSites[m]?.length ?? 0;
               return (
                 <button

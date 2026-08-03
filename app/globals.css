@@ -1665,6 +1665,13 @@ button {
   gap: 2px;
 }
 
+.map-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .map-card-name {
   font-family: "Rajdhani", sans-serif;
   font-size: 18px;
@@ -1674,12 +1681,46 @@ button {
   text-transform: uppercase;
 }
 
+.map-badge-comp {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.map-badge-noncomp {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .map-card-meta {
   font-size: 11px;
   color: var(--muted);
   font-family: "Rajdhani", sans-serif;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.map-card.map-non-competitive {
+  opacity: 0.65;
+}
+
+.map-card-icon.icon-disabled {
+  opacity: 0.5;
 }
 
 .map-card-actions {
@@ -1706,6 +1747,19 @@ button {
 .map-select-btn:hover {
   color: var(--white);
   border-color: var(--border-mid);
+}
+
+.map-select-btn.map-btn-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: transparent;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.map-select-btn.map-btn-disabled:hover {
+  color: var(--muted);
+  border-color: var(--border);
 }
 
 .map-card.map-active .map-select-btn {
