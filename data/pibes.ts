@@ -2,14 +2,14 @@
  * pibes.ts
  * --------
  * Motor Táctico Avanzado de Recomendación de Escuadrón.
- * Implementa:
+ * Incluye:
  *   1. Normalización unificada de 77 operadores a OperatorProfile
- *   2. Motor de puntuación dinámico (needCoverage * 4 + complementary * 3 + playerAffinity * 3 + synergy - penalty)
- *   3. Orden de Picks dinámico calculado con justificación
- *   4. Respiración Programada y Adaptativa
- *   5. Generación de Responsabilidades de Squad (Defuser, Primary Drone, First/Second Entry, Flank Watch, Shot Caller)
- *   6. Evaluación de reglas estructuradas (player-rules.json) y warnings por severidad
- *   7. Salida con Confianza, Recomendación Principal, Variante Segura y Variante de Respiración
+ *   2. Generador pseudo-aleatorio determinista (Seeded PRNG) sin jitter de render
+ *   3. Calibración de Confianza (high/medium/low + porcentaje + razones)
+ *   4. Asignación lógica cruzada de Responsabilidades (sin errores como Montagne 1st entry o Thermite droning)
+ *   5. Registro de desglose de puntuación (positive/negative explanations)
+ *   6. Supresión de respiración en Match Point y cooldown entre rotaciones
+ *   7. Sinergias Híbridas (Puntuación + Sinergias Explícitas)
  */
 
 import { attackers, defenders, type BombSite, type Side } from "./catalog";
@@ -19,7 +19,22 @@ import playerRulesRaw from "./player-rules.json";
 import synergiesRaw from "./synergies.json";
 import type { AttackRole, DefenseRole, TacticalRole } from "./roles";
 
-// ─── 1. Tipos Normalizados ───────────────────────────────────────────────────
+// ─── 1. PRNG Determinista (Sin Render Jitter) ───────────────────────────────
+
+export function seededRandom(seedStr: string): () => number {
+  let hash = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    hash = (hash << 5) - hash + seedStr.charCodeAt(i);
+    hash |= 0;
+  }
+  let current = Math.abs(hash);
+  return function () {
+    current = (current * 9301 + 49297) % 233280;
+    return current / 233280;
+  };
+}
+
+// ─── 2. Tipos Normalizados ───────────────────────────────────────────────────
 
 export type OperatorSide = "attack" | "defense";
 
@@ -61,6 +76,11 @@ export type PibeProfile = {
   defenseRoles: DefenseRole[];
 };
 
+export type ScoreExplanation = {
+  positive: string[];
+  negative: string[];
+};
+
 export type PlayerPick = {
   playerLabel: string;
   playerId: string;
@@ -75,9 +95,8 @@ export type PlayerPick = {
   coveredRole?: string;
   developmentGoal?: string;
   avoidWarning?: string;
+  explanation: ScoreExplanation;
 };
-
-export type Recommendation = PlayerPick;
 
 export type SquadResponsibilities = {
   defuserCarrier?: string;
@@ -94,6 +113,12 @@ export type TacticalWarning = {
   message: string;
 };
 
+export type ConfidenceInfo = {
+  level: "high" | "medium" | "low";
+  percentage: number;
+  reasons: string[];
+};
+
 export type SquadRecommendation = {
   title: string;
   picks: PlayerPick[];
@@ -103,7 +128,7 @@ export type SquadRecommendation = {
   duoPlan?: string;
   responsibilities: SquadResponsibilities;
   warnings: TacticalWarning[];
-  confidence: number; // 0.0 - 1.0
+  confidence: ConfidenceInfo;
   breathingType?: "none" | "scheduled" | "adaptive";
   breathingReason?: string;
 };
@@ -114,25 +139,7 @@ export type RecommendationEngineOutput = {
   breathingVariant?: SquadRecommendation;
 };
 
-const ROLE_PLAYSTYLE_LABELS: Record<string, string> = {
-  "hard-breach":      "Brecha dura",
-  "soft-breach":      "Brecha blanda",
-  "entry-frag":       "Entry Fragger",
-  "anti-gadget":      "Anti-gadget",
-  "intel":            "Información",
-  "zone-control":     "Control de zona",
-  "support":          "Soporte",
-  "objective-anchor": "Ancla del objetivo",
-  "anti-gadget-def":  "Anti-gadget",
-  "roamer":           "Roamer",
-  "intel-def":        "Información",
-  "trap-setter":      "Trampas",
-  "access-denial":    "Bloqueo de accesos",
-  "support-def":      "Soporte defensivo",
-  "zone-deny":        "Negación de zona",
-};
-
-// ─── 2. Normalización de Operadores ──────────────────────────────────────────
+// ─── 3. Normalización de Operadores ──────────────────────────────────────────
 
 const rawOpDictionary = operatorRolesRaw as Record<string, any>;
 
@@ -177,7 +184,25 @@ export function normalizeOperator(name: string): OperatorProfile {
   };
 }
 
-// ─── 3. Cargador de Pibes y Reglas ───────────────────────────────────────────
+const ROLE_PLAYSTYLE_LABELS: Record<string, string> = {
+  "hard-breach":      "Brecha dura",
+  "soft-breach":      "Brecha blanda",
+  "entry-frag":       "Entry Fragger",
+  "anti-gadget":      "Anti-gadget",
+  "intel":            "Información",
+  "zone-control":     "Control de zona",
+  "support":          "Soporte",
+  "objective-anchor": "Ancla del objetivo",
+  "anti-gadget-def":  "Anti-gadget",
+  "roamer":           "Roamer",
+  "intel-def":        "Información",
+  "trap-setter":      "Trampas",
+  "access-denial":    "Bloqueo de accesos",
+  "support-def":      "Soporte defensivo",
+  "zone-deny":        "Negación de zona",
+};
+
+// ─── 4. Cargador de Pibes y Reglas ───────────────────────────────────────────
 
 export function buildPibeProfiles(): PibeProfile[] {
   return pibesDataRaw.pibes.map((raw: any) => {
@@ -221,7 +246,7 @@ function deriveRoles<T extends TacticalRole>(mains: string[], side: Side): T[] {
 
 export const DEFAULT_PIBES: PibeProfile[] = buildPibeProfiles();
 
-// ─── 4. Motor de Puntuación Dinámico ────────────────────────────────────────
+// ─── 5. Puntuación Dinámica con Desglose ─────────────────────────────────────
 
 const weights = synergiesRaw.scoreWeights ?? {
   coveredNeed: 4,
@@ -233,96 +258,94 @@ const weights = synergiesRaw.scoreWeights ?? {
   forbiddenPatternPenalty: -6,
 };
 
-function scorePick(
+function scoreAndExplainPick(
   op: OperatorProfile,
   pibe: PibeProfile,
   siteReqs: string[],
   squadOpsSoFar: OperatorProfile[],
   squadRolesSoFar: Set<string>
-): number {
+): { score: number; explanation: ScoreExplanation } {
   let score = 50;
+  const positive: string[] = [];
+  const negative: string[] = [];
 
-  // Afinidad del jugador con el rol del operador (0.3 - 1.0)
+  // Afinidad del jugador
   const topRole = op.roles[0];
   const affinity = pibe.roleAffinity[topRole] ?? 0.7;
-  score += affinity * weights.playerFit;
+  const affinityPts = Math.round(affinity * weights.playerFit * 3);
+  score += affinityPts;
+  positive.push(`+${affinityPts} afinidad de ${pibe.name} con ${ROLE_PLAYSTYLE_LABELS[topRole] ?? topRole}`);
 
-  // Requerimientos cubiertos del site
-  const coversSiteReq = op.roles.some((r) => siteReqs.includes(r) && !squadRolesSoFar.has(r));
-  if (coversSiteReq) score += weights.coveredNeed;
+  // Requerimientos del sitio
+  const coversSiteReq = op.roles.find((r) => siteReqs.includes(r) && !squadRolesSoFar.has(r));
+  if (coversSiteReq) {
+    score += weights.coveredNeed * 3;
+    positive.push(`+${weights.coveredNeed * 3} cubre necesidad de ${ROLE_PLAYSTYLE_LABELS[coversSiteReq] ?? coversSiteReq}`);
+  }
 
-  // Complementariedad con necesidades de operadores previos
+  // Complementariedad con squad
   for (const prevOp of squadOpsSoFar) {
     if (prevOp.needs.some((n) => op.provides.includes(n) || op.roles.includes(n as any))) {
-      score += weights.complementaryRole;
+      score += weights.complementaryRole * 2;
+      positive.push(`+${weights.complementaryRole * 2} sinergia de rol con ${prevOp.name}`);
     }
   }
 
-  // Penalización por rol duplicado si ya hay suficiente
+  // Penalización por duplicación innecesaria
   for (const role of op.roles) {
     if (squadRolesSoFar.has(role)) {
-      score += weights.duplicatedRolePenalty;
+      score += weights.duplicatedRolePenalty * 2;
+      negative.push(`${weights.duplicatedRolePenalty * 2} duplica rol de ${ROLE_PLAYSTYLE_LABELS[role] ?? role}`);
     }
   }
 
-  // Penalización si está en la lista de avoid del jugador
+  // Penalización si es avoid del pibe
   const isAvoid = op.side === "attack"
     ? pibe.avoidOperators.attack.includes(op.name)
     : pibe.avoidOperators.defense.includes(op.name);
-  if (isAvoid) score += weights.forbiddenPatternPenalty;
+  if (isAvoid) {
+    score += weights.forbiddenPatternPenalty * 2;
+    negative.push(`${weights.forbiddenPatternPenalty * 2} operador desaconsejado para ${pibe.name}`);
+  }
 
-  return score;
+  return { score, explanation: { positive, negative } };
 }
 
-// ─── 5. Orden de Picks Dinámico con Justificación ─────────────────────────────
+// ─── 6. Orden de Picks Dinámico Justificado ───────────────────────────────────
 
 function calculateDynamicPickOrder(
   activePibes: PibeProfile[],
   side: Side,
   siteReqs: string[]
 ): { orderedPibes: PibeProfile[]; reason: string } {
-  // Copia segura de pibes
   const pibes = [...activePibes];
 
   if (side === "attack") {
-    // Si el sitio requiere Hard Breach explícito, el jugador con mayor afinidad a Hard Breach va 1.º
-    const hardBreacher = pibes.find((p) => p.roleAffinity["hard-breach"] && p.roleAffinity["hard-breach"] > 0.85);
-    const shieldOrExec = pibes.find((p) => p.id === "azusa_cooper09");
-    const flex = pibes.find((p) => p.id === "el_notorious");
-
-    if (hardBreacher && hardBreacher.id === "chango_nocturno") {
-      return {
-        orderedPibes: [
-          changoOrFirst(pibes, "chango_nocturno"),
-          changoOrFirst(pibes, "el_notorious"),
-          changoOrFirst(pibes, "azusa_cooper09"),
-        ].filter(Boolean),
-        reason: "Orden sugerido: Chango → Notorious → Azusa. Motivo: Primero se fija la brecha dura, luego el flex de presión y finalmente la ejecución de plantado.",
-      };
-    }
+    return {
+      orderedPibes: [
+        changoOrFirst(pibes, "chango_nocturno"),
+        changoOrFirst(pibes, "el_notorious"),
+        changoOrFirst(pibes, "azusa_cooper09"),
+      ].filter(Boolean),
+      reason: "Orden sugerido: Chango → Notorious → Azusa. Motivo: Primero se fija la estructura/brecha, luego el flex de presión y finalmente la ejecución de plantado.",
+    };
   } else {
-    // Defensa: 1. Estructura de sitio -> 2. Ancla -> 3. Intel/Roam
     return {
       orderedPibes: [
         changoOrFirst(pibes, "chango_nocturno"),
         changoOrFirst(pibes, "azusa_cooper09"),
         changoOrFirst(pibes, "el_notorious"),
       ].filter(Boolean),
-      reason: "Orden sugerido: Chango → Azusa → Notorious. Motivo: Primero se asegura la negación del muro, luego el ancla de sitio y finalmente la cobertura de roaming/intel.",
+      reason: "Orden sugerido: Chango → Azusa → Notorious. Motivo: Primero se sella la negación de muro, luego el ancla de sitio y finalmente la cobertura de roaming/intel.",
     };
   }
-
-  return {
-    orderedPibes: pibes,
-    reason: "Orden estándar táctico según responsabilidades primarias del squad.",
-  };
 }
 
 function changoOrFirst(pibes: PibeProfile[], targetId: string): PibeProfile {
   return pibes.find((p) => p.id === targetId) ?? pibes[0];
 }
 
-// ─── 6. Generación de Responsabilidades ──────────────────────────────────────
+// ─── 7. Asignación Lógica Cruzada de Responsabilidades ───────────────────────
 
 function assignSquadResponsibilities(
   picks: PlayerPick[],
@@ -331,17 +354,39 @@ function assignSquadResponsibilities(
   const resp: SquadResponsibilities = {};
 
   if (side === "attack") {
-    // Carrier: Azusa si tiene escudo/support, o Chango con brecha
-    const azusaPick = picks.find((p) => p.playerId === "azusa_cooper09");
-    const changoPick = picks.find((p) => p.playerId === "chango_nocturno");
-    const notoriousPick = picks.find((p) => p.playerId === "el_notorious");
+    // Defuser carrier: NUNCA Montagne solo ni primer entry fragger (Ash/Zofia) si hay support
+    const carrierPick =
+      picks.find((p) => ["Osa", "Sens", "Gridlock", "Rauora"].includes(p.opName)) ??
+      picks.find((p) => ["Thermite", "Hibana", "Ace"].includes(p.opName)) ??
+      picks.find((p) => p.playerId === "azusa_cooper09") ??
+      picks[0];
 
-    resp.defuserCarrier = azusaPick?.playerLabel ?? changoPick?.playerLabel ?? picks[0]?.playerLabel;
-    resp.primaryDrone = changoPick?.playerLabel ?? notoriousPick?.playerLabel ?? picks[0]?.playerLabel;
-    resp.firstEntry = notoriousPick?.playerLabel ?? picks[0]?.playerLabel;
-    resp.secondEntry = azusaPick?.playerLabel ?? changoPick?.playerLabel;
-    resp.flankWatch = changoPick?.playerLabel ?? "Escuadrón";
-    resp.shotCaller = notoriousPick?.playerLabel ?? "El_Notorious";
+    resp.defuserCarrier = carrierPick?.playerLabel;
+
+    // Primary drone: NUNCA Thermite o Montagne durante la ejecución
+    const dronePick =
+      picks.find((p) => ["Thatcher", "Zero", "Twitch", "Brava", "IQ", "Lion", "Dokkaebi"].includes(p.opName)) ??
+      picks.find((p) => p.playerId === "chango_nocturno") ??
+      picks[0];
+
+    resp.primaryDrone = dronePick?.playerLabel;
+
+    // First Entry: NUNCA Montagne, Thermite, Thatcher o Fuze
+    const firstEntryPick =
+      picks.find((p) => ["Ash", "Zofia", "Deimos", "Buck", "Iana", "Amaru", "Nøkk", "Blitz"].includes(p.opName)) ??
+      picks.find((p) => p.playerId === "el_notorious") ??
+      picks[0];
+
+    resp.firstEntry = firstEntryPick?.playerLabel;
+
+    // Second Entry
+    const secondEntryPick = picks.find((p) => p.playerLabel !== firstEntryPick?.playerLabel) ?? picks[1];
+    resp.secondEntry = secondEntryPick?.playerLabel;
+
+    // Flank watch
+    const flankPick = picks.find((p) => ["Nomad", "Gridlock", "Grim", "Rauora"].includes(p.opName)) ?? picks.find((p) => p.playerId === "chango_nocturno");
+    resp.flankWatch = flankPick?.playerLabel ?? "Escuadrón";
+    resp.shotCaller = picks.find((p) => p.playerId === "el_notorious")?.playerLabel ?? "El_Notorious";
   } else {
     const notoriousPick = picks.find((p) => p.playerId === "el_notorious");
     const changoPick = picks.find((p) => p.playerId === "chango_nocturno");
@@ -356,9 +401,7 @@ function assignSquadResponsibilities(
   return resp;
 }
 
-// ─── 7. Reglas de Advertencias Estructuradas ────────────────────────────────
-
-const playerRules = playerRulesRaw as any;
+// ─── 8. Evaluación de Advertencias Estructuradas ──────────────────────────────
 
 function evaluateTacticalWarnings(
   picks: PlayerPick[],
@@ -368,7 +411,6 @@ function evaluateTacticalWarnings(
   const opNames = picks.map((p) => p.opName);
   const isAttack = side === "attack";
 
-  // Revisa reglas de player-rules.json
   if (isAttack) {
     const structuralCount = opNames.filter((n) =>
       ["Thermite", "Thatcher", "Ace", "Hibana"].includes(n)
@@ -378,7 +420,7 @@ function evaluateTacticalWarnings(
       warnings.push({
         id: "no-entry-pressure",
         severity: "high",
-        message: "La composición tiene 3 soportes estructurales. Abre el sitio pero carece de presión para cruzar la brecha.",
+        message: "La composición tiene 3 soportes estructurales. Abre la pared pero carece de agresión para tomar sitio.",
       });
     }
 
@@ -393,7 +435,6 @@ function evaluateTacticalWarnings(
       });
     }
   } else {
-    // Defensa: 3 anclas sin roaming
     const passiveAnchors = picks.filter((p) =>
       ["Doc", "Rook", "Tachanka", "Maestro", "Echo", "Castle"].includes(p.opName)
     ).length;
@@ -402,7 +443,7 @@ function evaluateTacticalWarnings(
       warnings.push({
         id: "passive-defense",
         severity: "high",
-        message: "Los 3 defensores dependen de quedarse dentro del objetivo sin control del mapa ni roaming.",
+        message: "Los 3 defensores dependen de quedarse encerrados en el objetivo sin control del mapa ni roaming.",
       });
     }
   }
@@ -410,17 +451,67 @@ function evaluateTacticalWarnings(
   return warnings;
 }
 
-// ─── 8. Motor Principal Los Pibes (Salida Completa) ───────────────────────────
+// ─── 9. Calibración de Confianza ───────────────────────────────────────────────
+
+function calculateConfidence(
+  picks: PlayerPick[],
+  siteReqs: string[],
+  warnings: TacticalWarning[],
+  explicitSynergy?: any
+): ConfidenceInfo {
+  const reasons: string[] = [];
+  let scorePoints = 85;
+
+  const coveredReqs = siteReqs.filter((req) =>
+    picks.some((p) => p.operatorProfile.roles.includes(req as any))
+  );
+
+  if (siteReqs.length > 0) {
+    if (coveredReqs.length === siteReqs.length) {
+      scorePoints += 8;
+      reasons.push(`Cubre ${coveredReqs.length} de ${siteReqs.length} necesidades del sitio`);
+    } else {
+      scorePoints -= (siteReqs.length - coveredReqs.length) * 6;
+      reasons.push(`Cubre ${coveredReqs.length} de ${siteReqs.length} necesidades del sitio`);
+    }
+  }
+
+  if (explicitSynergy) {
+    scorePoints += 10;
+    reasons.push("Existe una sinergia de jugada explícita probada");
+  }
+
+  const highWarnings = warnings.filter((w) => w.severity === "high");
+  if (highWarnings.length > 0) {
+    scorePoints -= 15;
+    reasons.push(`Presenta ${highWarnings.length} advertencia(s) táctica(s) crítica(s)`);
+  }
+
+  const percentage = Math.min(99, Math.max(50, scorePoints));
+  let level: "high" | "medium" | "low" = "high";
+  if (percentage < 75) level = "medium";
+  if (percentage < 60) level = "low";
+
+  return { level, percentage, reasons };
+}
+
+// ─── 10. Motor Principal Los Pibes (Deterministic & Complete) ────────────────
 
 export function getPibesRecommendations(
   side: Side,
   activePibes: PibeProfile[],
   currentSite?: BombSite,
-  currentRoundNum: number = 1
+  currentRoundNum: number = 1,
+  matchMap: string = "Clubhouse"
 ): RecommendationEngineOutput {
   const fullPool = side === "attack" ? attackers : defenders;
   const siteReqs: string[] =
     currentSite?.requirements?.[side === "attack" ? "attack" : "defense"] ?? [];
+
+  // Seed determinista por mapa, site, ronda y squad activo
+  const siteKey = currentSite?.name ?? "any_site";
+  const pibesKey = activePibes.map((p) => p.id).join("_");
+  const rngSeed = `${side}_${matchMap}_${siteKey}_${currentRoundNum}_${pibesKey}`;
 
   // Calcular orden dinámico de picks
   const { orderedPibes, reason: orderReason } = calculateDynamicPickOrder(
@@ -429,8 +520,9 @@ export function getPibesRecommendations(
     siteReqs
   );
 
-  // Evaluar respiración programada y adaptativa
-  const isScheduledBreathing = currentRoundNum > 0 && currentRoundNum % 3 === 0;
+  // Evaluar respiración (Supresión en Match Point: ronda >= 6)
+  const isMatchPoint = currentRoundNum >= 6;
+  const isScheduledBreathing = !isMatchPoint && currentRoundNum > 0 && currentRoundNum % 3 === 0;
 
   // ── GENERAR RECOMENDACIÓN PRINCIPAL ─────────────────────────────────────────
   const primaryPicks = generateSquadPicks(
@@ -438,7 +530,8 @@ export function getPibesRecommendations(
     side,
     siteReqs,
     fullPool,
-    "primary"
+    "primary",
+    rngSeed + "_primary"
   );
 
   const primaryWarnings = evaluateTacticalWarnings(primaryPicks, side);
@@ -455,7 +548,7 @@ export function getPibesRecommendations(
     duoPlan: explicitSynergy?.plan?.setup || primaryPicks[0]?.operatorProfile?.duo_plan,
     responsibilities: assignSquadResponsibilities(primaryPicks, side),
     warnings: primaryWarnings,
-    confidence: primaryWarnings.some((w) => w.severity === "high") ? 0.72 : 0.94,
+    confidence: calculateConfidence(primaryPicks, siteReqs, primaryWarnings, explicitSynergy),
     breathingType: "none",
   };
 
@@ -465,9 +558,11 @@ export function getPibesRecommendations(
     side,
     siteReqs,
     fullPool,
-    "safe"
+    "safe",
+    rngSeed + "_safe"
   );
 
+  const safeWarnings = evaluateTacticalWarnings(safePicks, side);
   const safeRecommendation: SquadRecommendation = {
     title: "Variante Segura (Estructura Estable)",
     picks: safePicks,
@@ -476,8 +571,8 @@ export function getPibesRecommendations(
     trioPlan: safePicks[0]?.operatorProfile?.trio_plan || "Mantener estructura sólida de sitio y soporte.",
     duoPlan: safePicks[0]?.operatorProfile?.duo_plan,
     responsibilities: assignSquadResponsibilities(safePicks, side),
-    warnings: evaluateTacticalWarnings(safePicks, side),
-    confidence: 0.88,
+    warnings: safeWarnings,
+    confidence: calculateConfidence(safePicks, siteReqs, safeWarnings),
     breathingType: "none",
   };
 
@@ -485,14 +580,18 @@ export function getPibesRecommendations(
   let breathingRecommendation: SquadRecommendation | undefined = undefined;
 
   if (isScheduledBreathing || activePibes.some((p) => (side === "attack" ? p.tryoutAttack : p.tryoutDefense).length > 0)) {
+    const breathingIndex = (currentRoundNum / 3 - 1) % orderedPibes.length;
     const breathingPicks = generateSquadPicks(
       orderedPibes,
       side,
       siteReqs,
       fullPool,
       "breathing",
-      (currentRoundNum / 3 - 1) % orderedPibes.length
+      rngSeed + "_breathing",
+      breathingIndex
     );
+
+    const breathingWarnings = evaluateTacticalWarnings(breathingPicks, side);
 
     breathingRecommendation = {
       title: "Variante de Respiración / Tryout",
@@ -503,8 +602,8 @@ export function getPibesRecommendations(
         ? `Objetivo de Desarrollo: ${breathingPicks.find((p) => p.developmentGoal)?.developmentGoal}`
         : "Variación de roles para probar alternativas de combate.",
       responsibilities: assignSquadResponsibilities(breathingPicks, side),
-      warnings: evaluateTacticalWarnings(breathingPicks, side),
-      confidence: 0.82,
+      warnings: breathingWarnings,
+      confidence: calculateConfidence(breathingPicks, siteReqs, breathingWarnings),
       breathingType: isScheduledBreathing ? "scheduled" : "adaptive",
       breathingReason: isScheduledBreathing
         ? "Rotación programada de ronda 3 para evitar previsibilidad."
@@ -519,22 +618,24 @@ export function getPibesRecommendations(
   };
 }
 
-// Helper para generar picks de escuadrón según estrategia
+// Helper determinista para generar picks
 function generateSquadPicks(
   orderedPibes: PibeProfile[],
   side: Side,
   siteReqs: string[],
   fullPool: any[],
   strategy: "primary" | "safe" | "breathing",
+  seedStr: string,
   breathingIndex: number = 0
 ): PlayerPick[] {
+  const rng = seededRandom(seedStr);
   const usedOps = new Set<string>();
   const squadRolesSoFar = new Set<string>();
   const squadOpsSoFar: OperatorProfile[] = [];
   const picks: PlayerPick[] = [];
 
   orderedPibes.forEach((pibe, idx) => {
-    const isBreathingPlayer = strategy === "breathing" && idx === Math.abs(breathingIndex % orderedPibes.length);
+    const isBreathingPlayer = strategy === "breathing" && idx === Math.abs(Math.floor(breathingIndex) % orderedPibes.length);
     const mains = side === "attack" ? pibe.attackMains : pibe.defenseMains;
     const tryouts = side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense;
 
@@ -546,7 +647,7 @@ function generateSquadPicks(
     if (isBreathingPlayer && tryouts.length > 0) {
       const avail = tryouts.filter((t) => !usedOps.has(t.operator));
       if (avail.length > 0) {
-        const picked = avail[0];
+        const picked = avail[Math.floor(rng() * avail.length)];
         chosenOpName = picked.operator;
         isTryout = true;
         developmentGoal = picked.developmentGoal;
@@ -563,12 +664,23 @@ function generateSquadPicks(
         isMain = true;
       } else {
         const pool = fullPool.filter((op) => !usedOps.has(op.name));
-        chosenOpName = (pool.length > 0 ? pool : fullPool)[0].name;
+        const picked = (pool.length > 0 ? pool : fullPool)[
+          Math.floor(rng() * (pool.length > 0 ? pool.length : fullPool.length))
+        ];
+        chosenOpName = picked.name;
       }
     }
 
     usedOps.add(chosenOpName);
     const prof = normalizeOperator(chosenOpName);
+    const { score, explanation } = scoreAndExplainPick(
+      prof,
+      pibe,
+      siteReqs,
+      squadOpsSoFar,
+      squadRolesSoFar
+    );
+
     squadOpsSoFar.push(prof);
     for (const r of prof.roles) squadRolesSoFar.add(r);
 
@@ -588,13 +700,14 @@ function generateSquadPicks(
       coversRequirement: coversReq,
       coveredRole: coveredRole ? ROLE_PLAYSTYLE_LABELS[coveredRole] : undefined,
       developmentGoal,
+      explanation,
     });
   });
 
   return picks;
 }
 
-// ─── 9. Búsqueda de Sinergias Explícitas ──────────────────────────────────────
+// ─── 11. Búsqueda de Sinergias Explícitas ──────────────────────────────────────
 
 const explicitSynergiesList = synergiesRaw.explicitSynergies ?? [];
 
@@ -623,5 +736,6 @@ export function getStandardRecommendations(
     operatorProfile: normalizeOperator(op.name),
     role: op.role,
     pickOrderNumber: idx + 1,
+    explanation: { positive: ["Pick aleatorio estándar"], negative: [] },
   }));
 }

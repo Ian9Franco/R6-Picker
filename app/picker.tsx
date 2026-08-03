@@ -142,7 +142,7 @@ export function Picker() {
   const rollRecommendationsForSide = (sideToUse: Side, siteOverride?: BombSite) => {
     const site = siteOverride ?? currentBombSiteObj;
     if (mode === "pibes" && activePibeProfiles.length > 0) {
-      const output = getPibesRecommendations(sideToUse, activePibeProfiles, site, currentRoundNum);
+      const output = getPibesRecommendations(sideToUse, activePibeProfiles, site, currentRoundNum, matchMap);
       setEngineOutput(output);
     } else {
       const recs = getStandardRecommendations(sideToUse, Math.max(1, activePibeProfiles.length || partySize));
@@ -471,6 +471,7 @@ export function Picker() {
                       },
                       role: "Manual",
                       pickOrderNumber: 1,
+                      explanation: { positive: ["Selección manual del operador"], negative: [] },
                     },
                   ]);
                   setActiveTab("picker");

@@ -226,7 +226,7 @@ export function ActiveMatch({
               className={`variant-tab-btn ${activeVariantTab === "primary" ? "active" : ""}`}
               onClick={() => setActiveVariantTab("primary")}
             >
-              <Flame size={12} /> Principal ({Math.round(engineOutput.primary.confidence * 100)}%)
+              <Flame size={12} /> Principal ({engineOutput.primary.confidence.percentage}%)
             </button>
             <button
               className={`variant-tab-btn ${activeVariantTab === "safe" ? "active" : ""}`}
