@@ -3126,13 +3126,13 @@ button {
 
 /* Explicit Breathing / Rotation Card */
 .breathing-role-card {
-  padding: 14px 16px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(18, 20, 28, 0.95) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.35);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .breathing-card-top {
@@ -3144,42 +3144,74 @@ button {
 
 .breathing-card-title {
   font-family: "Rajdhani", sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--white);
+  letter-spacing: 0.02em;
 }
 
 .breathing-role-tag {
   font-family: "Rajdhani", sans-serif;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #60a5fa;
   background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  padding: 2px 8px;
-  border-radius: 4px;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 3px 10px;
+  border-radius: 6px;
 }
 
-.breathing-freq-text {
+.breathing-freq-box {
+  padding: 8px 12px;
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
   font-size: 11px;
-  color: var(--muted-bright);
+  color: #93c5fd;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   line-height: 1.4;
-  margin: 0;
 }
 
 .breathing-pills-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 4px;
+  gap: 10px;
+  padding-top: 6px;
   border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.breathing-side-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.breathing-side-label {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #60a5fa;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .op-pill.breathing-pill {
   border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.12);
-  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  color: #bfdbfe;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 11px;
 }
 
 /* Pibes Enriched View Shell */

@@ -182,7 +182,12 @@
 
       "teamUsage": {
         "bestUse": "Debe asumir la responsabilidad estructural principal: brecha, negación de pared, control de flancos o preparación defensiva.",
-        "avoid": "Exigirle que genere la primera baja o que realice roaming profundo."
+        "avoid": "Exigirle que genere la primera baja o que realice roaming profundo.",
+        "idealDuoPartners": [
+          "Un entry agresivo (ej. Notorious con Ash/Zofia) que aproveche sus aperturas de pared.",
+          "Un ancla complementaria (ej. Azusa con Smoke/Mute) para fijar la defensa de sitio."
+        ],
+        "idealTrioFunction": "Ancla estructural principal y soporte de apertura/cierre de ronda."
       }
     },
 
@@ -270,7 +275,12 @@
 
       "teamUsage": {
         "bestUse": "Debe facilitar el avance, el plantado o la supervivencia del equipo. En defensa debería sostener el sitio y administrar utilidad de cierre.",
-        "avoid": "Dejarlo solo con Montagne o Blitz sin un compañero preparado para aprovechar la presión."
+        "avoid": "Dejarlo solo con Montagne o Blitz sin un compañero preparado para aprovechar la presión.",
+        "idealDuoPartners": [
+          "Un atacante de seguimiento inmediato (ej. Notorious) que tradee disparos tras su avance con escudo.",
+          "Un roamer/intel (ej. Notorious) que aproveche la presión y tiempo que absorbe en sitio."
+        ],
+        "idealTrioFunction": "Primera línea protegida de absorción de presión y fijación del objetivo."
       }
     }
   ]

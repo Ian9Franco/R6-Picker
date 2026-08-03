@@ -785,26 +785,29 @@ export function PibesView() {
                     {currentPibe.profile?.secondaryRole?.toUpperCase() ?? "DEVELOPMENT FLEX"}
                   </span>
                 </div>
-                <p className="breathing-freq-text">
-                  ⚡ <strong>Frecuencia:</strong> Se activa en la ronda 3 o ante rachas para romper previsibilidad enemiga sin desarmar la estructura base.
-                </p>
+                <div className="breathing-freq-box">
+                  <Zap size={13} style={{ flexShrink: 0 }} />
+                  <span>
+                    <strong>Frecuencia:</strong> Se activa dinámicamente en la ronda 3 o ante rachas para romper la previsibilidad defensiva sin desarmar el núcleo.
+                  </span>
+                </div>
                 <div className="breathing-pills-container">
-                  <div className="op-side-subgroup">
-                    <span className="op-side-title"><Swords size={12} /> Respiro ATK:</span>
+                  <div className="breathing-side-row">
+                    <span className="breathing-side-label"><Swords size={13} /> Respiro ATK:</span>
                     <div className="op-pills-row">
                       {currentPibe.tryoutOperators?.attack.map((t) => (
                         <span key={t.operator} className="op-pill breathing-pill">
-                          🔄 {t.operator}
+                          <RefreshCw size={11} /> {t.operator}
                         </span>
                       ))}
                     </div>
                   </div>
-                  <div className="op-side-subgroup">
-                    <span className="op-side-title"><Shield size={12} /> Respiro DEF:</span>
+                  <div className="breathing-side-row">
+                    <span className="breathing-side-label"><Shield size={13} /> Respiro DEF:</span>
                     <div className="op-pills-row">
                       {currentPibe.tryoutOperators?.defense.map((t) => (
                         <span key={t.operator} className="op-pill breathing-pill">
-                          🔄 {t.operator}
+                          <RefreshCw size={11} /> {t.operator}
                         </span>
                       ))}
                     </div>
