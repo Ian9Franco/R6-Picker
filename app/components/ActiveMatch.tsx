@@ -9,12 +9,14 @@ import {
   MapPin,
   RefreshCw,
   RotateCcw,
-  Shuffle,
   Shield,
+  Shuffle,
+  Star,
   Swords,
   XCircle,
 } from "lucide-react";
 import type { BombSite, Side } from "../../data/catalog";
+import type { Recommendation } from "../../data/pibes";
 
 type RoundLog = {
   roundNum: number;
@@ -31,7 +33,7 @@ type ActiveMatchProps = {
   currentRoundNum: number;
   isOvertime: boolean;
   currentSide: Side;
-  currentOperator: string;
+  recommendations: Recommendation[];
   opRoll: number;
   allMapSites: BombSite[];
   lockedSites: string[];
@@ -42,6 +44,7 @@ type ActiveMatchProps = {
   onRecordRound: (result: "win" | "loss") => void;
   onUndoLastRound: () => void;
   onRollOperator: () => void;
+  onRollSinglePlayer: (index: number) => void;
   onRollAvailableSite: () => void;
 };
 
@@ -54,7 +57,7 @@ export function ActiveMatch({
   currentRoundNum,
   isOvertime,
   currentSide,
-  currentOperator,
+  recommendations,
   opRoll,
   allMapSites,
   lockedSites,
@@ -65,6 +68,7 @@ export function ActiveMatch({
   onRecordRound,
   onUndoLastRound,
   onRollOperator,
+  onRollSinglePlayer,
   onRollAvailableSite,
 }: ActiveMatchProps) {
   return (
@@ -183,45 +187,77 @@ export function ActiveMatch({
         </div>
       )}
 
-      {/* Operator Card */}
+      {/* Operator Recommendations Section */}
       <div className="operator-section">
         <div className="operator-header">
           <span className="operator-round-label">
-            R{currentRoundNum} ·{" "}
-            {currentSide === "attack" ? "Ataque" : "Defensa"}
+            R{currentRoundNum} · {currentSide === "attack" ? "Ataque" : "Defensa"} ({recommendations.length} {recommendations.length === 1 ? "Pick" : "Picks"})
           </span>
           <button className="reroll-btn" onClick={onRollOperator}>
-            <RefreshCw size={12} /> Re-sortear
+            <RefreshCw size={12} /> Re-sortear Squad
           </button>
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={`op-${currentOperator}-${opRoll}`}
-            className={`operator-display ${
-              currentSide === "attack" ? "atk-side" : "def-side"
+            key={`op-group-${opRoll}`}
+            className={`operator-recommendations-wrapper ${
+              recommendations.length > 1 ? "multi-picks-grid" : "single-pick-box"
             }`}
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 12 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
           >
-            <div className="operator-avatar">
-              <span className="operator-monogram">
-                {currentOperator.slice(0, 2).toUpperCase()}
-              </span>
-            </div>
-            <div className="operator-info">
-              <p className="operator-sublabel">Operador sugerido</p>
-              <h2 className="operator-name">{currentOperator}</h2>
-              <div className="operator-side-badge">
-                {currentSide === "attack" ? (
-                  <><Swords size={11} style={{ display: "inline", marginRight: 4 }} />Atacante</>
-                ) : (
-                  <><Shield size={11} style={{ display: "inline", marginRight: 4 }} />Defensor</>
+            {recommendations.map((rec, index) => (
+              <div
+                key={`${rec.playerLabel}-${rec.opName}-${index}`}
+                className={`operator-display ${
+                  currentSide === "attack" ? "atk-side" : "def-side"
+                }`}
+              >
+                <div className="operator-avatar">
+                  <span className="operator-monogram">
+                    {rec.opName.slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="operator-info">
+                  <div className="player-tag-row">
+                    <span className="player-tag-name">{rec.playerLabel}</span>
+                    {rec.isMain && (
+                      <span className="main-star-badge" title="Es uno de sus mains configurados">
+                        <Star size={10} /> MAIN
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 className="operator-name">{rec.opName}</h2>
+
+                  {rec.playstyle && (
+                    <p className="operator-playstyle">{rec.playstyle}</p>
+                  )}
+
+                  <div className="operator-side-badge">
+                    {currentSide === "attack" ? (
+                      <><Swords size={10} style={{ display: "inline", marginRight: 4 }} />Atacante</>
+                    ) : (
+                      <><Shield size={10} style={{ display: "inline", marginRight: 4 }} />Defensor</>
+                    )}
+                  </div>
+                </div>
+
+                {recommendations.length > 1 && (
+                  <button
+                    className="single-reroll-btn"
+                    title={`Re-sortear solo para ${rec.playerLabel}`}
+                    onClick={() => onRollSinglePlayer(index)}
+                  >
+                    <RefreshCw size={12} />
+                  </button>
                 )}
               </div>
-            </div>
+            ))}
           </motion.div>
         </AnimatePresence>
       </div>

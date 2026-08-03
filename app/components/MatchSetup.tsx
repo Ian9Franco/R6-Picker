@@ -1,9 +1,20 @@
 "use client";
 
-import { Dice5, MapPinned, Shield, Shuffle, Swords } from "lucide-react";
+import { Dice5, MapPinned, Settings2, Shield, Shuffle, Swords, UserCheck, Users } from "lucide-react";
+import { useState } from "react";
 import { competitiveMaps, mapBombSites, type Side } from "../../data/catalog";
+import type { PibeProfile } from "../../data/pibes";
+import { PibesManager } from "./PibesManager";
 
 type MatchSetupProps = {
+  mode: "default" | "pibes";
+  setMode: (mode: "default" | "pibes") => void;
+  partySize: 1 | 2 | 3;
+  setPartySize: (size: 1 | 2 | 3) => void;
+  activePibeIds: string[];
+  setActivePibeIds: (ids: string[]) => void;
+  pibes: PibeProfile[];
+  onUpdatePibe: (updated: PibeProfile) => void;
   matchMap: string;
   setMatchMap: (map: string) => void;
   startingSide: Side;
@@ -13,6 +24,14 @@ type MatchSetupProps = {
 };
 
 export function MatchSetup({
+  mode,
+  setMode,
+  partySize,
+  setPartySize,
+  activePibeIds,
+  setActivePibeIds,
+  pibes,
+  onUpdatePibe,
   matchMap,
   setMatchMap,
   startingSide,
@@ -20,8 +39,128 @@ export function MatchSetup({
   onStartMatch,
   randomItem,
 }: MatchSetupProps) {
+  const [showPibesManager, setShowPibesManager] = useState(false);
+
+  const togglePibeActive = (pibeId: string) => {
+    let next: string[];
+    if (activePibeIds.includes(pibeId)) {
+      if (activePibeIds.length <= 1) return; // keep at least 1
+      next = activePibeIds.filter((id) => id !== pibeId);
+    } else {
+      if (activePibeIds.length >= partySize) {
+        // Replace oldest or keep max partySize
+        next = [...activePibeIds.slice(1), pibeId];
+      } else {
+        next = [...activePibeIds, pibeId];
+      }
+    }
+    setActivePibeIds(next);
+  };
+
   return (
     <div className="tab-panel">
+      {/* Game Mode & Squad Size Setup */}
+      <div className="card">
+        <div className="card-section">
+          <div className="setup-label">
+            <span>Modo de Recomendación</span>
+          </div>
+          <div className="segmented-control mode-toggle">
+            <button
+              className={mode === "default" ? "active" : ""}
+              onClick={() => setMode("default")}
+            >
+              <Dice5 size={16} /> Modo Estándar
+            </button>
+            <button
+              className={mode === "pibes" ? "active active-pibes" : ""}
+              onClick={() => setMode("pibes")}
+            >
+              <UserCheck size={16} /> Modo "Los Pibes"
+            </button>
+          </div>
+
+          <div className="setup-label" style={{ marginTop: 16 }}>
+            <span>¿Cuántos juegan en Squad?</span>
+          </div>
+          <div className="party-selector">
+            <button
+              className={`party-card ${partySize === 1 ? "active" : ""}`}
+              onClick={() => {
+                setPartySize(1);
+                if (activePibeIds.length > 1) setActivePibeIds([activePibeIds[0]]);
+              }}
+            >
+              <Users size={18} />
+              <span className="party-title">Solo</span>
+              <span className="party-sub">1 Jugador</span>
+            </button>
+
+            <button
+              className={`party-card ${partySize === 2 ? "active" : ""}`}
+              onClick={() => {
+                setPartySize(2);
+                if (activePibeIds.length < 2) {
+                  const missing = pibes.find((p) => !activePibeIds.includes(p.id))?.id;
+                  if (missing) setActivePibeIds([...activePibeIds, missing]);
+                } else if (activePibeIds.length > 2) {
+                  setActivePibeIds(activePibeIds.slice(0, 2));
+                }
+              }}
+            >
+              <Users size={18} />
+              <span className="party-title">Dúo</span>
+              <span className="party-sub">2 Jugadores</span>
+            </button>
+
+            <button
+              className={`party-card ${partySize === 3 ? "active" : ""}`}
+              onClick={() => {
+                setPartySize(3);
+                setActivePibeIds(pibes.map((p) => p.id));
+              }}
+            >
+              <Users size={18} />
+              <span className="party-title">Trío</span>
+              <span className="party-sub">3 Jugadores</span>
+            </button>
+          </div>
+
+          {/* Los Pibes Squad selection */}
+          {mode === "pibes" && (
+            <div className="pibes-setup-box">
+              <div className="pibes-setup-header">
+                <span className="setup-label" style={{ margin: 0 }}>
+                  Pibes en la Partida ({activePibeIds.length}/{partySize}):
+                </span>
+                <button
+                  className="customize-pibes-btn"
+                  onClick={() => setShowPibesManager(true)}
+                >
+                  <Settings2 size={13} /> Mains & Estilos
+                </button>
+              </div>
+
+              <div className="pibes-chips-grid">
+                {pibes.map((pibe) => {
+                  const isActive = activePibeIds.includes(pibe.id);
+                  return (
+                    <button
+                      key={pibe.id}
+                      className={`pibe-select-chip ${isActive ? "chip-active" : ""}`}
+                      onClick={() => togglePibeActive(pibe.id)}
+                    >
+                      <span className="pibe-chip-name">{pibe.name}</span>
+                      <span className="pibe-chip-style">{pibe.playstyle}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Map Selection */}
       <div className="card">
         <div className="card-section">
@@ -98,6 +237,15 @@ export function MatchSetup({
         <Dice5 size={20} />
         Iniciar en {matchMap}
       </button>
+
+      {/* Pibes Manager Modal */}
+      {showPibesManager && (
+        <PibesManager
+          pibes={pibes}
+          onUpdatePibe={onUpdatePibe}
+          onClose={() => setShowPibesManager(false)}
+        />
+      )}
     </div>
   );
 }

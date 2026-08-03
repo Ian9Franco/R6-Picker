@@ -10,6 +10,13 @@ import {
   type BombSite,
   type Side,
 } from "../data/catalog";
+import {
+  DEFAULT_PIBES,
+  getPibesRecommendations,
+  getStandardRecommendations,
+  type PibeProfile,
+  type Recommendation,
+} from "../data/pibes";
 import { ActiveMatch } from "./components/ActiveMatch";
 import { FinishedMatch } from "./components/FinishedMatch";
 import { Header } from "./components/Header";
@@ -34,6 +41,16 @@ const randomItem = <T,>(items: readonly T[]) =>
 export function Picker() {
   const [activeTab, setActiveTab] = useState<Tab>("picker");
 
+  // Mode & Squad Setup
+  const [mode, setMode] = useState<"default" | "pibes">("default");
+  const [partySize, setPartySize] = useState<1 | 2 | 3>(1);
+  const [pibes, setPibes] = useState<PibeProfile[]>(DEFAULT_PIBES);
+  const [activePibeIds, setActivePibeIds] = useState<string[]>([
+    "el_notorious",
+    "chango_nocturno",
+    "azusa_cooper09",
+  ]);
+
   // Match State
   const [matchState, setMatchState] = useState<"setup" | "active" | "finished">("setup");
   const [matchMap, setMatchMap] = useState<string>("Clubhouse");
@@ -49,8 +66,8 @@ export function Picker() {
   const [enemyLockedSites, setEnemyLockedSites] = useState<string[]>([]);
   const [selectedSiteName, setSelectedSiteName] = useState<string>("");
 
-  // Current Round Operator
-  const [currentOperator, setCurrentOperator] = useState<string>("");
+  // Current Round Recommendations
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [opRoll, setOpRoll] = useState<number>(0);
 
   const currentRoundNum = history.length + 1;
@@ -90,11 +107,41 @@ export function Picker() {
     return allMapSites.find((s) => s.name === selectedSiteName);
   }, [allMapSites, selectedSiteName]);
 
-  // Roll operator for current side
-  const rollOperatorForCurrentSide = (sideToUse: Side) => {
-    const pool = sideToUse === "attack" ? attackers : defenders;
-    setCurrentOperator(randomItem(pool).name);
+  // Active Pibes objects for Pibes mode
+  const activePibeProfiles = useMemo(() => {
+    return pibes
+      .filter((p) => activePibeIds.includes(p.id))
+      .slice(0, partySize);
+  }, [pibes, activePibeIds, partySize]);
+
+  // Update a Pibe profile
+  const handleUpdatePibe = (updated: PibeProfile) => {
+    setPibes((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  };
+
+  // Roll operator recommendations for current round side
+  const rollRecommendationsForSide = (sideToUse: Side) => {
+    let recs: Recommendation[];
+    if (mode === "pibes") {
+      recs = getPibesRecommendations(sideToUse, activePibeProfiles);
+    } else {
+      recs = getStandardRecommendations(sideToUse, partySize);
+    }
+    setRecommendations(recs);
     setOpRoll((v) => v + 1);
+  };
+
+  // Re-roll single player pick
+  const rollSinglePlayer = (index: number) => {
+    const pool = currentSide === "attack" ? attackers : defenders;
+    const used = new Set(recommendations.map((r) => r.opName));
+    const available = pool.filter((op) => !used.has(op.name));
+    const fallback = available.length > 0 ? available : pool;
+    const newOp = randomItem(fallback).name;
+
+    setRecommendations((prev) =>
+      prev.map((rec, i) => (i === index ? { ...rec, opName: newOp } : rec))
+    );
   };
 
   // Roll available bomb site
@@ -114,7 +161,7 @@ export function Picker() {
     setEnemyLockedSites([]);
     setMatchState("active");
 
-    rollOperatorForCurrentSide(startingSide);
+    rollRecommendationsForSide(startingSide);
 
     const firstPool = mapBombSites[matchMap] || [];
     if (firstPool.length > 0) {
@@ -129,10 +176,12 @@ export function Picker() {
     const nextMyScore = result === "win" ? myScore + 1 : myScore;
     const nextOpScore = result === "loss" ? opponentScore + 1 : opponentScore;
 
+    const opSummary = recommendations.map((r) => r.opName).join(", ");
+
     const newLog: RoundLog = {
       roundNum: currentRoundNum,
       side: currentSide,
-      operator: currentOperator,
+      operator: opSummary,
       bombSite: currentBombSiteObj,
       result,
     };
@@ -201,7 +250,7 @@ export function Picker() {
             : "attack";
       }
 
-      rollOperatorForCurrentSide(nextSide);
+      rollRecommendationsForSide(nextSide);
 
       const currentLocks = nextSide === "defense" ? nextLocked : nextEnemyLocked;
       const nextAvail = allMapSites.filter((s) => !currentLocks.includes(s.name));
@@ -253,7 +302,7 @@ export function Picker() {
     }
 
     const last = history[history.length - 1];
-    rollOperatorForCurrentSide(last.side);
+    rollRecommendationsForSide(last.side);
     if (last.bombSite) setSelectedSiteName(last.bombSite.name);
   };
 
@@ -285,6 +334,14 @@ export function Picker() {
             >
               {matchState === "setup" && (
                 <MatchSetup
+                  mode={mode}
+                  setMode={setMode}
+                  partySize={partySize}
+                  setPartySize={setPartySize}
+                  activePibeIds={activePibeIds}
+                  setActivePibeIds={setActivePibeIds}
+                  pibes={pibes}
+                  onUpdatePibe={handleUpdatePibe}
                   matchMap={matchMap}
                   setMatchMap={setMatchMap}
                   startingSide={startingSide}
@@ -302,7 +359,7 @@ export function Picker() {
                   currentRoundNum={currentRoundNum}
                   isOvertime={isOvertime}
                   currentSide={currentSide}
-                  currentOperator={currentOperator}
+                  recommendations={recommendations}
                   opRoll={opRoll}
                   allMapSites={allMapSites}
                   lockedSites={lockedSites}
@@ -312,7 +369,8 @@ export function Picker() {
                   history={history}
                   onRecordRound={recordRound}
                   onUndoLastRound={undoLastRound}
-                  onRollOperator={() => rollOperatorForCurrentSide(currentSide)}
+                  onRollOperator={() => rollRecommendationsForSide(currentSide)}
+                  onRollSinglePlayer={rollSinglePlayer}
                   onRollAvailableSite={rollAvailableSite}
                 />
               )}
@@ -340,9 +398,11 @@ export function Picker() {
               transition={{ duration: 0.2 }}
             >
               <OperatorsCatalog
-                currentOperator={currentOperator}
+                currentOperator={recommendations[0]?.opName ?? ""}
                 onSelectOperator={(opName) => {
-                  setCurrentOperator(opName);
+                  setRecommendations([
+                    { playerLabel: "Tu Pick", opName, playstyle: "Manual" },
+                  ]);
                   setActiveTab("picker");
                 }}
               />
