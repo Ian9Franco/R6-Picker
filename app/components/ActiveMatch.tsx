@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
+  Ban,
   Check,
   Compass,
   Flame,
@@ -16,15 +17,15 @@ import {
   Star,
   Swords,
   Target,
-  UserCheck,
   XCircle,
 } from "lucide-react";
-import type { BombSite, Side } from "../../data/catalog";
+import { attackers, defenders, type BombSite, type Side } from "../../data/catalog";
 import type {
   PlayerPick,
   RecommendationEngineOutput,
   SquadRecommendation,
 } from "../../data/pibes";
+import { getAttackSiteProfile } from "../../data/siteTactics";
 
 type RoundLog = {
   roundNum: number;
@@ -41,6 +42,13 @@ type ActiveMatchProps = {
   currentRoundNum: number;
   isOvertime: boolean;
   currentSide: Side;
+  ourBans: string[];
+  enemyBans: string[];
+  onToggleBan: (side: "our" | "enemy", opName: string) => void;
+  selectedRouteId: string;
+  setSelectedRouteId: (routeId: string) => void;
+  observedDefenseIds: string[];
+  onToggleObservedDefense: (defId: string) => void;
   recommendations: PlayerPick[];
   squadRecommendation?: SquadRecommendation;
   engineOutput?: RecommendationEngineOutput | null;
@@ -69,6 +77,13 @@ export function ActiveMatch({
   currentRoundNum,
   isOvertime,
   currentSide,
+  ourBans = [],
+  enemyBans = [],
+  onToggleBan,
+  selectedRouteId = "auto",
+  setSelectedRouteId,
+  observedDefenseIds = [],
+  onToggleObservedDefense,
   recommendations,
   squadRecommendation,
   engineOutput,
@@ -89,6 +104,10 @@ export function ActiveMatch({
 }: ActiveMatchProps) {
   const isMulti = recommendations.length > 1;
   const hasBreathingVariant = Boolean(engineOutput?.breathingVariant);
+  const allOps = [...attackers, ...defenders];
+
+  // Resolver perfil de sitio táctico
+  const siteProfile = getAttackSiteProfile(matchMap, selectedSiteName);
 
   return (
     <div className="tab-panel">
@@ -132,6 +151,103 @@ export function ActiveMatch({
               {Array.from({ length: MAX_SCORE }).map((_, i) => (
                 <div key={i} className={`pip ${i < opponentScore ? "filled" : ""}`} />
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Match Bans Bar */}
+      <div className="bans-bar-container">
+        <div className="bans-bar-header">
+          <span className="bans-bar-title">
+            <Ban size={14} /> Bans en Partida
+          </span>
+          <span style={{ fontSize: 11, color: "var(--muted-bright)" }}>
+            Los operadores baneados se excluyen automáticamente de las recomendaciones
+          </span>
+        </div>
+        <div className="bans-groups-grid">
+          {/* Nuestros Bans */}
+          <div className="ban-group">
+            <span className="ban-group-title">
+              <Shield size={11} /> Nuestros Bans ({ourBans.length})
+            </span>
+            <div className="ban-chips">
+              {ourBans.map((op) => (
+                <span key={op} className="ban-chip">
+                  {op}
+                  <span
+                    className="ban-chip-remove"
+                    onClick={() => onToggleBan("our", op)}
+                    title="Quitar Ban"
+                  >
+                    ×
+                  </span>
+                </span>
+              ))}
+              <select
+                className="add-ban-select"
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    onToggleBan("our", e.target.value);
+                    e.target.value = "";
+                  }
+                }}
+              >
+                <option value="">+ Banear Op...</option>
+                {allOps.map((op) => (
+                  <option
+                    key={op.name}
+                    value={op.name}
+                    disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
+                  >
+                    {op.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Bans Rivales */}
+          <div className="ban-group">
+            <span className="ban-group-title">
+              <Swords size={11} /> Bans Rivales ({enemyBans.length})
+            </span>
+            <div className="ban-chips">
+              {enemyBans.map((op) => (
+                <span key={op} className="ban-chip">
+                  {op}
+                  <span
+                    className="ban-chip-remove"
+                    onClick={() => onToggleBan("enemy", op)}
+                    title="Quitar Ban"
+                  >
+                    ×
+                  </span>
+                </span>
+              ))}
+              <select
+                className="add-ban-select"
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    onToggleBan("enemy", e.target.value);
+                    e.target.value = "";
+                  }
+                }}
+              >
+                <option value="">+ Banear Op...</option>
+                {allOps.map((op) => (
+                  <option
+                    key={op.name}
+                    value={op.name}
+                    disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
+                  >
+                    {op.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -206,8 +322,62 @@ export function ActiveMatch({
         </div>
       )}
 
+      {/* Site Tactical Routes & Drone Observed Defense Controls */}
+      {currentSide === "attack" && (
+        <div className="tactical-site-controls">
+          {siteProfile && siteProfile.attackRoutes.length > 0 && (
+            <div>
+              <div className="tac-ctrl-header" style={{ marginBottom: 8 }}>
+                <span><Compass size={12} style={{ display: "inline", marginRight: 4 }} /> Ruta de Ataque Planeada</span>
+              </div>
+              <div className="route-buttons-grid">
+                <button
+                  className={`route-btn ${selectedRouteId === "auto" ? "active" : ""}`}
+                  onClick={() => setSelectedRouteId("auto")}
+                >
+                  ⚡ Automático (Adaptativo)
+                </button>
+                {siteProfile.attackRoutes.map((route) => (
+                  <button
+                    key={route.id}
+                    className={`route-btn ${selectedRouteId === route.id ? "active" : ""}`}
+                    onClick={() => setSelectedRouteId(route.id)}
+                    title={route.description}
+                  >
+                    {route.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {siteProfile && siteProfile.commonDefenses.length > 0 && (
+            <div>
+              <div className="tac-ctrl-header" style={{ marginBottom: 8 }}>
+                <span><Flame size={12} style={{ display: "inline", marginRight: 4 }} /> Ajuste Post-Dron (Defensa Observada del Rival)</span>
+              </div>
+              <div className="defense-obs-pills">
+                {siteProfile.commonDefenses.map((def) => {
+                  const isChecked = observedDefenseIds.includes(def.id);
+                  return (
+                    <div
+                      key={def.id}
+                      className={`obs-pill ${isChecked ? "checked" : ""}`}
+                      onClick={() => onToggleObservedDefense(def.id)}
+                    >
+                      <span>{isChecked ? "☑" : "☐"}</span>
+                      <span>{def.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Operator Recommendations Section */}
-      <div className="operator-section">
+      <div className="operator-section" style={{ marginTop: 16 }}>
         <div className="operator-header">
           <span className="operator-round-label">
             R{currentRoundNum} · {currentSide === "attack" ? "Ataque" : "Defensa"}
@@ -277,13 +447,18 @@ export function ActiveMatch({
 
                 {/* Info */}
                 <div className="pick-row-info">
-                  <div className="pick-row-top">
+                  <div className="pick-row-top" style={{ flexWrap: "wrap", gap: 6 }}>
                     {rec.pickOrderNumber && (
                       <span className="pick-order-badge">
                         {rec.pickOrderNumber}.º PICK
                       </span>
                     )}
                     <span className="pick-player-tag">{rec.playerLabel}</span>
+                    {rec.trackerHighlight && (
+                      <span className="hud-tracker-highlight">
+                        <Flame size={10} /> {rec.trackerHighlight}
+                      </span>
+                    )}
                     {rec.isMain && (
                       <span className="main-star-badge">
                         <Star size={9} /> MAIN
@@ -300,7 +475,16 @@ export function ActiveMatch({
                       </span>
                     )}
                   </div>
-                  <div className="pick-row-op-name">{rec.opName}</div>
+
+                  <div className="pick-row-op-name" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <span>{rec.opName}</span>
+                    {rec.backupOpName && (
+                      <span className="hud-backup-badge" title="Respaldo si está baneado/tomado">
+                        <Shield size={10} /> #2 Respaldo: {rec.backupOpName}
+                      </span>
+                    )}
+                  </div>
+
                   {rec.coveredRole ? (
                     <div className="pick-row-playstyle covered-role-tag">
                       ✓ Cubre: {rec.coveredRole}
@@ -316,6 +500,17 @@ export function ActiveMatch({
                   {rec.avoidWarning && (
                     <div className="pick-row-warning">
                       {rec.avoidWarning}
+                    </div>
+                  )}
+
+                  {/* Concise 1-2 line reason for HUD speed */}
+                  {rec.explanation?.positive && rec.explanation.positive.length > 0 && (
+                    <div className="pick-explanation-box positive">
+                      {rec.explanation.positive.slice(0, 2).map((reason, rIdx) => (
+                        <div key={rIdx} className="explanation-line pos">
+                          ✨ {reason}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -344,62 +539,69 @@ export function ActiveMatch({
           </motion.div>
         </AnimatePresence>
 
-        {/* 3 Compact Tactical Blocks: Por qué este pick, Cómo coordinarlo, Qué evitar */}
+        {/* Collapsible Tactical Accordion (Keeps HUD fast & uncluttered) */}
         {squadRecommendation && (
-          <div className="tactical-blocks-grid">
-            <div className="tac-block">
-              <span className="tac-block-title">
-                <Target size={11} /> ¿Por qué este pick?
-              </span>
-              <p className="tac-block-text">
-                {squadRecommendation.picks.map((p) => `${p.playerLabel}: ${p.opName} (${p.role})`).join(" · ")}
-              </p>
-            </div>
+          <details className="hud-details-accordion">
+            <summary className="hud-details-summary">
+              <span><Target size={12} style={{ display: "inline", marginRight: 6 }} /> Análisis Táctico & Responsabilidades de Squad</span>
+              <span style={{ fontSize: 11, opacity: 0.7 }}>▼ Ver Plan</span>
+            </summary>
+            <div style={{ padding: 14 }}>
+              <div className="tactical-blocks-grid">
+                <div className="tac-block">
+                  <span className="tac-block-title">
+                    <Target size={11} /> ¿Por qué este pick?
+                  </span>
+                  <p className="tac-block-text">
+                    {squadRecommendation.picks.map((p) => `${p.playerLabel}: ${p.opName} (${p.role})`).join(" · ")}
+                  </p>
+                </div>
 
-            <div className="tac-block">
-              <span className="tac-block-title">
-                <Flame size={11} /> ¿Cómo coordinarlo?
-              </span>
-              <p className="tac-block-text">
-                {squadRecommendation.trioPlan || squadRecommendation.duoPlan || "Avanzar con la brecha, tomar espacio y asegurar el plantado."}
-              </p>
-            </div>
+                <div className="tac-block">
+                  <span className="tac-block-title">
+                    <Flame size={11} /> ¿Cómo coordinarlo?
+                  </span>
+                  <p className="tac-block-text">
+                    {squadRecommendation.trioPlan || squadRecommendation.duoPlan || "Avanzar con la brecha, tomar espacio y asegurar el plantado."}
+                  </p>
+                </div>
 
-            {squadRecommendation.warnings.length > 0 && (
-              <div className="tac-block warning-block">
-                <span className="tac-block-title warning-title">
-                  <AlertTriangle size={11} /> ¿Qué evitar?
-                </span>
-                <p className="tac-block-text warning-text">
-                  {squadRecommendation.warnings.map((w) => w.message).join(" ")}
-                </p>
+                {squadRecommendation.warnings.length > 0 && (
+                  <div className="tac-block warning-block">
+                    <span className="tac-block-title warning-title">
+                      <AlertTriangle size={11} /> ¿Qué evitar?
+                    </span>
+                    <p className="tac-block-text warning-text">
+                      {squadRecommendation.warnings.map((w) => w.message).join(" ")}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Responsabilidades Asignadas al Squad */}
-        {squadRecommendation?.responsibilities && (
-          <div className="responsibilities-bar">
-            <span className="resp-bar-title">Responsabilidades:</span>
-            <div className="resp-chips">
-              {squadRecommendation.responsibilities.shotCaller && (
-                <span className="resp-chip">🎯 Callouts: {squadRecommendation.responsibilities.shotCaller}</span>
-              )}
-              {squadRecommendation.responsibilities.defuserCarrier && (
-                <span className="resp-chip">💣 Defuser: {squadRecommendation.responsibilities.defuserCarrier}</span>
-              )}
-              {squadRecommendation.responsibilities.primaryDrone && (
-                <span className="resp-chip">📡 Dron: {squadRecommendation.responsibilities.primaryDrone}</span>
-              )}
-              {squadRecommendation.responsibilities.firstEntry && (
-                <span className="resp-chip">⚡ Entry 1: {squadRecommendation.responsibilities.firstEntry}</span>
-              )}
-              {squadRecommendation.responsibilities.secondEntry && (
-                <span className="resp-chip">🛡️ Entry 2: {squadRecommendation.responsibilities.secondEntry}</span>
+              {squadRecommendation.responsibilities && (
+                <div className="responsibilities-bar" style={{ marginTop: 12 }}>
+                  <span className="resp-bar-title">Responsabilidades:</span>
+                  <div className="resp-chips">
+                    {squadRecommendation.responsibilities.shotCaller && (
+                      <span className="resp-chip">🎯 Callouts: {squadRecommendation.responsibilities.shotCaller}</span>
+                    )}
+                    {squadRecommendation.responsibilities.defuserCarrier && (
+                      <span className="resp-chip">💣 Defuser: {squadRecommendation.responsibilities.defuserCarrier}</span>
+                    )}
+                    {squadRecommendation.responsibilities.primaryDrone && (
+                      <span className="resp-chip">📡 Dron: {squadRecommendation.responsibilities.primaryDrone}</span>
+                    )}
+                    {squadRecommendation.responsibilities.firstEntry && (
+                      <span className="resp-chip">⚡ Entry 1: {squadRecommendation.responsibilities.firstEntry}</span>
+                    )}
+                    {squadRecommendation.responsibilities.secondEntry && (
+                      <span className="resp-chip">🛡️ Entry 2: {squadRecommendation.responsibilities.secondEntry}</span>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
-          </div>
+          </details>
         )}
       </div>
 

@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Award,
   CheckCircle2,
   Compass,
   Crosshair,
+  FileSpreadsheet,
   Flame,
   HelpCircle,
   Info,
   Layers,
   Lightbulb,
+  MapPin,
+  MapPinned,
   RefreshCw,
   Shield,
   ShieldAlert,
@@ -25,6 +31,8 @@ import {
 import pibesDataRaw from "../../data/pibes.json";
 import playerRulesRaw from "../../data/player-rules.json";
 import synergiesRaw from "../../data/synergies.json";
+import { KNOWN_MAPS } from "../../data/trackerParser";
+import { TrackerImporter } from "./TrackerImporter";
 
 const ROLE_LABELS: Record<string, string> = {
   "hard-breach": "Brecha dura",
@@ -287,7 +295,46 @@ const CONSEJOS_DATABANK: Record<string, {
 export function PibesView() {
   const pibes = pibesDataRaw.pibes;
   const [selectedPibeId, setSelectedPibeId] = useState<string>("el_notorious");
-  const [activeTab, setActiveTab] = useState<"profile" | "operators" | "warnings" | "synergies" | "advice">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "operators" | "warnings" | "synergies" | "advice" | "maps">("profile");
+
+  const [playerMapStats, setPlayerMapStats] = useState<Record<string, any>>({});
+  const [mapFilter, setMapFilter] = useState<string>("all");
+  const [sideFilter, setSideFilter] = useState<string>("all");
+
+  const [sortColumn, setSortColumn] = useState<"mapName" | "matchesOrRounds" | "winRate" | "kd" | "headshotPct">("winRate");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const toggleSort = (col: "mapName" | "matchesOrRounds" | "winRate" | "kd" | "headshotPct") => {
+    if (sortColumn === col) {
+      setSortDirection((prev) => (prev === "desc" ? "asc" : "desc"));
+    } else {
+      setSortColumn(col);
+      setSortDirection(col === "mapName" ? "asc" : "desc");
+    }
+  };
+
+  const loadAllStats = async () => {
+    try {
+      const res = await fetch("/api/save-tracker-stats");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.imports) {
+          setPlayerMapStats(data.imports);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("Error leyendo API stats:", e);
+    }
+    try {
+      const stored = localStorage.getItem("r6_tracker_map_stats_v1");
+      if (stored) setPlayerMapStats(JSON.parse(stored));
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    loadAllStats();
+  }, [selectedPibeId, activeTab]);
 
   const currentPibe = pibes.find((p) => p.id === selectedPibeId) ?? pibes[0];
   const pibeRules = (playerRulesRaw as any).rules[selectedPibeId]?.avoid ?? [];
@@ -314,9 +361,18 @@ export function PibesView() {
           <Users size={14} />
           <span>Sinergias de Squad</span>
         </button>
+        <button
+          className={`pibe-select-btn tracker-tab-btn ${selectedPibeId === "tracker" ? "active" : ""}`}
+          onClick={() => setSelectedPibeId("tracker")}
+        >
+          <FileSpreadsheet size={14} />
+          <span>Importador Tracker</span>
+        </button>
       </div>
 
-      {selectedPibeId === "squad" ? (
+      {selectedPibeId === "tracker" ? (
+        <TrackerImporter />
+      ) : selectedPibeId === "squad" ? (
         /* VISTA DE SQUAD & SINERGIAS */
         <div className="squad-view-panel">
           {/* Header Banner */}
@@ -620,6 +676,12 @@ export function PibesView() {
               onClick={() => setActiveTab("warnings")}
             >
               <AlertTriangle size={13} /> Errores a Evitar ({pibeRules.length})
+            </button>
+            <button
+              className={`pibe-sub-btn ${activeTab === "maps" ? "active" : ""}`}
+              onClick={() => setActiveTab("maps")}
+            >
+              <MapPinned size={13} /> Rendimiento por Mapa (Tracker)
             </button>
             <button
               className={`pibe-sub-btn ${activeTab === "synergies" ? "active" : ""}`}
@@ -950,6 +1012,231 @@ export function PibesView() {
               </div>
             </div>
           )}
+
+          {/* TAB: RENDIMIENTO POR MAPA (TRACKER IMPORTS) */}
+          {activeTab === "maps" && (() => {
+            const rawEntries = Object.entries(playerMapStats).filter(([key, val]: [string, any]) => {
+              const pId = currentPibe.id.toLowerCase();
+              const pName = currentPibe.name.toLowerCase();
+              const valPlayer = (val?.player || "").toLowerCase();
+              return key.toLowerCase().startsWith(pId) || valPlayer === pName;
+            });
+
+            const filteredEntries = rawEntries.filter(([_, val]: [string, any]) => {
+              if (sideFilter !== "all" && val.side !== sideFilter) return false;
+              return true;
+            });
+
+            return (
+              <div className="pibe-tab-content">
+                <div className="general-role-banner">
+                  <MapPinned size={15} style={{ flexShrink: 0 }} />
+                  <span>
+                    <strong>Estadísticas por Mapa (R6 Tracker):</strong> Rendimiento de cada operador importado para {currentPibe.name}. Se usa como fuente activa para calibrar recomendaciones por mapa.
+                  </span>
+                </div>
+
+                {/* Filter Toolbar */}
+                <div className="tracker-filter-bar">
+                  <div className="tracker-filter-group">
+                    <span className="tracker-filter-label">Bando:</span>
+                    <div className="segmented-control">
+                      <button className={sideFilter === "all" ? "active" : ""} onClick={() => setSideFilter("all")}>Todos</button>
+                      <button className={sideFilter === "attack" ? "active" : ""} onClick={() => setSideFilter("attack")}>Ataque</button>
+                      <button className={sideFilter === "defense" ? "active" : ""} onClick={() => setSideFilter("defense")}>Defensa</button>
+                    </div>
+                  </div>
+
+                  <div className="tracker-filter-group">
+                    <span className="tracker-filter-label">Mapa:</span>
+                    <select
+                      className="importer-select"
+                      value={mapFilter}
+                      onChange={(e) => setMapFilter(e.target.value)}
+                    >
+                      <option value="all">Todos los Mapas</option>
+                      {KNOWN_MAPS.map((m) => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {filteredEntries.length === 0 ? (
+                  <div className="empty-tracker-notice" style={{ textAlign: "center", padding: "32px 16px", background: "var(--card-bg)", borderRadius: 12, border: "1px dashed var(--border)" }}>
+                    <FileSpreadsheet size={36} style={{ color: "var(--muted)", marginBottom: 8 }} />
+                    <h4 style={{ margin: "4px 0", color: "var(--fg)" }}>No hay estadísticas de mapa para {currentPibe.name}</h4>
+                    <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 16 }}>
+                      Entrá al Importador Tracker para pegar las tablas copiadas de R6 Tracker y agregarlas a su perfil.
+                    </p>
+                    <button
+                      className="start-match-btn"
+                      style={{ padding: "8px 16px", fontSize: 12, width: "auto" }}
+                      onClick={() => setSelectedPibeId("tracker")}
+                    >
+                      Ir al Importador Tracker
+                    </button>
+                  </div>
+                ) : (
+                  <div className="imported-ops-grid" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {filteredEntries.map(([key, entry]: [string, any]) => {
+                      const mapsList = (entry.maps || []).filter((m: any) => {
+                        if (mapFilter === "all") return true;
+                        const name = (m.displayName || m.trackerName || m.mapName || "").toLowerCase();
+                        const id = (m.mapId || "").toLowerCase();
+                        const filterLower = mapFilter.toLowerCase();
+                        return (
+                          name === filterLower ||
+                          id === filterLower ||
+                          name.replace(/\s+/g, "_") === filterLower
+                        );
+                      });
+
+                      if (mapsList.length === 0) return null;
+
+                      const sortedMaps = [...mapsList].sort((a: any, b: any) => {
+                        let valA = a[sortColumn] ?? a.displayName ?? a.trackerName ?? a.mapName;
+                        let valB = b[sortColumn] ?? b.displayName ?? b.trackerName ?? b.mapName;
+
+                        if (sortColumn === "mapName") {
+                          valA = (a.displayName || a.trackerName || a.mapName || "").toLowerCase();
+                          valB = (b.displayName || b.trackerName || b.mapName || "").toLowerCase();
+                          return sortDirection === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                        }
+
+                        const numA = typeof valA === "number" ? valA : parseFloat(valA) || 0;
+                        const numB = typeof valB === "number" ? valB : parseFloat(valB) || 0;
+                        return sortDirection === "asc" ? numA - numB : numB - numA;
+                      });
+
+                      const renderSortIcon = (col: "mapName" | "matchesOrRounds" | "winRate" | "kd" | "headshotPct") => {
+                        if (sortColumn !== col) return <ArrowUpDown size={11} style={{ opacity: 0.4, marginLeft: 4, display: "inline" }} />;
+                        return sortDirection === "desc" ? (
+                          <ArrowDown size={11} style={{ color: "var(--atk)", marginLeft: 4, display: "inline" }} />
+                        ) : (
+                          <ArrowUp size={11} style={{ color: "var(--atk)", marginLeft: 4, display: "inline" }} />
+                        );
+                      };
+
+                      return (
+                        <div key={key} className="card" style={{ padding: 16 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span className="pick-row-avatar" style={{ width: 32, height: 32, fontSize: 12 }}>
+                                {entry.operator.slice(0, 2).toUpperCase()}
+                              </span>
+                              <div>
+                                <h3 style={{ fontSize: 16, margin: 0, color: "var(--fg)", fontWeight: 700 }}>
+                                  {entry.operator}
+                                </h3>
+                                <span style={{ fontSize: 11, color: "var(--muted)" }}>
+                                  {entry.playlist} · {entry.period}
+                                </span>
+                              </div>
+                            </div>
+                            <span className={`saved-side-pill ${entry.side}`}>
+                              {entry.side === "attack" ? "ATAQUE" : "DEFENSA"}
+                            </span>
+                          </div>
+
+                          <div className="importer-table-container no-scrollbar">
+                            <table className="importer-table">
+                              <thead>
+                                <tr>
+                                  <th
+                                    className={`sortable-th ${sortColumn === "mapName" ? "active-sort" : ""}`}
+                                    onClick={() => toggleSort("mapName")}
+                                  >
+                                    Mapa {renderSortIcon("mapName")}
+                                  </th>
+                                  <th
+                                    className={`sortable-th ${sortColumn === "matchesOrRounds" ? "active-sort" : ""}`}
+                                    onClick={() => toggleSort("matchesOrRounds")}
+                                  >
+                                    Partidas {renderSortIcon("matchesOrRounds")}
+                                  </th>
+                                  <th
+                                    className={`sortable-th ${sortColumn === "winRate" ? "active-sort" : ""}`}
+                                    onClick={() => toggleSort("winRate")}
+                                  >
+                                    Winrate {renderSortIcon("winRate")}
+                                  </th>
+                                  <th>V / D</th>
+                                  <th
+                                    className={`sortable-th ${sortColumn === "kd" ? "active-sort" : ""}`}
+                                    onClick={() => toggleSort("kd")}
+                                  >
+                                    K/D {renderSortIcon("kd")}
+                                  </th>
+                                  <th
+                                    className={`sortable-th ${sortColumn === "headshotPct" ? "active-sort" : ""}`}
+                                    onClick={() => toggleSort("headshotPct")}
+                                  >
+                                    Headshot % {renderSortIcon("headshotPct")}
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sortedMaps.map((m: any) => {
+                                  const isHighWR = m.winRate >= 55;
+                                  const isLowWR = m.winRate < 45;
+                                  const isHighKD = m.kd >= 1.25;
+                                  const mapShowName = m.displayName || m.trackerName || m.mapName;
+
+                                  return (
+                                    <tr key={m.mapId || m.mapName}>
+                                      <td>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                                          <MapPin size={12} style={{ color: "var(--muted)" }} />
+                                          {mapShowName}
+                                        </div>
+                                      </td>
+                                      <td>{m.matchesOrRounds}</td>
+                                      <td>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                          <span className={`winrate-tag ${isHighWR ? "high-wr" : isLowWR ? "low-wr" : "mid-wr"}`}>
+                                            {m.winRate}%
+                                          </span>
+                                          {isHighWR && (
+                                            <span style={{ fontSize: 9, background: "rgba(16,185,129,0.15)", color: "#34d399", padding: "1px 4px", borderRadius: 4, fontWeight: 700 }}>
+                                              DOMINANTE
+                                            </span>
+                                          )}
+                                          {isLowWR && (
+                                            <span style={{ fontSize: 9, background: "rgba(239,68,68,0.15)", color: "#f87171", padding: "1px 4px", borderRadius: 4, fontWeight: 700 }}>
+                                              CRÍTICO
+                                            </span>
+                                          )}
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <span style={{ color: "var(--win)", fontWeight: 600 }}>{m.wins}V</span>
+                                        {" - "}
+                                        <span style={{ color: "var(--loss)", fontWeight: 600 }}>{m.losses}D</span>
+                                      </td>
+                                      <td>
+                                        <span style={{ fontWeight: 700, color: isHighKD ? "var(--win)" : "inherit" }}>
+                                          {m.kd}
+                                        </span>
+                                        {isHighKD && (
+                                          <span style={{ fontSize: 9, color: "#fbbf24", marginLeft: 4 }}>★ FRAGGER</span>
+                                        )}
+                                      </td>
+                                      <td>{m.headshotPct}%</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>

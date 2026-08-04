@@ -15,9 +15,16 @@
 import { attackers, defenders, type BombSite, type Side } from "./catalog";
 import operatorRolesRaw from "./operator-roles.json";
 import pibesDataRaw from "./pibes.json";
+import playerMapOpsRaw from "./player-map-operators.json";
 import playerRulesRaw from "./player-rules.json";
 import synergiesRaw from "./synergies.json";
 import type { AttackRole, DefenseRole, TacticalRole } from "./roles";
+import {
+  getAttackSiteProfile,
+  NEED_OPERATORS_MAP,
+  TACTICAL_NEED_LABELS,
+  type TacticalNeedId,
+} from "./siteTactics";
 
 // ─── 1. PRNG Determinista (Sin Render Jitter) ───────────────────────────────
 
@@ -85,6 +92,8 @@ export type PlayerPick = {
   playerLabel: string;
   playerId: string;
   opName: string;
+  backupOpName?: string;
+  trackerHighlight?: string;
   operatorProfile: OperatorProfile;
   role: string;
   isMain?: boolean;
@@ -258,16 +267,70 @@ const weights = synergiesRaw.scoreWeights ?? {
   forbiddenPatternPenalty: -6,
 };
 
+function getMapStatForPick(playerId: string, side: string, opName: string, mapName?: string) {
+  if (!mapName) return null;
+  const targetKey = mapName.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+
+  const matchMap = (m: any) => {
+    if (!m) return false;
+    const nameCandidate = (m.displayName || m.trackerName || m.mapName || "").toLowerCase();
+    const idCandidate = (m.mapId || "").toLowerCase();
+    const keyCandidate = nameCandidate.replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+    return (
+      nameCandidate === mapName.toLowerCase() ||
+      idCandidate === targetKey ||
+      keyCandidate === targetKey
+    );
+  };
+  
+  // 1. Intentar buscar en LocalStorage si estamos en el navegador
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("r6_tracker_map_stats_v1");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const key = `${playerId}_${side}_${opName.toLowerCase().replace(/\s+/g, "_")}`;
+        const entry = parsed[key];
+        if (entry && entry.maps) {
+          const mapStat = entry.maps.find(matchMap);
+          if (mapStat) return mapStat;
+        }
+      }
+    } catch (e) {
+      console.error("Error leyendo LocalStorage para estadistica de mapa:", e);
+    }
+  }
+
+  // 2. Fallback a player-map-operators.json si no está en LocalStorage
+  try {
+    const playerData = (playerMapOpsRaw as any).players?.find((p: any) => p.playerId === playerId);
+    if (!playerData) return null;
+
+    const opStat = playerData.stats?.find(
+      (s: any) => s.operator.toLowerCase() === opName.toLowerCase() && s.side === side
+    );
+    if (!opStat) return null;
+
+    return opStat.maps?.find(matchMap) ?? null;
+  } catch (e) {
+    return null;
+  }
+}
+
 function scoreAndExplainPick(
   op: OperatorProfile,
   pibe: PibeProfile,
   siteReqs: string[],
   squadOpsSoFar: OperatorProfile[],
-  squadRolesSoFar: Set<string>
-): { score: number; explanation: ScoreExplanation } {
+  squadRolesSoFar: Set<string>,
+  matchMap?: string,
+  tacticalNeeds?: TacticalNeedId[],
+  observedDefenseCounters?: string[]
+): { score: number; explanation: ScoreExplanation; trackerHighlight?: string } {
   let score = 50;
   const positive: string[] = [];
   const negative: string[] = [];
+  let trackerHighlight: string | undefined = undefined;
 
   // Afinidad del jugador
   const topRole = op.roles[0];
@@ -275,6 +338,45 @@ function scoreAndExplainPick(
   const affinityPts = Math.round(affinity * weights.playerFit * 3);
   score += affinityPts;
   positive.push(`+${affinityPts} afinidad de ${pibe.name} con ${ROLE_PLAYSTYLE_LABELS[topRole] ?? topRole}`);
+
+  // Rendimiento histórico en el mapa específico (R6 Tracker) - Pesaje Aumentado
+  const mapStat = getMapStatForPick(pibe.id, op.side, op.name, matchMap);
+  if (mapStat) {
+    if (mapStat.winRate >= 50) {
+      const bonus = Math.min(25, Math.round((mapStat.winRate - 45) * 1.2));
+      score += bonus;
+      positive.push(`🔥 STAT TRACKER: ${mapStat.winRate}% Winrate en ${matchMap} (${mapStat.wins || 0}V-${mapStat.losses || 0}D)`);
+    } else if (mapStat.winRate < 45) {
+      const penalty = Math.min(15, Math.round((50 - mapStat.winRate) * 1.2));
+      score -= penalty;
+      negative.push(`⚠️ STAT TRACKER: Winrate bajo del ${mapStat.winRate}% en ${matchMap}`);
+    }
+
+    if (mapStat.kd >= 1.1) {
+      score += 8;
+      positive.push(`⭐ K/D Destacado: ${mapStat.kd.toFixed(2)} K/D en ${matchMap}`);
+    }
+
+    trackerHighlight = `${mapStat.winRate}% WR · ${mapStat.kd.toFixed(2)} KD (${mapStat.matchesOrRounds || 0} rondas)`;
+  }
+
+  // Evaluación de Necesidades Tácticas Específicas del Sitio
+  if (tacticalNeeds && tacticalNeeds.length > 0) {
+    for (const needId of tacticalNeeds) {
+      const opsForNeed = NEED_OPERATORS_MAP[needId] || [];
+      if (opsForNeed.includes(op.name)) {
+        score += 15;
+        const needLabel = TACTICAL_NEED_LABELS[needId] || needId;
+        positive.push(`🎯 Cubre necesidad táctica de sitio: ${needLabel}`);
+      }
+    }
+  }
+
+  // Evaluación de Contras Directas a Defensa Observada del Rival
+  if (observedDefenseCounters && observedDefenseCounters.includes(op.name)) {
+    score += 20;
+    positive.push(`⚡ Contra directa para defensa observada del rival`);
+  }
 
   // Requerimientos del sitio
   const coversSiteReq = op.roles.find((r) => siteReqs.includes(r) && !squadRolesSoFar.has(r));
@@ -308,7 +410,7 @@ function scoreAndExplainPick(
     negative.push(`${weights.forbiddenPatternPenalty * 2} operador desaconsejado para ${pibe.name}`);
   }
 
-  return { score, explanation: { positive, negative } };
+  return { score, explanation: { positive, negative }, trackerHighlight };
 }
 
 // ─── 6. Orden de Picks Dinámico Justificado ───────────────────────────────────
@@ -354,7 +456,6 @@ function assignSquadResponsibilities(
   const resp: SquadResponsibilities = {};
 
   if (side === "attack") {
-    // Defuser carrier: NUNCA Montagne solo ni primer entry fragger (Ash/Zofia) si hay support
     const carrierPick =
       picks.find((p) => ["Osa", "Sens", "Gridlock", "Rauora"].includes(p.opName)) ??
       picks.find((p) => ["Thermite", "Hibana", "Ace"].includes(p.opName)) ??
@@ -363,7 +464,6 @@ function assignSquadResponsibilities(
 
     resp.defuserCarrier = carrierPick?.playerLabel;
 
-    // Primary drone: NUNCA Thermite o Montagne durante la ejecución
     const dronePick =
       picks.find((p) => ["Thatcher", "Zero", "Twitch", "Brava", "IQ", "Lion", "Dokkaebi"].includes(p.opName)) ??
       picks.find((p) => p.playerId === "chango_nocturno") ??
@@ -371,7 +471,6 @@ function assignSquadResponsibilities(
 
     resp.primaryDrone = dronePick?.playerLabel;
 
-    // First Entry: NUNCA Montagne, Thermite, Thatcher o Fuze
     const firstEntryPick =
       picks.find((p) => ["Ash", "Zofia", "Deimos", "Buck", "Iana", "Amaru", "Nøkk", "Blitz"].includes(p.opName)) ??
       picks.find((p) => p.playerId === "el_notorious") ??
@@ -379,18 +478,13 @@ function assignSquadResponsibilities(
 
     resp.firstEntry = firstEntryPick?.playerLabel;
 
-    // Second Entry
     const secondEntryPick = picks.find((p) => p.playerLabel !== firstEntryPick?.playerLabel) ?? picks[1];
     resp.secondEntry = secondEntryPick?.playerLabel;
-
-    // Flank watch
-    const flankPick = picks.find((p) => ["Nomad", "Gridlock", "Grim", "Rauora"].includes(p.opName)) ?? picks.find((p) => p.playerId === "chango_nocturno");
-    resp.flankWatch = flankPick?.playerLabel ?? "Escuadrón";
+    resp.flankWatch = picks.find((p) => ["Nomad", "Gridlock", "Grim"].includes(p.opName))?.playerLabel ?? "Escuadrón";
     resp.shotCaller = picks.find((p) => p.playerId === "el_notorious")?.playerLabel ?? "El_Notorious";
   } else {
     const notoriousPick = picks.find((p) => p.playerId === "el_notorious");
     const changoPick = picks.find((p) => p.playerId === "chango_nocturno");
-    const azusaPick = picks.find((p) => p.playerId === "azusa_cooper09");
 
     resp.firstEntry = notoriousPick?.playerLabel ?? picks[0]?.playerLabel;
     resp.secondEntry = changoPick?.playerLabel;
@@ -502,25 +596,28 @@ export function getPibesRecommendations(
   activePibes: PibeProfile[],
   currentSite?: BombSite,
   currentRoundNum: number = 1,
-  matchMap: string = "Clubhouse"
+  matchMap: string = "Clubhouse",
+  bannedOps?: string[],
+  selectedRouteId?: string,
+  observedDefenseIds?: string[]
 ): RecommendationEngineOutput {
   const fullPool = side === "attack" ? attackers : defenders;
   const siteReqs: string[] =
     currentSite?.requirements?.[side === "attack" ? "attack" : "defense"] ?? [];
 
-  // Seed determinista por mapa, site, ronda y squad activo
   const siteKey = currentSite?.name ?? "any_site";
   const pibesKey = activePibes.map((p) => p.id).join("_");
-  const rngSeed = `${side}_${matchMap}_${siteKey}_${currentRoundNum}_${pibesKey}`;
+  const bansKey = (bannedOps || []).sort().join("_");
+  const routeKey = selectedRouteId || "auto";
+  const obsKey = (observedDefenseIds || []).sort().join("_");
+  const rngSeed = `${side}_${matchMap}_${siteKey}_${currentRoundNum}_${pibesKey}_${bansKey}_${routeKey}_${obsKey}`;
 
-  // Calcular orden dinámico de picks
   const { orderedPibes, reason: orderReason } = calculateDynamicPickOrder(
     activePibes,
     side,
     siteReqs
   );
 
-  // Evaluar respiración (Supresión en Match Point: ronda >= 6)
   const isMatchPoint = currentRoundNum >= 6;
   const isScheduledBreathing = !isMatchPoint && currentRoundNum > 0 && currentRoundNum % 3 === 0;
 
@@ -531,7 +628,12 @@ export function getPibesRecommendations(
     siteReqs,
     fullPool,
     "primary",
-    rngSeed + "_primary"
+    rngSeed + "_primary",
+    0,
+    matchMap,
+    bannedOps,
+    selectedRouteId,
+    observedDefenseIds
   );
 
   const primaryWarnings = evaluateTacticalWarnings(primaryPicks, side);
@@ -559,7 +661,12 @@ export function getPibesRecommendations(
     siteReqs,
     fullPool,
     "safe",
-    rngSeed + "_safe"
+    rngSeed + "_safe",
+    0,
+    matchMap,
+    bannedOps,
+    selectedRouteId,
+    observedDefenseIds
   );
 
   const safeWarnings = evaluateTacticalWarnings(safePicks, side);
@@ -588,7 +695,11 @@ export function getPibesRecommendations(
       fullPool,
       "breathing",
       rngSeed + "_breathing",
-      breathingIndex
+      breathingIndex,
+      matchMap,
+      bannedOps,
+      selectedRouteId,
+      observedDefenseIds
     );
 
     const breathingWarnings = evaluateTacticalWarnings(breathingPicks, side);
@@ -626,9 +737,41 @@ function generateSquadPicks(
   fullPool: any[],
   strategy: "primary" | "safe" | "breathing",
   seedStr: string,
-  breathingIndex: number = 0
+  breathingIndex: number = 0,
+  matchMap?: string,
+  bannedOps?: string[],
+  selectedRouteId?: string,
+  observedDefenseIds?: string[]
 ): PlayerPick[] {
   const rng = seededRandom(seedStr);
+  const bannedSet = new Set((bannedOps || []).map((b) => b.toLowerCase()));
+  const isBanned = (opName: string) => bannedSet.has(opName.toLowerCase());
+
+  // Perfil de sitio táctico
+  const siteProfile = side === "attack" && matchMap ? getAttackSiteProfile(matchMap, siteReqs.join("_") || "") : null;
+  const tacticalNeeds: TacticalNeedId[] = [];
+  const observedDefenseCounters: string[] = [];
+
+  if (siteProfile) {
+    tacticalNeeds.push(...siteProfile.defaultNeeds.required, ...siteProfile.defaultNeeds.important);
+
+    if (selectedRouteId && selectedRouteId !== "auto") {
+      const route = siteProfile.attackRoutes.find((r) => r.id === selectedRouteId);
+      if (route) {
+        tacticalNeeds.push(...route.requiredNeeds, ...route.usefulNeeds);
+      }
+    }
+
+    if (observedDefenseIds && observedDefenseIds.length > 0) {
+      siteProfile.commonDefenses.forEach((def) => {
+        if (observedDefenseIds.includes(def.id)) {
+          tacticalNeeds.push(...def.createsNeeds);
+          observedDefenseCounters.push(...def.counters);
+        }
+      });
+    }
+  }
+
   const usedOps = new Set<string>();
   const squadRolesSoFar = new Set<string>();
   const squadOpsSoFar: OperatorProfile[] = [];
@@ -636,10 +779,11 @@ function generateSquadPicks(
 
   orderedPibes.forEach((pibe, idx) => {
     const isBreathingPlayer = strategy === "breathing" && idx === Math.abs(Math.floor(breathingIndex) % orderedPibes.length);
-    const mains = side === "attack" ? pibe.attackMains : pibe.defenseMains;
-    const tryouts = side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense;
+    const mains = (side === "attack" ? pibe.attackMains : pibe.defenseMains).filter((m) => !isBanned(m));
+    const tryouts = (side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense).filter((t) => !isBanned(t.operator));
 
     let chosenOpName: string = "";
+    let backupOpName: string | undefined = undefined;
     let isMain = false;
     let isTryout = false;
     let developmentGoal: string | undefined = undefined;
@@ -656,14 +800,34 @@ function generateSquadPicks(
 
     if (!chosenOpName) {
       const availableMains = mains.filter((m) => !usedOps.has(m));
-      if (strategy === "safe" && availableMains.length > 1) {
-        chosenOpName = availableMains[1];
-        isMain = true;
-      } else if (availableMains.length > 0) {
-        chosenOpName = availableMains[0];
+      if (availableMains.length > 0) {
+        const scoredMains = availableMains
+          .map((opName) => {
+            const prof = normalizeOperator(opName);
+            const { score } = scoreAndExplainPick(
+              prof,
+              pibe,
+              siteReqs,
+              squadOpsSoFar,
+              squadRolesSoFar,
+              matchMap,
+              tacticalNeeds,
+              observedDefenseCounters
+            );
+            return { opName, score };
+          })
+          .sort((a, b) => b.score - a.score);
+
+        if (strategy === "safe" && scoredMains.length > 1) {
+          chosenOpName = scoredMains[1].opName;
+          backupOpName = scoredMains[0].opName;
+        } else {
+          chosenOpName = scoredMains[0].opName;
+          backupOpName = scoredMains[1]?.opName || scoredMains[2]?.opName;
+        }
         isMain = true;
       } else {
-        const pool = fullPool.filter((op) => !usedOps.has(op.name));
+        const pool = fullPool.filter((op) => !usedOps.has(op.name) && !isBanned(op.name));
         const picked = (pool.length > 0 ? pool : fullPool)[
           Math.floor(rng() * (pool.length > 0 ? pool.length : fullPool.length))
         ];
@@ -671,14 +835,27 @@ function generateSquadPicks(
       }
     }
 
+    if (!backupOpName) {
+      const backupCandidate = mains.find((m) => m !== chosenOpName && !usedOps.has(m) && !isBanned(m));
+      if (backupCandidate) {
+        backupOpName = backupCandidate;
+      } else {
+        const fallbackCandidate = fullPool.find((op) => op.name !== chosenOpName && !usedOps.has(op.name) && !isBanned(op.name));
+        if (fallbackCandidate) backupOpName = fallbackCandidate.name;
+      }
+    }
+
     usedOps.add(chosenOpName);
     const prof = normalizeOperator(chosenOpName);
-    const { score, explanation } = scoreAndExplainPick(
+    const { score, explanation, trackerHighlight } = scoreAndExplainPick(
       prof,
       pibe,
       siteReqs,
       squadOpsSoFar,
-      squadRolesSoFar
+      squadRolesSoFar,
+      matchMap,
+      tacticalNeeds,
+      observedDefenseCounters
     );
 
     squadOpsSoFar.push(prof);
@@ -691,6 +868,8 @@ function generateSquadPicks(
       playerLabel: pibe.name,
       playerId: pibe.id,
       opName: chosenOpName,
+      backupOpName,
+      trackerHighlight,
       operatorProfile: prof,
       role: ROLE_PLAYSTYLE_LABELS[prof.roles[0]] ?? prof.roles[0],
       isMain,

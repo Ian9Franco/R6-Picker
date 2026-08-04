@@ -1,0 +1,447 @@
+{
+  "_comment": "Base de datos de rendimiento por mapa y operador extraída de R6 Tracker.",
+  "players": [
+    {
+      "playerId": "el_notorious",
+      "playerName": "El_Notorious",
+      "targetOperators": {
+        "attack": [
+          "Zofia",
+          "Ram",
+          "Iana",
+          "Thatcher",
+          "Ying"
+        ],
+        "defense": [
+          "Valkyrie",
+          "Vigil",
+          "Kaid",
+          "Pulse",
+          "Fenrir"
+        ]
+      },
+      "stats": [
+        {
+          "operator": "Zofia",
+          "side": "attack",
+          "playlist": "Ranked",
+          "period": "Y9S3 y posteriores",
+          "maps": [
+            {
+              "mapName": "Clubhouse",
+              "matchesOrRounds": 35,
+              "winRate": 45.7,
+              "wins": 16,
+              "losses": 19,
+              "kd": 1.29,
+              "headshotPct": 58.3,
+              "kpr": 0.6
+            },
+            {
+              "mapName": "Chalet",
+              "matchesOrRounds": 18,
+              "winRate": 66.7,
+              "wins": 12,
+              "losses": 6,
+              "kd": 1.06,
+              "headshotPct": 41.2,
+              "kpr": 0.64
+            },
+            {
+              "mapName": "Border",
+              "matchesOrRounds": 16,
+              "winRate": 68.8,
+              "wins": 11,
+              "losses": 5,
+              "kd": 2,
+              "headshotPct": 45.5,
+              "kpr": 1
+            },
+            {
+              "mapName": "Bank",
+              "matchesOrRounds": 15,
+              "winRate": 66.7,
+              "wins": 10,
+              "losses": 5,
+              "kd": 1.45,
+              "headshotPct": 31.2,
+              "kpr": 0.71
+            },
+            {
+              "mapName": "Coastline",
+              "matchesOrRounds": 12,
+              "winRate": 58.3,
+              "wins": 7,
+              "losses": 5,
+              "kd": 1.89,
+              "headshotPct": 58.8,
+              "kpr": 0.71
+            },
+            {
+              "mapName": "Kafe Dostoyevsky",
+              "matchesOrRounds": 12,
+              "winRate": 58.3,
+              "wins": 7,
+              "losses": 5,
+              "kd": 0.82,
+              "headshotPct": 66.7,
+              "kpr": 0.43
+            },
+            {
+              "mapName": "Consulate",
+              "matchesOrRounds": 7,
+              "winRate": 28.6,
+              "wins": 2,
+              "losses": 5,
+              "kd": 1.6,
+              "headshotPct": 50,
+              "kpr": 0.5
+            },
+            {
+              "mapName": "Oregon",
+              "matchesOrRounds": 7,
+              "winRate": 71.4,
+              "wins": 5,
+              "losses": 2,
+              "kd": 1.4,
+              "headshotPct": 57.1,
+              "kpr": 0.33
+            },
+            {
+              "mapName": "Fortress",
+              "matchesOrRounds": 6,
+              "winRate": 66.7,
+              "wins": 4,
+              "losses": 2,
+              "kd": 1.4,
+              "headshotPct": 14.3,
+              "kpr": 0
+            },
+            {
+              "mapName": "Villa",
+              "matchesOrRounds": 6,
+              "winRate": 83.3,
+              "wins": 5,
+              "losses": 1,
+              "kd": 3,
+              "headshotPct": 66.7,
+              "kpr": 0.8
+            },
+            {
+              "mapName": "Kanal",
+              "matchesOrRounds": 5,
+              "winRate": 80,
+              "wins": 4,
+              "losses": 1,
+              "kd": 2,
+              "headshotPct": 33.3,
+              "kpr": 0
+            },
+            {
+              "mapName": "Calypso Casino",
+              "matchesOrRounds": 4,
+              "winRate": 100,
+              "wins": 4,
+              "losses": 0,
+              "kd": 2.33,
+              "headshotPct": 42.9,
+              "kpr": 0.67
+            },
+            {
+              "mapName": "Theme Park",
+              "matchesOrRounds": 4,
+              "winRate": 25,
+              "wins": 1,
+              "losses": 3,
+              "kd": 1,
+              "headshotPct": 33.3,
+              "kpr": 0.5
+            },
+            {
+              "mapName": "Emerald Plains",
+              "matchesOrRounds": 3,
+              "winRate": 66.7,
+              "wins": 2,
+              "losses": 1,
+              "kd": 7,
+              "headshotPct": 57.1,
+              "kpr": 1
+            },
+            {
+              "mapName": "Nighthaven Labs",
+              "matchesOrRounds": 3,
+              "winRate": 66.7,
+              "wins": 2,
+              "losses": 1,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            },
+            {
+              "mapName": "Outback",
+              "matchesOrRounds": 3,
+              "winRate": 33.3,
+              "wins": 1,
+              "losses": 2,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            },
+            {
+              "mapName": "Skyscraper",
+              "matchesOrRounds": 2,
+              "winRate": 50,
+              "wins": 1,
+              "losses": 1,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            },
+            {
+              "mapName": "Lair",
+              "matchesOrRounds": 1,
+              "winRate": 0,
+              "wins": 0,
+              "losses": 1,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            }
+          ],
+          "updatedAt": "2026-08-03T23:07:34.458Z"
+        },
+        {
+          "operator": "Vigil",
+          "side": "defense",
+          "playlist": "Ranked",
+          "period": "Y9S3 y posteriores",
+          "maps": [
+            {
+              "mapName": "Clubhouse",
+              "matchesOrRounds": 35,
+              "winRate": 45.7,
+              "wins": 16,
+              "losses": 19,
+              "kd": 1.29,
+              "headshotPct": 58.3,
+              "kpr": 0.6
+            },
+            {
+              "mapName": "Chalet",
+              "matchesOrRounds": 18,
+              "winRate": 66.7,
+              "wins": 12,
+              "losses": 6,
+              "kd": 1.06,
+              "headshotPct": 41.2,
+              "kpr": 0.64
+            },
+            {
+              "mapName": "Border",
+              "matchesOrRounds": 16,
+              "winRate": 68.8,
+              "wins": 11,
+              "losses": 5,
+              "kd": 2,
+              "headshotPct": 45.5,
+              "kpr": 1
+            },
+            {
+              "mapName": "Bank",
+              "matchesOrRounds": 15,
+              "winRate": 66.7,
+              "wins": 10,
+              "losses": 5,
+              "kd": 1.45,
+              "headshotPct": 31.2,
+              "kpr": 0.71
+            },
+            {
+              "mapName": "Coastline",
+              "matchesOrRounds": 12,
+              "winRate": 58.3,
+              "wins": 7,
+              "losses": 5,
+              "kd": 1.89,
+              "headshotPct": 58.8,
+              "kpr": 0.71
+            },
+            {
+              "mapName": "Kafe Dostoyevsky",
+              "matchesOrRounds": 12,
+              "winRate": 58.3,
+              "wins": 7,
+              "losses": 5,
+              "kd": 0.82,
+              "headshotPct": 66.7,
+              "kpr": 0.43
+            },
+            {
+              "mapName": "Consulate",
+              "matchesOrRounds": 7,
+              "winRate": 28.6,
+              "wins": 2,
+              "losses": 5,
+              "kd": 1.6,
+              "headshotPct": 50,
+              "kpr": 0.5
+            },
+            {
+              "mapName": "Oregon",
+              "matchesOrRounds": 7,
+              "winRate": 71.4,
+              "wins": 5,
+              "losses": 2,
+              "kd": 1.4,
+              "headshotPct": 57.1,
+              "kpr": 0.33
+            },
+            {
+              "mapName": "Fortress",
+              "matchesOrRounds": 6,
+              "winRate": 66.7,
+              "wins": 4,
+              "losses": 2,
+              "kd": 1.4,
+              "headshotPct": 14.3,
+              "kpr": 0
+            },
+            {
+              "mapName": "Villa",
+              "matchesOrRounds": 6,
+              "winRate": 83.3,
+              "wins": 5,
+              "losses": 1,
+              "kd": 3,
+              "headshotPct": 66.7,
+              "kpr": 0.8
+            },
+            {
+              "mapName": "Kanal",
+              "matchesOrRounds": 5,
+              "winRate": 80,
+              "wins": 4,
+              "losses": 1,
+              "kd": 2,
+              "headshotPct": 33.3,
+              "kpr": 0
+            },
+            {
+              "mapName": "Calypso Casino",
+              "matchesOrRounds": 4,
+              "winRate": 100,
+              "wins": 4,
+              "losses": 0,
+              "kd": 2.33,
+              "headshotPct": 42.9,
+              "kpr": 0.67
+            },
+            {
+              "mapName": "Theme Park",
+              "matchesOrRounds": 4,
+              "winRate": 25,
+              "wins": 1,
+              "losses": 3,
+              "kd": 1,
+              "headshotPct": 33.3,
+              "kpr": 0.5
+            },
+            {
+              "mapName": "Emerald Plains",
+              "matchesOrRounds": 3,
+              "winRate": 66.7,
+              "wins": 2,
+              "losses": 1,
+              "kd": 7,
+              "headshotPct": 57.1,
+              "kpr": 1
+            },
+            {
+              "mapName": "Nighthaven Labs",
+              "matchesOrRounds": 3,
+              "winRate": 66.7,
+              "wins": 2,
+              "losses": 1,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            },
+            {
+              "mapName": "Outback",
+              "matchesOrRounds": 3,
+              "winRate": 33.3,
+              "wins": 1,
+              "losses": 2,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            },
+            {
+              "mapName": "Skyscraper",
+              "matchesOrRounds": 2,
+              "winRate": 50,
+              "wins": 1,
+              "losses": 1,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            },
+            {
+              "mapName": "Lair",
+              "matchesOrRounds": 1,
+              "winRate": 0,
+              "wins": 0,
+              "losses": 1,
+              "kd": 0,
+              "headshotPct": 0,
+              "kpr": 0
+            }
+          ],
+          "updatedAt": "2026-08-03T23:07:53.187Z"
+        }
+      ]
+    },
+    {
+      "playerId": "chango_nocturno",
+      "playerName": "ChangoNocturno",
+      "targetOperators": {
+        "attack": [
+          "Thermite",
+          "Hibana",
+          "Lion",
+          "Gridlock",
+          "Fuze"
+        ],
+        "defense": [
+          "Tubarão",
+          "Thorn",
+          "Kapkan",
+          "Smoke",
+          "Jäger"
+        ]
+      },
+      "stats": []
+    },
+    {
+      "playerId": "azusa_cooper09",
+      "playerName": "AzusaCooper09",
+      "targetOperators": {
+        "attack": [
+          "Montagne",
+          "Blitz",
+          "Osa",
+          "Lion",
+          "Gridlock"
+        ],
+        "defense": [
+          "Mute",
+          "Smoke",
+          "Castle",
+          "Valkyrie",
+          "Melusi"
+        ]
+      },
+      "stats": []
+    }
+  ]
+}

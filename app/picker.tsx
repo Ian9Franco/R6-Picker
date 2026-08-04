@@ -46,8 +46,12 @@ export function Picker() {
   const [mode, setMode] = useState<"default" | "pibes">("pibes");
   const [partySize, setPartySize] = useState<1 | 2 | 3>(3);
   const [pibes, setPibes] = useState<PibeProfile[]>(DEFAULT_PIBES);
-  // No pibes selected by default — the user must pick
-  const [activePibeIds, setActivePibeIds] = useState<string[]>([]);
+  // Active pibes selected by default for 3-player squad
+  const [activePibeIds, setActivePibeIds] = useState<string[]>([
+    "el_notorious",
+    "chango_nocturno",
+    "azusa_cooper09",
+  ]);
 
   // Match State
   const [matchState, setMatchState] = useState<"setup" | "active" | "finished">("setup");
@@ -58,6 +62,10 @@ export function Picker() {
   const [myScore, setMyScore] = useState<number>(0);
   const [opponentScore, setOpponentScore] = useState<number>(0);
   const [history, setHistory] = useState<RoundLog[]>([]);
+
+  // Bans State
+  const [ourBans, setOurBans] = useState<string[]>([]);
+  const [enemyBans, setEnemyBans] = useState<string[]>([]);
 
   // Site Lockout States
   const [lockedSites, setLockedSites] = useState<string[]>([]);
@@ -137,18 +145,86 @@ export function Picker() {
     setPibes((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
   };
 
+  // Tactical Site Routes & Drone Observations State
+  const [selectedRouteId, setSelectedRouteId] = useState<string>("auto");
+  const [observedDefenseIds, setObservedDefenseIds] = useState<string[]>([]);
+
+  const handleSelectRoute = (routeId: string) => {
+    setSelectedRouteId(routeId);
+    rollRecommendationsForSide(currentSide, currentBombSiteObj, ourBans, enemyBans, routeId, observedDefenseIds);
+  };
+
+  const handleToggleObservedDefense = (defId: string) => {
+    const next = observedDefenseIds.includes(defId)
+      ? observedDefenseIds.filter((id) => id !== defId)
+      : [...observedDefenseIds, defId];
+    setObservedDefenseIds(next);
+    rollRecommendationsForSide(currentSide, currentBombSiteObj, ourBans, enemyBans, selectedRouteId, next);
+  };
+
   // Roll operator recommendations for current round side
-  const rollRecommendationsForSide = (sideToUse: Side, siteOverride?: BombSite) => {
+  const rollRecommendationsForSide = (
+    sideToUse: Side,
+    siteOverride?: BombSite,
+    customOurBans?: string[],
+    customEnemyBans?: string[],
+    routeIdOverride?: string,
+    obsIdsOverride?: string[]
+  ) => {
     const site = siteOverride ?? currentBombSiteObj;
+    const bansToUse = [
+      ...(customOurBans ?? ourBans),
+      ...(customEnemyBans ?? enemyBans),
+    ];
+    const routeToUse = routeIdOverride ?? selectedRouteId;
+    const obsToUse = obsIdsOverride ?? observedDefenseIds;
+
     if (mode === "pibes" && activePibeProfiles.length > 0) {
-      const output = getPibesRecommendations(sideToUse, activePibeProfiles, site, currentRoundNum, matchMap);
+      const output = getPibesRecommendations(
+        sideToUse,
+        activePibeProfiles,
+        site,
+        currentRoundNum,
+        matchMap,
+        bansToUse,
+        routeToUse,
+        obsToUse
+      );
       setEngineOutput(output);
     } else {
-      const recs = getStandardRecommendations(sideToUse, Math.max(1, activePibeProfiles.length || partySize));
+      const recs = getStandardRecommendations(
+        sideToUse,
+        Math.max(1, activePibeProfiles.length || partySize)
+      );
       setStandardRecs(recs);
       setEngineOutput(null);
     }
     setOpRoll((v) => v + 1);
+  };
+
+  // Toggle Ban handler
+  const toggleBan = (side: "our" | "enemy", opName: string) => {
+    let nextOur = [...ourBans];
+    let nextEnemy = [...enemyBans];
+
+    if (side === "our") {
+      if (nextOur.includes(opName)) {
+        nextOur = nextOur.filter((o) => o !== opName);
+      } else {
+        nextOur.push(opName);
+      }
+    } else {
+      if (nextEnemy.includes(opName)) {
+        nextEnemy = nextEnemy.filter((o) => o !== opName);
+      } else {
+        nextEnemy.push(opName);
+      }
+    }
+
+    setOurBans(nextOur);
+    setEnemyBans(nextEnemy);
+
+    rollRecommendationsForSide(currentSide, undefined, nextOur, nextEnemy);
   };
 
   // Re-roll single player pick
@@ -359,6 +435,8 @@ export function Picker() {
     setOpponentScore(0);
     setLockedSites([]);
     setEnemyLockedSites([]);
+    setOurBans([]);
+    setEnemyBans([]);
     setSelectedSiteName("");
   };
 
@@ -404,6 +482,13 @@ export function Picker() {
                   currentRoundNum={currentRoundNum}
                   isOvertime={isOvertime}
                   currentSide={currentSide}
+                  ourBans={ourBans}
+                  enemyBans={enemyBans}
+                  onToggleBan={toggleBan}
+                  selectedRouteId={selectedRouteId}
+                  setSelectedRouteId={handleSelectRoute}
+                  observedDefenseIds={observedDefenseIds}
+                  onToggleObservedDefense={handleToggleObservedDefense}
                   recommendations={displayedRecommendations}
                   squadRecommendation={currentSquadRecommendation}
                   engineOutput={engineOutput}
