@@ -5294,3 +5294,15 @@ select option:hover {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
   overflow-y: auto;
 }
+
+
+
+/* Preserve the original colours and full composition of r6operators SVGs. */
+.r6-op-icon-wrapper svg {
+  fill: initial;
+  transform: none !important;
+}
+
+.r6-op-icon-wrapper svg g > path:first-child {
+  display: initial !important;
+}

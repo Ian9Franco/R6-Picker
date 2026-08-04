@@ -535,7 +535,6 @@ export function Picker() {
             >
               <OperatorsCatalog
                 currentOperator={displayedRecommendations[0]?.opName ?? ""}
-                matchMap={matchMap}
                 onSelectOperator={(opName) => {
                   setStandardRecs([
                     {

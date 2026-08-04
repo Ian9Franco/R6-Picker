@@ -1,17 +1,17 @@
 "use client";
 
-import { Flame, Info, Search, Shield, Swords, X } from "lucide-react";
+import { Flame, Info, Search, Shield, Swords } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { attackers, defenders, operators, type Side } from "../../data/catalog";
 import { PIBES_CONFIG, normalizeOperator } from "../../data/pibes";
+import { getOperatorPlayerStat } from "../../data/operatorPlayerStats";
 import { OperatorIcon } from "./OperatorIcon";
 
 type FilterSide = Side | "all";
 
 type OperatorsCatalogProps = {
   currentOperator: string;
-  matchMap?: string;
   onSelectOperator: (opName: string) => void;
 };
 
@@ -79,53 +79,63 @@ function getRoleClass(role: string): string {
   return "op-role-info";
 }
 
-function getPibeTrackerStatsForOp(pibeId: string, opName: string, side: string) {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem("r6_tracker_map_stats_v1");
-    if (!stored) return null;
-    const parsed = JSON.parse(stored);
-    const key = `${pibeId}_${side}_${opName.toLowerCase().replace(/\s+/g, "_")}`;
-    const entry = parsed[key];
-    if (!entry || !entry.maps || entry.maps.length === 0) return null;
+type TrackerStatsStore = Record<string, any>;
 
-    let totalWins = 0;
-    let totalLosses = 0;
-    let totalRounds = 0;
-    let totalKdSum = 0;
-    let mapCount = 0;
+const STORAGE_KEY = "r6_tracker_map_stats_v1";
 
-    for (const m of entry.maps) {
-      if (m.wins !== undefined && m.losses !== undefined) {
-        totalWins += m.wins;
-        totalLosses += m.losses;
-      }
-      totalRounds += m.matchesOrRounds || 0;
-      if (m.kd !== undefined) {
-        totalKdSum += m.kd;
-        mapCount++;
-      }
+/** Matches IDs, display names and filenames despite underscores, spaces or accents. */
+function normalizeTrackerKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function getPibeTrackerStatsForOp(
+  imports: TrackerStatsStore,
+  pibeId: string,
+  opName: string,
+  side: string
+) {
+  const entry = Object.values(imports).find((candidate: any) =>
+    candidate?.side === side &&
+    normalizeTrackerKey(candidate?.playerId || candidate?.player || "") === normalizeTrackerKey(pibeId) &&
+    normalizeTrackerKey(candidate?.operator || "") === normalizeTrackerKey(opName)
+  ) as any;
+
+  if (!entry?.maps?.length) return null;
+
+  const maps = entry.maps;
+
+  let totalWins = 0;
+  let totalLosses = 0;
+  let totalRounds = 0;
+  let weightedKd = 0;
+  let kdWeight = 0;
+
+  for (const map of maps) {
+    totalWins += Number(map.wins) || 0;
+    totalLosses += Number(map.losses) || 0;
+    const sample = Number(map.matchesOrRounds) || 0;
+    totalRounds += sample;
+    if (typeof map.kd === "number") {
+      weightedKd += map.kd * (sample || 1);
+      kdWeight += sample || 1;
     }
-
-    const totalMatches = totalWins + totalLosses || totalRounds;
-    const winRate = totalMatches > 0 ? Math.round((totalWins / totalMatches) * 100) : undefined;
-    const kd = mapCount > 0 ? (totalKdSum / mapCount).toFixed(2) : undefined;
-
-    return {
-      totalRounds,
-      totalMatches,
-      winRate,
-      kd,
-      maps: entry.maps as any[],
-    };
-  } catch (e) {
-    return null;
   }
+
+  const totalMatches = totalWins + totalLosses || totalRounds;
+  return {
+    matches: totalMatches,
+    winRate: totalMatches > 0 ? Math.round((totalWins / totalMatches) * 100) : undefined,
+    kd: kdWeight > 0 ? (weightedKd / kdWeight).toFixed(2) : undefined,
+  };
 }
 
 export function OperatorsCatalog({
   currentOperator,
-  matchMap,
   onSelectOperator,
 }: OperatorsCatalogProps) {
   const [opQuery, setOpQuery] = useState("");
@@ -133,9 +143,35 @@ export function OperatorsCatalog({
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selectedDetailOp, setSelectedDetailOp] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [trackerImports, setTrackerImports] = useState<TrackerStatsStore>({});
 
   useEffect(() => {
     setMounted(true);
+
+    const loadTrackerImports = async () => {
+      try {
+        const response = await fetch("/api/save-tracker-stats");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.imports) {
+            setTrackerImports(data.imports);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.imports));
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar las estadisticas de Tracker:", error);
+      }
+
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) setTrackerImports(JSON.parse(stored));
+      } catch (error) {
+        console.error("Error al leer las estadisticas locales de Tracker:", error);
+      }
+    };
+
+    loadTrackerImports();
   }, []);
 
   const pool = useMemo(() => {
@@ -313,10 +349,6 @@ export function OperatorsCatalog({
       {mounted && detailOpObj && createPortal(
         <div className="ban-modal-overlay" onClick={() => setSelectedDetailOp(null)}>
           <div className="op-detail-modal-card" onClick={(e) => e.stopPropagation()}>
-            <button className="ban-modal-close" onClick={() => setSelectedDetailOp(null)}>
-              <X size={18} />
-            </button>
-
             {/* Modal Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "14px" }}>
               <div style={{ padding: "6px", borderRadius: "12px", background: "rgba(0,0,0,0.5)", border: `2px solid ${detailOpObj.side === "attack" ? "var(--atk)" : "var(--def)"}` }}>
@@ -350,14 +382,12 @@ export function OperatorsCatalog({
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {PIBES_CONFIG.map((pibe) => {
                 const affinityPct = calcPibeOpAffinity(pibe.id, detailOpObj.name);
-                const trackerStats = getPibeTrackerStatsForOp(pibe.id, detailOpObj.name, detailOpObj.side);
+                const trackerStats = getOperatorPlayerStat(pibe.id, detailOpObj.name) ??
+                  getPibeTrackerStatsForOp(trackerImports, pibe.id, detailOpObj.name, detailOpObj.side);
 
                 const isMain = pibe.identityOperators.some((o) => o.toLowerCase() === detailOpObj.name.toLowerCase());
                 const isComfort = pibe.comfortOperators.some((o) => o.toLowerCase() === detailOpObj.name.toLowerCase());
                 const isAvoid = pibe.avoidOperators.some((o) => o.toLowerCase() === detailOpObj.name.toLowerCase());
-
-                const mapPerfEntry = pibe.mapPerformance[detailOpObj.side === "attack" ? "attack" : "defense"]?.[matchMap || ""] ||
-                  Object.values(pibe.mapPerformance[detailOpObj.side === "attack" ? "attack" : "defense"] || {})[0];
 
                 return (
                   <div key={pibe.id} style={{ background: "rgba(0,0,0,0.3)", border: `1px solid ${PIBE_COLORS[pibe.id] || "rgba(255,255,255,0.1)"}`, borderRadius: "10px", padding: "12px" }}>
@@ -376,26 +406,20 @@ export function OperatorsCatalog({
                       <div>
                         <span style={{ color: "var(--muted)", display: "block", fontSize: "10px" }}>Winrate</span>
                         <strong style={{ color: trackerStats?.winRate && trackerStats.winRate >= 50 ? "#4ade80" : "#f8fafc" }}>
-                          {trackerStats?.winRate !== undefined ? `${trackerStats.winRate}%` : (mapPerfEntry?.winRate ? `${mapPerfEntry.winRate}%` : "Sin datos")}
+                          {trackerStats?.winRate !== undefined ? `${trackerStats.winRate}%` : "Sin datos reales"}
                         </strong>
                       </div>
                       <div>
                         <span style={{ color: "var(--muted)", display: "block", fontSize: "10px" }}>K/D Ratio</span>
                         <strong style={{ color: trackerStats?.kd && Number(trackerStats.kd) >= 1.2 ? "#38bdf8" : "#f8fafc" }}>
-                          {trackerStats?.kd ? `${trackerStats.kd}` : (mapPerfEntry?.kd ? `${mapPerfEntry.kd}` : "N/D")}
+                          {trackerStats?.kd ? `${trackerStats.kd}` : "Sin datos reales"}
                         </strong>
                       </div>
                       <div>
-                        <span style={{ color: "var(--muted)", display: "block", fontSize: "10px" }}>Rondas / Muestra</span>
-                        <strong>{trackerStats?.totalRounds ? `${trackerStats.totalRounds} rondas` : (mapPerfEntry?.rounds ? `${mapPerfEntry.rounds} rondas` : "FACTOS")}</strong>
+                        <span style={{ color: "var(--muted)", display: "block", fontSize: "10px" }}>Partidas</span>
+                        <strong>{trackerStats?.matches ? `${trackerStats.matches} partidas` : "Sin datos reales"}</strong>
                       </div>
                     </div>
-
-                    {mapPerfEntry?.tacticalNote && (
-                      <div style={{ fontSize: "10px", color: "var(--fg-dim)", marginTop: "4px" }}>
-                        📝 <strong>Nota Táctica:</strong> {mapPerfEntry.tacticalNote}
-                      </div>
-                    )}
                   </div>
                 );
               })}
