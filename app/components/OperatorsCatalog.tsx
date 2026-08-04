@@ -21,49 +21,53 @@ const PIBE_COLORS: Record<string, string> = {
   azusa_cooper09: "#a855f7",
 };
 
-/** Calculate direct affinity between a pibe and operator using FACTOS data. */
-function calcPibeOpAffinity(pibeId: string, opName: string): number {
+/** Explain the direct affinity between a pibe and an operator using FACTOS data. */
+type AffinityDetail = { score: number; reasons: string[] };
+
+function getPibeOpAffinityDetail(pibeId: string, opName: string): AffinityDetail {
   const pibe = PIBES_CONFIG.find((p) => p.id === pibeId);
-  if (!pibe) return 0;
+  if (!pibe) return { score: 0, reasons: ["No hay perfil FACTOS para este jugador."] };
 
   const opKey = opName.toLowerCase();
   const op = normalizeOperator(opName);
 
-  // 1. Is it an identity/mains operator? → highest affinity
-  const isIdentity = pibe.identityOperators.some((o) => o.toLowerCase() === opKey);
-  if (isIdentity) return 92;
+  if (pibe.identityOperators.some((name) => name.toLowerCase() === opKey)) {
+    return { score: 92, reasons: ["Es uno de sus agentes de identidad (main)."] };
+  }
+  if (pibe.comfortOperators.some((name) => name.toLowerCase() === opKey)) {
+    return { score: 75, reasons: ["Es un agente de confort declarado en su perfil."] };
+  }
+  if (pibe.avoidOperators.some((name) => name.toLowerCase() === opKey)) {
+    return { score: 10, reasons: ["El perfil recomienda evitar este agente."] };
+  }
+  if ([...pibe.tryoutAttack, ...pibe.tryoutDefense].some((trial) => trial.operatorId.toLowerCase() === opKey)) {
+    return { score: 55, reasons: ["Esta marcado como agente de prueba: hay potencial, pero aun no es una preferencia consolidada."] };
+  }
 
-  // 2. Is it a comfort operator?
-  const isComfort = pibe.comfortOperators.some((o) => o.toLowerCase() === opKey);
-  if (isComfort) return 75;
-
-  // 3. Is it an avoid operator?
-  const isAvoid = pibe.avoidOperators.some((o) => o.toLowerCase() === opKey);
-  if (isAvoid) return 10;
-
-  // 4. Is it a tryout operator?
-  const isTryout = [...pibe.tryoutAttack, ...pibe.tryoutDefense].some(
-    (t) => t.operatorId.toLowerCase() === opKey
-  );
-  if (isTryout) return 55;
-
-  // 5. Role affinity overlap
+  let bestRole: string | undefined;
   let bestRoleScore = 0;
   for (const role of op.roles) {
     const entry = pibe.roleAffinity[role];
-    if (entry) {
-      const score = (entry as any).score ?? 0;
-      if (score > bestRoleScore) bestRoleScore = score;
+    const score = (entry as any)?.score ?? 0;
+    if (score > bestRoleScore) {
+      bestRole = role;
+      bestRoleScore = score;
     }
   }
 
-  if (bestRoleScore > 0) {
-    return Math.round(20 + bestRoleScore * 45);
+  if (bestRole) {
+    return {
+      score: Math.round(20 + bestRoleScore * 45),
+      reasons: ["Coincide con su afinidad de rol: " + bestRole + " (" + Math.round(bestRoleScore * 100) + "%)."],
+    };
   }
 
-  return 25; // neutral
+  return { score: 25, reasons: ["No es main, confort, prueba ni una coincidencia fuerte de roles; afinidad neutral."] };
 }
 
+function calcPibeOpAffinity(pibeId: string, opName: string): number {
+  return getPibeOpAffinityDetail(pibeId, opName).score;
+}
 function getRoleClass(role: string): string {
   if (role.includes("dura")) return "op-role-breach-hard";
   if (role.includes("blanda")) return "op-role-breach-soft";
@@ -141,6 +145,7 @@ export function OperatorsCatalog({
   const [opQuery, setOpQuery] = useState("");
   const [opSideFilter, setOpSideFilter] = useState<FilterSide>("all");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [pibeSortId, setPibeSortId] = useState<string>("all");
   const [selectedDetailOp, setSelectedDetailOp] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [trackerImports, setTrackerImports] = useState<TrackerStatsStore>({});
@@ -198,8 +203,14 @@ export function OperatorsCatalog({
           (op.desc && op.desc.toLowerCase().includes(q))
       );
     }
+    if (pibeSortId !== "all") {
+      result = [...result].sort((a, b) => {
+        const affinityDifference = calcPibeOpAffinity(pibeSortId, b.name) - calcPibeOpAffinity(pibeSortId, a.name);
+        return affinityDifference || a.name.localeCompare(b.name);
+      });
+    }
     return result;
-  }, [pool, roleFilter, opQuery]);
+  }, [pool, roleFilter, opQuery, pibeSortId]);
 
   // Pre-calculate affinities for all operators
   const affinityCache = useMemo(() => {
@@ -250,6 +261,16 @@ export function OperatorsCatalog({
             <Shield size={13} /> DEF ({defenders.length})
           </button>
         </div>
+
+        <label className="pibe-affinity-filter">
+          <span>Ordenar por afinidad</span>
+          <select value={pibeSortId} onChange={(event) => setPibeSortId(event.target.value)}>
+            <option value="all">Sin ordenar</option>
+            {PIBES_CONFIG.map((pibe) => (
+              <option key={pibe.id} value={pibe.id}>{pibe.displayName}: mayor a menor</option>
+            ))}
+          </select>
+        </label>
 
         <div className="role-filter-strip">
           <button data-role="all" className={`role-chip ${roleFilter === "all" ? "active-all" : ""}`} onClick={() => setRoleFilter("all")}>
@@ -381,7 +402,8 @@ export function OperatorsCatalog({
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {PIBES_CONFIG.map((pibe) => {
-                const affinityPct = calcPibeOpAffinity(pibe.id, detailOpObj.name);
+                const affinityDetail = getPibeOpAffinityDetail(pibe.id, detailOpObj.name);
+                const affinityPct = affinityDetail.score;
                 const trackerStats = getOperatorPlayerStat(pibe.id, detailOpObj.name) ??
                   getPibeTrackerStatsForOp(trackerImports, pibe.id, detailOpObj.name, detailOpObj.side);
 
@@ -419,6 +441,9 @@ export function OperatorsCatalog({
                         <span style={{ color: "var(--muted)", display: "block", fontSize: "10px" }}>Partidas</span>
                         <strong>{trackerStats?.matches ? `${trackerStats.matches} partidas` : "Sin datos reales"}</strong>
                       </div>
+                    </div>
+                    <div style={{ fontSize: "10px", color: "var(--fg-dim, #cbd5e1)", lineHeight: 1.35 }}>
+                      <strong>Por que esta afinidad:</strong> {affinityDetail.reasons.join(" ")}
                     </div>
                   </div>
                 );

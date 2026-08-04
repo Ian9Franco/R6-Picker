@@ -5306,3 +5306,22 @@ select option:hover {
 .r6-op-icon-wrapper svg g > path:first-child {
   display: initial !important;
 }
+
+
+.pibe-affinity-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-bright);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pibe-affinity-filter select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--fg);
+  font: inherit;
+  padding: 6px 8px;
+}
