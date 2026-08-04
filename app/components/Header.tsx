@@ -1,6 +1,5 @@
 "use client";
 
-import { Crosshair, Users } from "lucide-react";
 import { maps, operators } from "../../data/catalog";
 import pibesData from "../../data/pibes.json";
 
@@ -15,8 +14,8 @@ export function Header({ activeTab, setActiveTab }: HeaderProps) {
   return (
     <header className="app-header">
       <div className="header-brand">
-        <span className="brand-icon">
-          <Crosshair size={17} />
+        <span className="brand-icon" style={{ padding: 2, background: "rgba(0,0,0,0.3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <img src="/icon.png" alt="R6 Pick Logo" style={{ width: 22, height: 22, objectFit: "contain", borderRadius: 4 }} />
         </span>
         <span className="brand-title">
           R6<span className="brand-accent">·PICK</span>

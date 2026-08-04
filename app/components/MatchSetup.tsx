@@ -149,8 +149,8 @@ export function MatchSetup({
                       disabled={isDisabled}
                       title={isDisabled ? `Ya tenés ${partySize} jugador${partySize > 1 ? "es" : ""} seleccionado${partySize > 1 ? "s" : ""}` : undefined}
                     >
-                      <span className="pibe-chip-name">{pibe.name}</span>
-                      <span className="pibe-chip-style">{pibe.playstyle}</span>
+                      <span className="pibe-chip-name">{pibe.displayName}</span>
+                      <span className="pibe-chip-style">{pibe.tag}</span>
                     </button>
                   );
                 })}

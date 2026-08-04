@@ -33,6 +33,7 @@ import playerRulesRaw from "../../data/player-rules.json";
 import synergiesRaw from "../../data/synergies.json";
 import { KNOWN_MAPS } from "../../data/trackerParser";
 import { TrackerImporter } from "./TrackerImporter";
+import { PIBES_CONFIG } from "../../data/pibes";
 
 const ROLE_LABELS: Record<string, string> = {
   "hard-breach": "Brecha dura",
@@ -51,38 +52,51 @@ const ROLE_LABELS: Record<string, string> = {
   "zone-deny": "Negación de zona",
 };
 
-const AVOID_OP_MOTIVES: Record<string, { title: string; reason: string }> = {
+const AVOID_OP_MOTIVES: Record<string, { title: string; whenAvoid: string; whenViable: string }> = {
   "Deimos": {
-    title: "Deimos — Evitar por aislamiento",
-    reason: "Exige cazar aisladamente sin aportar utilidad estructural ni cobertura para el avance del grupo.",
-  },
-  "Caveira": {
-    title: "Caveira — Evitar por alto riesgo",
-    reason: "Roaming de extremo riesgo sin utilidad pasiva para el sitio en caso de caer temprano.",
+    title: "Deimos — Cazador de Roamers",
+    whenAvoid: "Falta abrir la pared principal o si se caza en solitario sin compañero para el re-frag.",
+    whenViable: "El rival abusa de roamers sueltos y el squad ya cuenta con la brecha dura cubierta.",
   },
   "Ash": {
-    title: "Ash — Ritmo incompatible",
-    reason: "Forzar a un jugador metódico a 1st entry agresivo aumenta drásticamente la tasa de bajas tempranas.",
-  },
-  "Amaru": {
-    title: "Amaru — Evitar por impredecibilidad",
-    reason: "Entrada directa individual desincronizada con el planteo de brecha y dron de escuadrón.",
-  },
-  "Nøkk": {
-    title: "Nøkk — Falta de impacto",
-    reason: "Carece de utilidad pesada para limpiar dispositivos o abrir sitio para el grupo.",
-  },
-  "Oryx": {
-    title: "Oryx — Ausencia de utilidad de sitio",
-    reason: "Movilidad individual sin dispositivos pasivos de ayuda al equipo si caen las defensas.",
-  },
-  "Vigil": {
-    title: "Vigil — Roam pasivo",
-    reason: "Ocultación individual que no otorga información colectiva al resto del squad.",
+    title: "Ash — Entry y Destrucción Distante",
+    whenAvoid: "Pick por defecto si el equipo no tiene quién abra sitio o limpie utilidades pesadas.",
+    whenViable: "1st entry agresivo o limpieza rápida de utilidades si otro compañero ya lleva el soporte.",
   },
   "Ace": {
-    title: "Ace — Evitar como pick habitual",
-    reason: "Duplica la función estructural que otros jugadores ya cubren y reduce su impacto posterior a la apertura.",
+    title: "Ace — Brecha Remota Versátil",
+    whenAvoid: "Pick automático sobre Thermite cuando se requieren aperturas grandes de sitio.",
+    whenViable: "Mapas con escotillas lejanas o paredes expuestas donde lanzar brecha a distancia es más seguro.",
+  },
+  "Caveira": {
+    title: "Caveira — Roam de Sigilo y Presión",
+    whenAvoid: "Ejecuciones apretadas de sitio o sin utilidad pasiva si caen las defensas rápido.",
+    whenViable: "Rondas de sorpresa cuando el ataque enemigo avanza desorganizado y aislado.",
+  },
+  "Pulse": {
+    title: "Pulse — Intel Vertical de Sitio",
+    whenAvoid: "Roam distante fuera de sitio o si el squad carece de anclas con trampas pasivas.",
+    whenViable: "Debajo de sitios con piso destructible para rastrear e interrumpir el plantado con C4.",
+  },
+  "Amaru": {
+    title: "Amaru — Entrada Inmediata",
+    whenAvoid: "Primer pick sin dronero previo o en rondas coordinadas de brecha dura.",
+    whenViable: "Rondas de sorpresa para tomar ventanas o pisos superiores sin vigilancia.",
+  },
+  "Nøkk": {
+    title: "Nøkk — Infiltración Silenciosa",
+    whenAvoid: "Se requiere utilidad pesada de destrucción o soporte colectivo para el grupo.",
+    whenViable: "Flanquear cámaras cuando el resto del equipo ejerce presión por el frente.",
+  },
+  "Oryx": {
+    title: "Oryx — Movilidad y Rotación Rápida",
+    whenAvoid: "El sitio defensivo exige utilidades pasivas de retención o bloqueo de accesos.",
+    whenViable: "Mapas de varios pisos (ej. Bank) para rotaciones verticales de respuesta rápida.",
+  },
+  "Vigil": {
+    title: "Vigil — Roam de Ocultación",
+    whenAvoid: "La defensa carece de utilidades pasivas de sitio o anclas de retención.",
+    whenViable: "Desperdiciar el tiempo de dronero enemigo en zonas clave de rotación.",
   },
 };
 
@@ -178,41 +192,41 @@ const CONSEJOS_DATABANK: Record<string, {
     generalRole: "Flex principal del equipo: adapta su rol según lo que falte en la ronda.",
     attackAdvice: [
       {
-        condition: "Si falta abrir pared",
+        condition: "Si falta abrir pared / brecha principal",
         picks: ["Kali", "Thermite", "Thatcher"],
-        tip: "Priorizar Kali o Thermite antes que Ace. Ace tiene malos resultados en su historial.",
+        tip: "Priorizar Kali o Thermite. Evitar Ace o Ash si se necesita apertura completa del portón de sitio.",
       },
       {
-        condition: "Si ya hay hard breacher",
+        condition: "Si ya hay hard breacher en el squad",
         picks: ["Ash", "Ram", "Brava", "Iana", "Ying"],
-        tip: "No duplicar soporte. Cambiar inmediatamente a segundo entry o flex agresivo.",
+        tip: "Ash y Ram son viables aquí para 1st entry o destrucción vertical, dado que la brecha ya está cubierta.",
       },
       {
         condition: "Si el rival tiene mucho roam",
-        picks: ["Deimos", "Iana", "Ash", "Dokkaebi"],
-        tip: "Acompañar drones y convertir información en bajas tempranas sin obsesionarse con la kill.",
+        picks: ["Deimos", "Dokkaebi", "Iana", "Jackal"],
+        tip: "Deimos es muy efectivo aquí para cazar con seguimiento, siempre que el squad ya tenga la brecha asegurada.",
       },
       {
-        condition: "Si el rival juega muy encerrado",
+        condition: "Si el rival juega muy encerrado en sitio",
         picks: ["Ying", "Ram", "Fuze", "Brava"],
-        tip: "Encargarse de romper la estructura defensiva, no de buscar duelos aislados.",
+        tip: "Encargarse de romper la estructura defensiva o hackear dispositivos clave antes del push.",
       },
     ],
     defenseAdvice: [
       {
         condition: "Si hace falta negar pared",
         picks: ["Kaid", "Mute", "Bandit", "Tubarão"],
-        tip: "Kaid es su main defensivo más natural. Mute y Bandit ofrecen resultados sólidos.",
+        tip: "Kaid es su main defensivo más natural. Mute y Tubarão ofrecen gran control de brecha.",
       },
       {
         condition: "Si ya está cubierta la pared",
-        picks: ["Valkyrie", "Vigil", "Fenrir", "Pulse", "Mozzie"],
-        tip: "Su mejor situación: jugar libre, buscar información y fraggear.",
+        picks: ["Pulse", "Valkyrie", "Fenrir", "Mozzie"],
+        tip: "Pulse es excelente para denegación vertical desde abajo en sitios con piso destructible.",
       },
       {
         condition: "Si van ganando (Match Point)",
         picks: ["Mute", "Valkyrie", "Fenrir", "Kaid", "Lesion"],
-        tip: "Cero improvisaciones de riesgo. Priorizar utilidad persistente y control seguro.",
+        tip: "Cero improvisaciones de riesgo. Priorizar utilidad persistente y control seguro de sitio.",
       },
     ],
   },
@@ -220,41 +234,41 @@ const CONSEJOS_DATABANK: Record<string, {
     generalRole: "Support estructural fijo y ancla defensiva principal.",
     attackAdvice: [
       {
-        condition: "Si falta hard breacher",
+        condition: "Si falta hard breacher principal",
         picks: ["Thermite", "Hibana", "Ace"],
-        tip: "Usar Hibana en mapas con escotillas y Thermite para aperturas grandes de sitio.",
+        tip: "Thermite para portones de sitio directos; Hibana en mapas verticales; Ace solo en aberturas lejanas a distancia.",
       },
       {
-        condition: "Si falta apoyo de plantado",
-        picks: ["Gridlock", "Capitão", "Fuze"],
-        tip: "Guardar utilidad para la ejecución final y no gastarla antes de tiempo.",
+        condition: "Si falta apoyo de plantado o flanco",
+        picks: ["Gridlock", "Capitão", "Nomad"],
+        tip: "Colocar trax o airjabs en rotaciones defensivas antes de apoyar la ejecución con el defuser.",
       },
       {
-        condition: "Si el rival juega muy agresivo",
+        condition: "Si el rival juega roam muy agresivo",
         picks: ["Lion", "Gridlock", "Nomad"],
-        tip: "Castigar rotaciones enemigas y proteger flancos sin perseguir roamers solo.",
+        tip: "Bloquear rutas de retorno enemigas con Lion y Gridlock sin perseguir roamers solo.",
       },
       {
-        condition: "Si el equipo necesita soporte sin entrar 1.º",
-        picks: ["Lion", "Gridlock", "Hibana"],
-        tip: "Lion es su atacante más estable para aportar valor desde la línea media.",
+        condition: "Si el equipo necesita soporte de línea media",
+        picks: ["Lion", "Hibana", "Gridlock"],
+        tip: "Lion es su atacante más estable para aportar valor y escaneos sin exponerse en primera línea.",
       },
     ],
     defenseAdvice: [
       {
-        condition: "Si hace falta negar brecha",
+        condition: "Si hace falta negar brecha o congelar avance",
         picks: ["Tubarão", "Mute", "Bandit", "Kaid"],
-        tip: "Tubarão debe ser su primera opción siempre que el sitio lo permita. Excelente rendimiento.",
+        tip: "Tubarão es su mejor pick defensivo por impacto. Frena cargadores y ralentiza la ejecución enemiga.",
       },
       {
-        condition: "Si hace falta control de entrada",
-        picks: ["Thorn", "Kapkan", "Frost", "Ela"],
-        tip: "Kapkan y Thorn combinan utilidad pasiva simple con alta efectividad de sitio.",
+        condition: "Si hace falta control de entrada / trampas pasivas",
+        picks: ["Thorn", "Kapkan", "Frost", "Castle"],
+        tip: "Kapkan y Castle remodelan el sitio y castigan avances apresurados sin depender de puntería rápida.",
       },
       {
         condition: "Si van perdiendo y necesitan defensa segura",
-        picks: ["Tubarão", "Kapkan", "Mute", "Thorn", "Frost"],
-        tip: "Composición aburrida pero ganadora de ELO. Las trampas no tienen ego y aseguran sitio.",
+        picks: ["Tubarão", "Kapkan", "Mute", "Thorn", "Lesion"],
+        tip: "Composición sólida de sitio. Las trampas y la denegación pasiva aseguran rondas sin regalar bajas.",
       },
     ],
   },
@@ -264,29 +278,39 @@ const CONSEJOS_DATABANK: Record<string, {
       {
         condition: "Si el equipo tiene buena comunicación",
         picks: ["Montagne", "Blitz"],
-        tip: "Avanzar pegado a un compañero que aproveche la presión y haga calls.",
+        tip: "Avanzar al frente como escudo de presión, dar callouts precisos y coordinar al segundo fragger atrás.",
       },
       {
-        condition: "Si se juega sin comunicación",
+        condition: "Si se juega sin comunicación fluida",
         picks: ["Lion", "Dokkaebi", "Brava", "Twitch"],
-        tip: "Evitar Montagne solo. Usar Lion o Twitch para aportar valor independiente.",
+        tip: "Evitar escudos individuales. Usar intel global o hackeo directo para aportar valor independiente.",
       },
       {
-        condition: "Si falta hard breacher",
+        condition: "Si falta hard breacher en el squad",
         picks: ["Thermite", "Thatcher"],
-        tip: "Priorizar Thermite antes que Ace. Ace es su peor pick frecuente.",
+        tip: "Usar Thermite para asegurar la apertura del objetivo sin perder la disciplina de línea.",
+      },
+      {
+        condition: "Si el sitio exige presión de ventanas / frontal",
+        picks: ["Osa", "Brava", "Twitch"],
+        tip: "Osa asegura ángulos frontales en ventanas o pasillos largos de toma de sitio.",
       },
     ],
     defenseAdvice: [
       {
-        condition: "Si hace falta ancla de sitio",
+        condition: "Si hace falta ancla principal de sitio",
         picks: ["Mute", "Tachanka", "Smoke", "Thorn"],
-        tip: "Tachanka tiene winrate altísimo con él porque su utilidad niega ejecuciones en tiempo final.",
+        tip: "Tachanka y Mute tienen winrate altísimo en su historial. El fuego niega ejecuciones en los últimos 20 segundos.",
       },
       {
-        condition: "Si el equipo necesita antigranadas",
-        picks: ["Wamai", "Jäger"],
-        tip: "Jugar Wamai o Jäger cerca del sitio sin alejarse a duelos lejanos.",
+        condition: "Si el sitio tiene piso destructible desde abajo",
+        picks: ["Pulse", "Wamai", "Jäger"],
+        tip: "Pulse permite detectar el plantado enemigo a través del techo/piso e interrumpirlo con C4.",
+      },
+      {
+        condition: "Si hace falta denegación pasiva de accesos",
+        picks: ["Lesion", "Kapkan", "Mute"],
+        tip: "Colocar utilidades en las puertas principales y jugar escondido para forzar al atacante a gastar tiempo.",
       },
     ],
   },
@@ -339,6 +363,26 @@ export function PibesView() {
   const currentPibe = pibes.find((p) => p.id === selectedPibeId) ?? pibes[0];
   const pibeRules = (playerRulesRaw as any).rules[selectedPibeId]?.avoid ?? [];
   const consejos = CONSEJOS_DATABANK[selectedPibeId];
+
+  // FACTOS data for the current pibe — used to filter inconsistencies
+  const factosProfile = PIBES_CONFIG.find((p) => p.id === selectedPibeId);
+  const factosAvoidSet = new Set(
+    (factosProfile?.avoidOperators ?? []).map((o) => o.toLowerCase())
+  );
+
+  /** Filter a list of pick names, removing any the pibe should avoid */
+  function filterSafePicks(picks: string[]): { safe: string[]; removed: string[] } {
+    const safe: string[] = [];
+    const removed: string[] = [];
+    for (const p of picks) {
+      if (factosAvoidSet.has(p.toLowerCase())) {
+        removed.push(p);
+      } else {
+        safe.push(p);
+      }
+    }
+    return { safe, removed };
+  }
 
   return (
     <div className="pibes-shell">
@@ -913,15 +957,16 @@ export function PibesView() {
                 })}
               </div>
 
-              {/* Avoid Operators con Motivo Explicativo */}
+              {/* Avoid Operators con Contexto Dual (Cuándo Evitar vs Cuándo SÍ usar) */}
               <div className="pibe-section-title" style={{ marginTop: 24 }}>
-                <AlertTriangle size={15} /> Agentes a Evitar — Motivo Táctico
+                <AlertTriangle size={15} /> Agentes con Riesgo Táctico (Cuándo Evitar vs Cuándo Usar)
               </div>
               <div className="avoid-cards-grid">
                 {[...currentPibe.avoidOperators?.attack.map((op) => ({ op, side: "attack" })), ...currentPibe.avoidOperators?.defense.map((op) => ({ op, side: "defense" }))].map(({ op, side }) => {
                   const info = AVOID_OP_MOTIVES[op] ?? {
-                    title: `${op} — Desaconsejado`,
-                    reason: "Incompatibilidad con el perfil del jugador o duplicación innecesaria de roles.",
+                    title: `${op} — Condicional`,
+                    whenAvoid: "Evitar si la composición del squad carece de roles estructurales o soporte de sitio.",
+                    whenViable: "SÍ es viable en situaciones específicas cuando la brecha y el soporte ya están asegurados.",
                   };
                   return (
                     <div key={op} className="avoid-op-card-enriched">
@@ -929,7 +974,14 @@ export function PibesView() {
                         <span className="avoid-op-title">{info.title}</span>
                         <span className="avoid-side-badge">{side.toUpperCase()}</span>
                       </div>
-                      <p className="avoid-op-reason">{info.reason}</p>
+                      <div className="tryout-micro-box avoid">
+                        <span className="tryout-box-label">⚠️ Cuándo EVITARLO:</span>
+                        <span className="tryout-box-text">{info.whenAvoid}</span>
+                      </div>
+                      <div className="tryout-micro-box viable">
+                        <span className="tryout-box-label">✅ Cuándo SÍ es viable:</span>
+                        <span className="tryout-box-text">{info.whenViable}</span>
+                      </div>
                     </div>
                   );
                 })}

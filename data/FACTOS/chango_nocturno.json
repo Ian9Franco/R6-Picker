@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 2,
+  "id": "chango_nocturno",
+  "name": "ChangoNocturno",
+  "updatedAt": "2026-08-04",
+  "identity": {
+    "summary": "Jugador táctico y de soporte estructural puro. Prioriza la apertura de paredes, la denegación de accesos y la gestión de trampas por sobre el fragging directo.",
+    "primaryRoles": [
+      "hard-support",
+      "hard-breach",
+      "anti-breach",
+      "anchor"
+    ],
+    "secondaryRoles": [
+      "trap-control",
+      "plant-support",
+      "intel"
+    ],
+    "postUtilityRole": [
+      "flank-control",
+      "plant-support",
+      "stall",
+      "late-round-anchor"
+    ],
+    "preferredTempo": "lento-metodico",
+    "preferredPosition": [
+      "soporte trasero",
+      "ancla en sitio"
+    ],
+    "playstyleTags": [
+      "estructural",
+      "soporte",
+      "trampas",
+      "ancla"
+    ],
+    "sideBias": {
+      "preferredSide": "defense",
+      "severity": "high",
+      "description": "Rendimiento mucho mejor en defensa. Sus picks ofensivos tienen winrates muy bajos, indicando problemas para traducir aperturas en victorias."
+    },
+    "defuserPriority": {
+      "value": "high",
+      "reason": "Debe llevarlo cuando juega hard support y permanece con el equipo."
+    }
+  },
+  "roleAffinity": {
+    "hard-support": { "score": 0.95, "method": "manual-inference", "confidence": "high" },
+    "hard-breach": { "score": 0.95, "method": "manual-inference", "confidence": "high" },
+    "anti-breach": { "score": 0.90, "method": "manual-inference", "confidence": "high" },
+    "anchor": { "score": 0.85, "method": "manual-inference", "confidence": "high" },
+    "trap-control": { "score": 0.85, "method": "manual-inference", "confidence": "high" },
+    "plant-support": { "score": 0.75, "method": "manual-inference", "confidence": "medium" },
+    "intel": { "score": 0.50, "method": "manual-inference", "confidence": "high" },
+    "second-entry": { "score": 0.30, "method": "manual-inference", "confidence": "high" },
+    "roamer": { "score": 0.20, "method": "manual-inference", "confidence": "high" }
+  },
+  "activeSupport": {
+    "attack": {
+      "requiredFunctions": ["hard-breach", "anti-gadget"],
+      "preferredTransitions": [
+        "flank-control",
+        "plant-support",
+        "intel"
+      ],
+      "avoidPatterns": [
+        "passive-after-breach",
+        "holding-exterior-after-opening",
+        "deep-roaming-without-return"
+      ]
+    },
+    "defense": {
+      "requiredFunctions": ["anti-breach", "anchor", "trap-control"],
+      "preferredTransitions": [
+        "stall",
+        "nearby-lurk",
+        "late-round-anchor"
+      ],
+      "avoidPatterns": [
+        "deep-roaming-without-return",
+        "early-deaths"
+      ]
+    }
+  },
+  "pickOrder": {
+    "attack": {
+      "preferredPosition": 1,
+      "flexible": true,
+      "reason": "Define la estructura obligatoria de la ronda."
+    },
+    "defense": {
+      "preferredPosition": 1,
+      "flexible": true,
+      "reason": "Bloquea las opciones rápidas del atacante o ralentiza el sitio."
+    }
+  },
+  "tacticalGuidelines": {
+    "attack": {
+      "do": [
+        "Fijar la tarea estructural obligatoria de la ronda (Hibana, Thermite, Thatcher).",
+        "Conservar el dron inicial. Abrir temprano pero sin apuro.",
+        "Anunciar y asumir una segunda tarea explícita tras la apertura ('Abro y controlo flank', 'Abro y drono', 'Abro y acompaño plantado')."
+      ],
+      "avoid": [
+        "Ser el primer entry o buscar duelos innecesarios sin dron.",
+        "Jugar lejos del equipo si lleva el defuser.",
+        "Picks automáticos de Ace (solo usar para distancia) o Thatcher (evitar si hay EMP secundarios)."
+      ]
+    },
+    "defense": {
+      "do": [
+        "Jugar como lurker cercano o ancla móvil (Tubarão, Mute, Bandit, Trampas).",
+        "Garantizar estructura al inicio, y luego convertir esa estructura en tiempo.",
+        "Pelear desde posiciones conectadas con el sitio y retroceder después del primer contacto."
+      ],
+      "avoid": [
+        "Hacer deep roaming sin plan de regreso.",
+        "Mirar cámaras mientras el equipo necesita presencia física (trade o sitio).",
+        "Gastar utilidad demasiado rápido o jugar por kills que no requiere la ronda."
+      ]
+    },
+    "general": {
+      "do": [
+        "Mantener la calma bajo presión y priorizar la supervivencia para usar utilidad táctica en el late-round."
+      ],
+      "avoid": [
+        "Buscar el primer contacto del equipo."
+      ]
+    }
+  },
+  "identityOperators": [
+    { "operatorId": "hibana", "side": "attack", "reason": "Mejores resultados relativos que Thermite; permite conservar movilidad y abrir múltiples zonas." },
+    { "operatorId": "tubarao", "side": "defense", "reason": "Su pick más completo. Combina utilidad estructural, capacidad de pelea y control temporal." }
+  ],
+  "comfortOperators": [
+    { "operatorId": "thermite", "side": "attack", "matches": 313, "winRate": 41.5, "kd": 0.65 },
+    { "operatorId": "thatcher", "side": "attack", "matches": 150, "winRate": 48.0, "kd": 0.62 },
+    { "operatorId": "bandit", "side": "defense", "matches": 303, "winRate": 53.8, "kd": 0.81 },
+    { "operatorId": "mute", "side": "defense", "matches": 242, "winRate": 57.0, "kd": 0.86 },
+    { "operatorId": "kaid", "side": "defense", "matches": 218, "winRate": 52.3, "kd": 0.89 },
+    { "operatorId": "thorn", "side": "defense", "matches": 120, "winRate": 55.0, "kd": 0.85 },
+    { "operatorId": "kapkan", "side": "defense", "matches": 105, "winRate": 54.5, "kd": 0.90 }
+  ],
+  "tryoutOperators": [
+    { "operatorId": "gridlock", "side": "attack", "developmentGoal": "Post-plantado y control pasivo para forzar al defensor.", "practiceFocus": ["Lanzar trax para cubrir flancos post-brecha", "No morir con utilidad"] },
+    { "operatorId": "nomad", "side": "attack", "developmentGoal": "Control de flank tras cubrir rol principal.", "practiceFocus": ["No asomarse después de colocar el airjab", "Cubrir al breacher"] },
+    { "operatorId": "lion", "side": "attack", "developmentGoal": "Soporte global sin necesidad de asomarse, ideal como flex/segundo.", "practiceFocus": ["Coordinar escaneos con los entrys"] },
+    { "operatorId": "castle", "side": "defense", "developmentGoal": "Modificador de mapa y ancla.", "practiceFocus": ["Cerrar líneas de visión, no rutas de rotación del equipo"] },
+    { "operatorId": "lesion", "side": "defense", "developmentGoal": "Ralentización de avance.", "practiceFocus": ["No asomarse al primer ruido"] }
+  ],
+  "avoidOperators": [
+    { "operatorId": "ash", "side": "attack", "severity": "strong", "reason": "Requiere entry fragging activo, opuesto a su estilo." },
+    { "operatorId": "ace", "side": "attack", "severity": "medium", "reason": "Picks automáticos de Ace sin ventaja concreta. Usar Hibana/Thermite primero." },
+    { "operatorId": "caveira", "side": "defense", "severity": "strong", "reason": "Roaming aislado de alto riesgo." }
+  ],
+  "mapPerformance": {
+    "attack": {
+      "kanal": { "rounds": 100, "winRate": 55.0, "kd": 0.81, "classification": "strong", "confidence": "high", "source": "tracker-derived" },
+      "calypso casino": { "rounds": 76, "winRate": 51.3, "kd": 0.81, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "chalet": { "rounds": 218, "winRate": 47.7, "kd": 0.87, "classification": "playable", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["hibana"], "tacticalNote": "Puede abrir desde afuera y luego rotar." },
+      "border": { "rounds": 154, "winRate": 44.8, "kd": 0.85, "classification": "weak", "confidence": "high", "source": "tracker-derived" },
+      "outback": { "rounds": 89, "winRate": 42.7, "kd": 0.76, "classification": "weak", "confidence": "high", "source": "tracker-derived" },
+      "bank": { "rounds": 139, "winRate": 40.3, "kd": 0.72, "classification": "critical", "confidence": "high", "source": "tracker-derived", "avoidRoles": ["slow-thermite-isolated"] },
+      "coastline": { "rounds": 196, "winRate": 39.8, "kd": 0.82, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "villa": { "rounds": 169, "winRate": 39.6, "kd": 0.84, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "theme park": { "rounds": 74, "winRate": 37.8, "kd": 0.81, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "fortress": { "rounds": 74, "winRate": 37.8, "kd": 0.70, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "nighthaven labs": { "rounds": 51, "winRate": 37.3, "kd": 0.71, "classification": "critical", "confidence": "medium", "source": "tracker-derived" },
+      "consulate": { "rounds": 128, "winRate": 36.7, "kd": 0.86, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "clubhouse": { "rounds": 169, "winRate": 36.1, "kd": 0.81, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "kafe dostoyevsky": { "rounds": 134, "winRate": 35.8, "kd": 0.73, "classification": "critical", "confidence": "high", "source": "tracker-derived" },
+      "oregon": { "rounds": 156, "winRate": 33.3, "kd": 0.76, "classification": "critical", "confidence": "high", "source": "tracker-derived" }
+    },
+    "defense": {
+      "theme park": { "rounds": 86, "winRate": 66.3, "kd": 0.94, "classification": "elite", "confidence": "high", "source": "tracker-derived" },
+      "emerald plains": { "rounds": 37, "winRate": 64.9, "kd": 1.13, "classification": "strong", "confidence": "medium", "source": "tracker-derived" },
+      "bank": { "rounds": 153, "winRate": 57.5, "kd": 1.14, "classification": "strong", "confidence": "high", "source": "tracker-derived" },
+      "kanal": { "rounds": 98, "winRate": 56.1, "kd": 0.89, "classification": "strong", "confidence": "high", "source": "tracker-derived" },
+      "clubhouse": { "rounds": 182, "winRate": 56.0, "kd": 1.05, "classification": "strong", "confidence": "high", "source": "tracker-derived" },
+      "oregon": { "rounds": 172, "winRate": 52.9, "kd": 0.97, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "chalet": { "rounds": 218, "winRate": 52.3, "kd": 1.05, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "consulate": { "rounds": 134, "winRate": 51.5, "kd": 1.02, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "villa": { "rounds": 171, "winRate": 51.5, "kd": 0.89, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "kafe dostoyevsky": { "rounds": 146, "winRate": 48.6, "kd": 0.85, "classification": "weak", "confidence": "high", "source": "tracker-derived" },
+      "coastline": { "rounds": 222, "winRate": 48.2, "kd": 1.15, "classification": "weak", "confidence": "high", "source": "tracker-derived" },
+      "border": { "rounds": 169, "winRate": 44.4, "kd": 0.95, "classification": "critical", "confidence": "high", "source": "tracker-derived", "tacticalNote": "Rendimiento históricamente malo." }
+    }
+  },
+  "synergies": {
+    "preferredDuoIds": ["hibana-zofia"],
+    "preferredTrioIds": ["stable-attack-trio", "breath-var-b"]
+  }
+}

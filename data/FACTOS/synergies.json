@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-04",
+  "duos": [
+    {
+      "id": "hibana-zofia",
+      "players": ["chango_nocturno", "el_notorious"],
+      "description": "Chango abre la pared principal y El_Notorious juega Zofia para limpiar utilidad y acompañar la entrada.",
+      "triggers": ["Ataques que requieren brecha fuerte y limpieza de posiciones"],
+      "vulnerabilities": ["Falta de protección de plantado si el tercer jugador no cubre el flanco o ejecuta."]
+    },
+    {
+      "id": "thermite-kali",
+      "players": ["chango_nocturno", "el_notorious"],
+      "description": "Thermite para apertura principal y Kali para limpiar utilidad desde líneas largas y proveer fuego de cobertura.",
+      "triggers": ["Paredes exteriores clave (ej. CCTV en Clubhouse, Pared de Nieve en Chalet)"],
+      "vulnerabilities": ["Ambos son vulnerables de cerca si no hay un entry que gane el espacio inicial."]
+    }
+  ],
+  "trios": [
+    {
+      "id": "stable-attack-trio",
+      "players": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
+      "description": "Chango (Hibana/Thermite) abre, El_Notorious (Zofia/Flex) entra o presiona, Azusa (Osa/Montagne) apoya la ejecución final.",
+      "triggers": ["Composición base de ataque"],
+      "vulnerabilities": ["Muy dependiente de que El_Notorious consiga el espacio inicial."]
+    },
+    {
+      "id": "breath-var-a",
+      "name": "Variante de Respiración A (Notorious estructura)",
+      "players": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
+      "description": "El_Notorious asume la estructura (Thermite/Ace/Kali). Chango juega control (Lion/Nomad/Fuze). Azusa cierra la ejecución (Osa/Montagne/Gridlock).",
+      "triggers": ["Cuando Chango necesita dejar de abrir paredes para jugar control táctico."]
+    },
+    {
+      "id": "breath-var-b",
+      "name": "Variante de Respiración B (Azusa info)",
+      "players": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
+      "description": "Chango (Hibana/Thermite), El_Notorious (Zofia/Iana/Ram), Azusa (Lion/Brava/Rauora).",
+      "triggers": ["Para evitar que Azusa dependa siempre de escudo, pasando a soporte de información."]
+    },
+    {
+      "id": "breath-var-c",
+      "name": "Variante de Respiración C (Chango flex)",
+      "players": ["chango_nocturno", "el_notorious", "azusa_cooper09"],
+      "description": "Chango deja el hard breach (Nomad/Gridlock/Lion). El_Notorious asume hard breach (Ace/Thermite/Maverick). Azusa ejecuta (Osa/Sens).",
+      "triggers": ["Cuando El_Notorious quiere asumir una ronda cerebral y Chango quiere jugar control de flancos."]
+    }
+  ]
+}

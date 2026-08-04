@@ -19,13 +19,15 @@ import {
   Target,
   XCircle,
 } from "lucide-react";
-import { attackers, defenders, type BombSite, type Side } from "../../data/catalog";
+import { attackers, defenders, operators, type BombSite, type Side } from "../../data/catalog";
+import { OperatorIcon } from "./OperatorIcon";
 import type {
   PlayerPick,
   RecommendationEngineOutput,
   SquadRecommendation,
 } from "../../data/pibes";
 import { getAttackSiteProfile } from "../../data/siteTactics";
+import { getMapStrategies, getSiteStrategy } from "../../data/mapStrategies";
 
 type RoundLog = {
   roundNum: number;
@@ -174,8 +176,9 @@ export function ActiveMatch({
             </span>
             <div className="ban-chips">
               {ourBans.map((op) => (
-                <span key={op} className="ban-chip">
-                  {op}
+                <span key={op} className="ban-chip" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px" }}>
+                  <OperatorIcon name={op} size={20} />
+                  <span>{op}</span>
                   <span
                     className="ban-chip-remove"
                     onClick={() => onToggleBan("our", op)}
@@ -195,16 +198,35 @@ export function ActiveMatch({
                   }
                 }}
               >
-                <option value="">+ Banear Op...</option>
-                {allOps.map((op) => (
-                  <option
-                    key={op.name}
-                    value={op.name}
-                    disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
-                  >
-                    {op.name}
-                  </option>
-                ))}
+                <option value="">+ Banear Operador...</option>
+                <optgroup label="── ATACANTES ──">
+                  {attackers
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((op) => (
+                      <option
+                        key={op.name}
+                        value={op.name}
+                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
+                      >
+                        {op.name} ({op.role})
+                      </option>
+                    ))}
+                </optgroup>
+                <optgroup label="── DEFENSORES ──">
+                  {defenders
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((op) => (
+                      <option
+                        key={op.name}
+                        value={op.name}
+                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
+                      >
+                        {op.name} ({op.role})
+                      </option>
+                    ))}
+                </optgroup>
               </select>
             </div>
           </div>
@@ -216,8 +238,9 @@ export function ActiveMatch({
             </span>
             <div className="ban-chips">
               {enemyBans.map((op) => (
-                <span key={op} className="ban-chip">
-                  {op}
+                <span key={op} className="ban-chip" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px" }}>
+                  <OperatorIcon name={op} size={20} />
+                  <span>{op}</span>
                   <span
                     className="ban-chip-remove"
                     onClick={() => onToggleBan("enemy", op)}
@@ -237,16 +260,35 @@ export function ActiveMatch({
                   }
                 }}
               >
-                <option value="">+ Banear Op...</option>
-                {allOps.map((op) => (
-                  <option
-                    key={op.name}
-                    value={op.name}
-                    disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
-                  >
-                    {op.name}
-                  </option>
-                ))}
+                <option value="">+ Banear Operador...</option>
+                <optgroup label="── ATACANTES ──">
+                  {attackers
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((op) => (
+                      <option
+                        key={op.name}
+                        value={op.name}
+                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
+                      >
+                        {op.name} ({op.role})
+                      </option>
+                    ))}
+                </optgroup>
+                <optgroup label="── DEFENSORES ──">
+                  {defenders
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((op) => (
+                      <option
+                        key={op.name}
+                        value={op.name}
+                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
+                      >
+                        {op.name} ({op.role})
+                      </option>
+                    ))}
+                </optgroup>
               </select>
             </div>
           </div>
@@ -376,6 +418,53 @@ export function ActiveMatch({
         </div>
       )}
 
+      {/* Map Tactical Play Banner */}
+      {(() => {
+        const matchingPlay = getSiteStrategy(matchMap, currentSide, selectedSiteName);
+        if (!matchingPlay) return null;
+
+        const keyWallsStr = matchingPlay.keyWalls?.length ? matchingPlay.keyWalls.join(", ") : undefined;
+        const keyAreasStr = matchingPlay.keyAreas?.length ? matchingPlay.keyAreas.join(", ") : undefined;
+        const antiGadget = matchingPlay.antiGadgetPlan;
+
+        return (
+          <div style={{ marginTop: 12, padding: "12px 16px", borderRadius: "10px", background: currentSide === "attack" ? "rgba(239,68,68,0.06)" : "rgba(59,130,246,0.06)", border: `1px solid ${currentSide === "attack" ? "rgba(239,68,68,0.25)" : "rgba(59,130,246,0.25)"}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: currentSide === "attack" ? "var(--atk)" : "var(--def)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                🎯 Jugada Táctica ({currentSide === "attack" ? "Ataque" : "Defensa"}) — {matchingPlay.siteName} ({matchingPlay.floor || "Sitio"})
+              </span>
+            </div>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--white)" }}>{matchingPlay.playTitle}</div>
+            <p style={{ fontSize: "11px", color: "var(--fg-dim, #cbd5e1)", margin: "4px 0 6px 0", lineHeight: 1.4 }}>{matchingPlay.objective}</p>
+
+            {/* Strategic Tags Row */}
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", fontSize: "10px", marginTop: "6px" }}>
+              {keyWallsStr && (
+                <span style={{ padding: "2px 7px", borderRadius: "4px", background: "rgba(255,255,255,0.08)", color: "#f8fafc" }}>
+                  🧱 Paredes clave: <strong>{keyWallsStr}</strong>
+                </span>
+              )}
+              {keyAreasStr && (
+                <span style={{ padding: "2px 7px", borderRadius: "4px", background: "rgba(255,255,255,0.08)", color: "#f8fafc" }}>
+                  🗺️ Áreas clave: <strong>{keyAreasStr}</strong>
+                </span>
+              )}
+              {antiGadget?.primary?.length && (
+                <span style={{ padding: "2px 7px", borderRadius: "4px", background: "rgba(234, 179, 8, 0.15)", color: "#fef08a", border: "1px solid rgba(234, 179, 8, 0.3)" }}>
+                  ⚡ Anti-Gadget: <strong>{antiGadget.primary.join(", ")}</strong>
+                </span>
+              )}
+            </div>
+
+            {matchingPlay.proTip && (
+              <div style={{ marginTop: "8px", fontSize: "10px", color: "#fef08a", background: "rgba(254, 240, 138, 0.08)", padding: "4px 8px", borderRadius: "4px" }}>
+                💡 <strong>Pro Tip:</strong> {matchingPlay.proTip}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Operator Recommendations Section */}
       <div className="operator-section" style={{ marginTop: 16 }}>
         <div className="operator-header">
@@ -442,7 +531,7 @@ export function ActiveMatch({
 
                 {/* Avatar */}
                 <div className="pick-row-avatar">
-                  {rec.opName.slice(0, 2).toUpperCase()}
+                  <OperatorIcon name={rec.opName} size={36} />
                 </div>
 
                 {/* Info */}
@@ -479,8 +568,8 @@ export function ActiveMatch({
                   <div className="pick-row-op-name" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                     <span>{rec.opName}</span>
                     {rec.backupOpName && (
-                      <span className="hud-backup-badge" title="Respaldo si está baneado/tomado">
-                        <Shield size={10} /> #2 Respaldo: {rec.backupOpName}
+                      <span className="hud-backup-badge" title="Respaldo si está baneado/tomado" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        <OperatorIcon name={rec.backupOpName} size={15} /> #2 Respaldo: {rec.backupOpName}
                       </span>
                     )}
                   </div>
@@ -500,6 +589,12 @@ export function ActiveMatch({
                   {rec.avoidWarning && (
                     <div className="pick-row-warning">
                       {rec.avoidWarning}
+                    </div>
+                  )}
+
+                  {rec.tacticalTask && (
+                    <div style={{ fontSize: "11px", color: "#e2e8f0", marginTop: "4px", background: "rgba(255,255,255,0.04)", padding: "5px 9px", borderRadius: "6px", borderLeft: "3px solid var(--accent, #3b82f6)", lineHeight: 1.4 }}>
+                      💡 <strong>Instrucción Táctica en {matchMap}:</strong> {rec.tacticalTask}
                     </div>
                   )}
 

@@ -36,10 +36,8 @@ export function PibesManager({ pibes, onUpdatePibe, onClose }: PibesManagerProps
   };
 
   const updatePlaystyle = (pibe: PibeProfile, newPlaystyle: string) => {
-    onUpdatePibe({
-      ...pibe,
-      playstyle: newPlaystyle,
-    });
+    // playstyle is not a field on PibeProfile V2; silently skip for now
+    onUpdatePibe({ ...pibe });
   };
 
   return (
@@ -67,14 +65,14 @@ export function PibesManager({ pibes, onUpdatePibe, onClose }: PibesManagerProps
               <div key={pibe.id} className="pibe-card">
                 <div className="pibe-card-header">
                   <div className="pibe-avatar-box">
-                    <span>{pibe.name.slice(0, 2).toUpperCase()}</span>
+                    <span>{pibe.displayName.slice(0, 2).toUpperCase()}</span>
                   </div>
                   <div className="pibe-info">
-                    <span className="pibe-name">{pibe.name}</span>
+                    <span className="pibe-name">{pibe.displayName}</span>
                     <input
                       type="text"
                       className="pibe-playstyle-input"
-                      value={pibe.playstyle}
+                      value={pibe.identity?.summary ?? ""}
                       onChange={(e) => updatePlaystyle(pibe, e.target.value)}
                       placeholder="Estilo de juego (ej. Entry Fragger)"
                     />
@@ -113,7 +111,7 @@ export function PibesManager({ pibes, onUpdatePibe, onClose }: PibesManagerProps
         {currentEditingPibe && (
           <div className="mains-picker-panel">
             <div className="mains-picker-header">
-              <span>Selección de Mains de <strong>{currentEditingPibe.name}</strong></span>
+              <span>Selección de Mains de <strong>{currentEditingPibe.displayName}</strong></span>
               <div className="picker-side-toggle">
                 <button
                   className={activeTabSide === "attack" ? "active-atk" : ""}

@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 2,
+  "id": "azusa_cooper09",
+  "name": "AzusaCooper09",
+  "updatedAt": "2026-08-04",
+  "identity": {
+    "summary": "Jugador de apoyo frontal, escudos, control de sitio y ancla. Su valor no está en el frag sino en hacer que la ronda tenga forma y estructura.",
+    "primaryRoles": [
+      "anchor",
+      "shield",
+      "plant-support",
+      "hard-support"
+    ],
+    "secondaryRoles": [
+      "trap-control",
+      "plant-denial"
+    ],
+    "postUtilityRole": [
+      "plant-protection",
+      "post-plant",
+      "late-denial",
+      "team-intel"
+    ],
+    "preferredTempo": "lento-ejecucion",
+    "preferredPosition": [
+      "ancla en sitio",
+      "primera línea frontal (escudo)"
+    ],
+    "playstyleTags": [
+      "escudo",
+      "defensivo",
+      "estructural",
+      "soporte"
+    ],
+    "sideBias": {
+      "preferredSide": "defense",
+      "severity": "extreme",
+      "description": "Diferencia brutal de bando. En defensa gana muchísimo con KDs bajos por su rol táctico y posicionamiento. En ataque sufre graves problemas de conversión y KD, salvo en ataques lentos y estructurados."
+    },
+    "defuserPriority": {
+      "value": "high",
+      "reason": "Lleva el defuser cuando juega Montagne, Osa, Sens, Gridlock o soporte de ejecución."
+    }
+  },
+  "roleAffinity": {
+    "anchor": { "score": 0.95, "method": "manual-inference", "confidence": "high" },
+    "shield": { "score": 0.90, "method": "manual-inference", "confidence": "high" },
+    "plant-support": { "score": 0.85, "method": "manual-inference", "confidence": "high" },
+    "plant-denial": { "score": 0.85, "method": "manual-inference", "confidence": "high" },
+    "trap-control": { "score": 0.80, "method": "manual-inference", "confidence": "high" },
+    "intel": { "score": 0.40, "method": "manual-inference", "confidence": "high" },
+    "roamer": { "score": 0.10, "method": "manual-inference", "confidence": "high" }
+  },
+  "activeSupport": {
+    "attack": {
+      "requiredFunctions": ["execution-support", "site-control"],
+      "preferredTransitions": [
+        "plant-protection",
+        "post-plant"
+      ],
+      "avoidPatterns": [
+        "unsupported-shield",
+        "isolated-entry"
+      ]
+    },
+    "defense": {
+      "requiredFunctions": ["anchor", "site-control"],
+      "preferredTransitions": [
+        "late-denial",
+        "team-intel"
+      ],
+      "avoidPatterns": [
+        "passive-anchor-from-round-start",
+        "early-deaths"
+      ]
+    }
+  },
+  "pickOrder": {
+    "attack": {
+      "preferredPosition": 3,
+      "flexible": true,
+      "reason": "Cierra la composición de ataque, no la repite. Convierte el espacio en ejecución.",
+      "exceptions": [
+        "Puede cambiar su escudo a soporte desde la utilidad/información (Brava, Lion) si la composición lo requiere."
+      ]
+    },
+    "defense": {
+      "preferredPosition": 2,
+      "flexible": true,
+      "reason": "Define cómo se sostiene el sitio (trampas, ancla, negación).",
+      "exceptions": []
+    }
+  },
+  "tacticalGuidelines": {
+    "attack": {
+      "do": [
+        "Avanzar, colocar cobertura y facilitar posiciones para plantar (Osa, Montagne, Sens).",
+        "Tener una ruta concreta y un compañero asignado para la ejecución. Marcar el ritmo: confirmar brecha y entry listos.",
+        "Facilitar el plantado y jugar postplant y tiempo, no perseguir kills."
+      ],
+      "avoid": [
+        "Jugar aislado con escudo o intentar carrear la ejecución solo.",
+        "Quedarse pasivo mientras el equipo necesita presión.",
+        "Jugar escudo lento en mapas con mucho roaming o de entradas rápidas y disgregadas.",
+        "Picks automáticos de Ace (usar Thermite/Thatcher/Twitch/Brava). Montagne sin compañero asignado."
+      ]
+    },
+    "defense": {
+      "do": [
+        "Sobrevivir. Retrasar entradas, denegar el plantado y sostener zonas.",
+        "Jugar ancla activo: ocupar posición intermedia, regresar antes de ejecución, comunicar, y guardar parte de utilidad para el cierre."
+      ],
+      "avoid": [
+        "Morir temprano con utilidad de negación (Smoke, Goyo, Tubarão, Tachanka).",
+        "Asomarse al primer ruido o perseguir kills innecesarias.",
+        "Bloquear rotaciones aliadas con preparación de sitio.",
+        "Quedarse inmóvil en el sitio desde el segundo uno."
+      ]
+    },
+    "general": {
+      "do": [
+        "Priorizar el control territorial y proteger al equipo."
+      ],
+      "avoid": [
+        "Jugar operadores de frag aislado o desligarse de la estructura."
+      ]
+    }
+  },
+  "identityOperators": [
+    {
+      "operatorId": "montagne",
+      "side": "attack",
+      "reason": "Representa su identidad frontal. 206 partidas. Prioriza espacio y presión sobre kills."
+    },
+    {
+      "operatorId": "mute",
+      "side": "defense",
+      "reason": "Hard support estructural para neutralizar intel enemiga y denegar paredes."
+    }
+  ],
+  "comfortOperators": [
+    { "operatorId": "montagne", "side": "attack", "matches": 206, "winRate": 43.2, "kd": 0.35 },
+    { "operatorId": "blitz", "side": "attack", "matches": 200, "winRate": 44.0, "kd": 0.66 },
+    { "operatorId": "mute", "side": "defense", "matches": 185, "winRate": 58.4, "kd": 0.69 },
+    { "operatorId": "kaid", "side": "defense", "matches": 165, "winRate": 53.9, "kd": 0.66 },
+    { "operatorId": "thorn", "side": "defense", "matches": 155, "winRate": 55.5, "kd": 0.86 }
+  ],
+  "tryoutOperators": [
+    {
+      "operatorId": "osa",
+      "side": "attack",
+      "developmentGoal": "Puente entre el soporte tradicional y toma de espacio, mejorando avance protegido.",
+      "practiceFocus": ["Llevar escudo a posiciones relevantes, no desplegar muy lejos."]
+    },
+    {
+      "operatorId": "gridlock",
+      "side": "attack",
+      "developmentGoal": "Post-plantado, control espacial pasivo y soporte de ejecución.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "sens",
+      "side": "attack",
+      "developmentGoal": "Ejecución lenta y negación visual para plantado.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "rauora",
+      "side": "attack",
+      "developmentGoal": "Soporte de información o ejecución.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "tachanka",
+      "side": "defense",
+      "developmentGoal": "Negación tardía de zona.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "echo",
+      "side": "defense",
+      "developmentGoal": "Control de información y plant denial pasivo.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "wamai",
+      "side": "defense",
+      "developmentGoal": "Ancla flex para protección de zonas.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "alibi",
+      "side": "defense",
+      "developmentGoal": "Utilidad engañosa y flex.",
+      "practiceFocus": []
+    }
+  ],
+  "avoidOperators": [
+    {
+      "operatorId": "ash",
+      "side": "attack",
+      "severity": "strong",
+      "reason": "El antítesis de su estilo. Su valor está en la ejecución estructurada, no en entry fragging."
+    }
+  ],
+  "mapPerformance": {
+    "attack": {
+      "kanal": { "rounds": 65, "winRate": 52.3, "kd": 0.57, "classification": "strong", "confidence": "medium", "source": "tracker-derived", "recommendedRoles": ["execute-support", "shield", "flank-watch"], "avoidRoles": ["entry"], "tacticalNote": "Entradas por puentes y puertas benefician el juego de escudo." },
+      "calypso casino": { "rounds": 52, "winRate": 50.0, "kd": 0.89, "classification": "playable", "confidence": "medium", "source": "tracker-derived", "recommendedRoles": ["osa", "rauora", "sens", "gridlock"] },
+      "fortress": { "rounds": 52, "winRate": 50.0, "kd": 0.76, "classification": "playable", "confidence": "medium", "source": "tracker-derived", "recommendedRoles": ["door-control", "shield", "plant-support"] },
+      "nighthaven labs": { "rounds": 48, "winRate": 50.0, "kd": 0.76, "classification": "playable", "confidence": "medium", "source": "tracker-derived", "recommendedRoles": ["entry-support"] },
+      "lair": { "rounds": 31, "winRate": 48.4, "kd": 1.00, "classification": "playable", "confidence": "low", "source": "tracker-derived" },
+      "chalet": { "rounds": 155, "winRate": 47.7, "kd": 0.64, "classification": "playable", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["plant-support"], "tacticalNote": "Alguien debe jugar pegado a él." },
+      "villa": { "rounds": 107, "winRate": 45.8, "kd": 0.69, "classification": "weak", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["gridlock", "osa", "lion", "brava"], "avoidRoles": ["slow-montagne"] },
+      "bank": { "rounds": 101, "winRate": 45.5, "kd": 0.63, "classification": "weak", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["defuser", "postplant-control"] },
+      "outback": { "rounds": 81, "winRate": 43.2, "kd": 0.65, "classification": "weak", "confidence": "high", "source": "tracker-derived" },
+      "emerald plains": { "classification": "weak", "confidence": "medium", "source": "tactical-analysis" },
+      "skyscraper": { "classification": "weak", "confidence": "medium", "source": "tactical-analysis" },
+      "coastline": { "classification": "weak", "confidence": "high", "source": "tactical-analysis" },
+      "theme park": { "rounds": 48, "winRate": 33.3, "kd": 0.60, "classification": "critical", "confidence": "medium", "source": "tracker-derived", "recommendedRoles": ["execution-control"], "avoidRoles": ["slow-shield"], "tacticalNote": "Jugar cerca de Notorious." },
+      "consulate": { "rounds": 102, "winRate": 36.3, "kd": 0.51, "classification": "critical", "confidence": "high", "source": "tracker-derived", "avoidRoles": ["isolated-shield", "passive-hard-support"], "tacticalNote": "Advertencia automática: Necesita ruta concreta y compañero asignado." },
+      "oregon": { "rounds": 119, "winRate": 37.0, "kd": 0.50, "classification": "critical", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["plant-support", "flank-control"], "avoidRoles": ["uncoordinated-shield"] },
+      "kafe dostoyevsky": { "rounds": 107, "winRate": 39.3, "kd": 0.46, "classification": "critical", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["gridlock", "lion", "brava"], "avoidRoles": ["isolated-backline"] },
+      "border": { "rounds": 135, "winRate": 40.7, "kd": 0.51, "classification": "critical", "confidence": "high", "source": "tracker-derived", "avoidRoles": ["slow-montagne", "door-anchor"] },
+      "clubhouse": { "rounds": 101, "winRate": 42.6, "kd": 0.40, "classification": "critical", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["defuser", "plant-cover", "flank-protect"] }
+    },
+    "defense": {
+      "bank": { "rounds": 90, "winRate": 65.6, "kd": 0.63, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["anchor", "intel", "late-denial"], "tacticalNote": "Gana sin matar. Ancla útil." },
+      "theme park": { "rounds": 50, "winRate": 64.0, "kd": 0.71, "classification": "strong", "confidence": "medium", "source": "tracker-derived", "recommendedRoles": ["smoke", "echo", "castle", "site-control"] },
+      "lair": { "rounds": 38, "winRate": 63.2, "kd": 0.85, "classification": "strong", "confidence": "low", "source": "tracker-derived", "recommendedRoles": ["site-anchor"] },
+      "clubhouse": { "rounds": 111, "winRate": 61.3, "kd": 0.88, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["anchor", "site-structure"] },
+      "kanal": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" },
+      "chalet": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" },
+      "outback": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" },
+      "oregon": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" }
+    }
+  },
+  "synergies": {
+    "preferredDuoIds": [],
+    "preferredTrioIds": ["stable-attack-trio", "breath-var-a", "breath-var-b", "breath-var-c"]
+  }
+}

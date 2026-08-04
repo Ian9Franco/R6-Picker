@@ -179,6 +179,7 @@ export function Picker() {
     const routeToUse = routeIdOverride ?? selectedRouteId;
     const obsToUse = obsIdsOverride ?? observedDefenseIds;
 
+    const nextRoll = opRoll + 1;
     if (mode === "pibes" && activePibeProfiles.length > 0) {
       const output = getPibesRecommendations(
         sideToUse,
@@ -188,7 +189,8 @@ export function Picker() {
         matchMap,
         bansToUse,
         routeToUse,
-        obsToUse
+        obsToUse,
+        nextRoll
       );
       setEngineOutput(output);
     } else {
@@ -199,7 +201,7 @@ export function Picker() {
       setStandardRecs(recs);
       setEngineOutput(null);
     }
-    setOpRoll((v) => v + 1);
+    setOpRoll(nextRoll);
   };
 
   // Toggle Ban handler
@@ -533,6 +535,7 @@ export function Picker() {
             >
               <OperatorsCatalog
                 currentOperator={displayedRecommendations[0]?.opName ?? ""}
+                matchMap={matchMap}
                 onSelectOperator={(opName) => {
                   setStandardRecs([
                     {
@@ -541,8 +544,8 @@ export function Picker() {
                       opName,
                       operatorProfile: {
                         name: opName,
-                        side: "attack",
-                        roles: ["support"],
+                        side: "attack" as const,
+                        roles: ["support" as any],
                         position: "flex",
                         tempo: "flexible",
                         provides: [],
@@ -551,14 +554,16 @@ export function Picker() {
                         duo_plan: "",
                         trio_plan: "",
                         player_fit: ["flex"],
-                        difficulty: "medium",
+                        difficulty: "medium" as const,
                       },
                       role: "Manual",
                       pickOrderNumber: 1,
-                      explanation: { positive: ["Selección manual del operador"], negative: [] },
+                      score: 50,
+                      scoreBreakdown: { operatorComfort: 0, roleAffinity: 0, compositionNeed: 0, trackerMapPerformance: 0, factosMapContext: 0, activeSupportTransition: 0, pickOrderContext: 0, avoidPatternPenalty: 0, penalties: 0 },
+                      explanation: { positive: ["Selección manual del operador"], negative: [], warnings: [] },
                     },
                   ]);
-                  setActiveTab("picker");
+                  // setActiveTab("picker"); // Remove navigation per user request
                 }}
               />
             </motion.section>
@@ -577,7 +582,7 @@ export function Picker() {
                 matchMap={matchMap}
                 onSelectMap={(mapName) => {
                   setMatchMap(mapName);
-                  setActiveTab("picker");
+                  // setActiveTab("picker"); // Remove navigation per user request
                 }}
                 randomItem={randomItem}
               />

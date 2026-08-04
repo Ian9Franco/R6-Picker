@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 2,
+  "id": "el_notorious",
+  "name": "El_Notorious",
+  "updatedAt": "2026-08-04",
+  "identity": {
+    "summary": "Jugador de soporte táctico que en defensa tiene bastante más capacidad de frag de la esperada. Prioriza la estructura, pero rinde mejor controlando el mapa y buscando kills.",
+    "primaryRoles": [
+      "hard-support",
+      "flex",
+      "anti-gadget"
+    ],
+    "secondaryRoles": [
+      "hard-breach",
+      "intel",
+      "roamer",
+      "second-entry"
+    ],
+    "postUtilityRole": [
+      "second-entry",
+      "vertical-pressure",
+      "intel-conversion",
+      "trade-fragger"
+    ],
+    "preferredTempo": "medio-agresivo",
+    "preferredPosition": [
+      "roaming controlado",
+      "segunda línea"
+    ],
+    "playstyleTags": [
+      "estructural",
+      "buen-frag",
+      "utilidad",
+      "caza"
+    ],
+    "sideBias": {
+      "preferredSide": "defense",
+      "severity": "high",
+      "description": "Rinde considerablemente mejor en defensa (winrates consistentes 53-60%) que en ataque, donde genera kills pero le cuesta convertir."
+    },
+    "defuserPriority": {
+      "value": "low",
+      "reason": "No debería llevarlo si va de entry, roam clear o vertical agresivo."
+    }
+  },
+  "roleAffinity": {
+    "hard-support": { "score": 0.88, "method": "manual-inference", "confidence": "high" },
+    "roamer": { "score": 0.88, "method": "manual-inference", "confidence": "high" },
+    "second-entry": { "score": 0.85, "method": "manual-inference", "confidence": "high" },
+    "intel": { "score": 0.86, "method": "manual-inference", "confidence": "high" },
+    "anti-gadget": { "score": 0.78, "method": "manual-inference", "confidence": "high" },
+    "hard-breach": { "score": 0.70, "method": "manual-inference", "confidence": "high" },
+    "plant-support": { "score": 0.40, "method": "manual-inference", "confidence": "high" }
+  },
+  "activeSupport": {
+    "attack": {
+      "requiredFunctions": ["anti-gadget", "secondary-hard-breach"],
+      "preferredTransitions": [
+        "second-entry",
+        "vertical-pressure",
+        "intel-conversion",
+        "trade-fragger"
+      ],
+      "avoidPatterns": [
+        "duplicated-support",
+        "unstructured-roam",
+        "kill-chasing"
+      ]
+    },
+    "defense": {
+      "requiredFunctions": ["intel", "roamer"],
+      "preferredTransitions": [
+        "late-round-anchor",
+        "flank-control"
+      ],
+      "avoidPatterns": [
+        "unstructured-roam",
+        "duplicated-support",
+        "kill-chasing"
+      ]
+    }
+  },
+  "pickOrder": {
+    "attack": {
+      "preferredPosition": 2,
+      "flexible": true,
+      "reason": "Debe mirar lo que eligió Chango y completar el hueco ofensivo."
+    },
+    "defense": {
+      "preferredPosition": 3,
+      "flexible": true,
+      "reason": "Toma el rol libre, intel, flex o roaming."
+    }
+  },
+  "tacticalGuidelines": {
+    "attack": {
+      "do": [
+        "Jugar Kali o Thermite antes que Ace si falta abrir pared. Ace solo si aporta ventaja concreta a distancia.",
+        "Conservar al menos un dron, dejar el desactivador si va a pelear, y transformarse en segundo entry inmediatamente tras abrir.",
+        "Dejar el soporte si el equipo no consigue kills y usar flex: Ash, Ram, Iana, Brava, Zofia, Ying, Deimos, Flores.",
+        "Entrar siempre con dron y convertir info en acción inmediata (agresividad informada)."
+      ],
+      "avoid": [
+        "Quedarse automáticamente con hard support si Chango ya lo cubre.",
+        "Quedarse atrás después de gastar utilidad.",
+        "Cazar una kill durante noventa segundos (cortar la persecución si ya obtuvo control)."
+      ]
+    },
+    "defense": {
+      "do": [
+        "Control de posiciones y lectura del ataque (Valkyrie, Fenrir, Vigil, Mozzie, Pulse, Jäger).",
+        "Tomar la responsabilidad que falta y, cuando está cumplida, generar la ventaja activa.",
+        "Consumir tiempo. Tener ruta de regreso y volver a sitio cuando queden 60-45 segundos."
+      ],
+      "avoid": [
+        "Perseguir una kill a costa de la ejecución de la ronda (aislarse).",
+        "Repeekear si el equipo ya tiene ventaja.",
+        "Cubrir soporte si Chango ya lo tomó; salir inmediatamente hacia roaming/intel."
+      ]
+    },
+    "general": {
+      "do": [
+        "Adaptar el rol según la composición, no quedar clavado de soporte."
+      ],
+      "avoid": [
+        "Duplicar utilidad estructural sin necesidad."
+      ]
+    }
+  },
+  "identityOperators": [
+    {
+      "operatorId": "kaid",
+      "side": "defense",
+      "reason": "Su main real. Consistencia, volumen y frag combinados."
+    },
+    {
+      "operatorId": "vigil",
+      "side": "defense",
+      "reason": "Representa su alto impacto como roamer (KD alto, buen winrate)."
+    }
+  ],
+  "comfortOperators": [
+    { "operatorId": "thatcher", "side": "attack", "matches": 328, "winRate": 44.2, "kd": 0.99 },
+    { "operatorId": "mute", "side": "defense", "matches": 285, "winRate": 58.2, "kd": 1.10 },
+    { "operatorId": "valkyrie", "side": "defense", "matches": 250, "winRate": 58.8, "kd": 1.37 }
+  ],
+  "tryoutOperators": [
+    {
+      "operatorId": "zofia",
+      "side": "attack",
+      "developmentGoal": "Transición hacia un rol más agresivo (segundo entry).",
+      "practiceFocus": [
+        "Avanzar inmediatamente detrás del entry.",
+        "Reservar los proyectiles para utilidad realmente importante."
+      ]
+    },
+    {
+      "operatorId": "zero",
+      "side": "attack",
+      "developmentGoal": "Convertirlo en flex de información.",
+      "practiceFocus": [
+        "Colocar cámaras pensando en la ejecución.",
+        "Abandonar el dispositivo y avanzar cuando ya cumplió su función."
+      ]
+    },
+    {
+      "operatorId": "flores",
+      "side": "attack",
+      "developmentGoal": "Limpieza de utilidad.",
+      "practiceFocus": [
+        "Identificar qué dispositivo bloquea realmente el ataque.",
+        "Coordinar la detonación con el avance de compañeros."
+      ]
+    },
+    {
+      "operatorId": "azami",
+      "side": "defense",
+      "developmentGoal": "Flexibilidad estructural defensiva.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "wamai",
+      "side": "defense",
+      "developmentGoal": "Flexibilidad estructural defensiva.",
+      "practiceFocus": []
+    },
+    {
+      "operatorId": "aruni",
+      "side": "defense",
+      "developmentGoal": "Flexibilidad estructural defensiva.",
+      "practiceFocus": []
+    }
+  ],
+  "avoidOperators": [
+    {
+      "operatorId": "ace",
+      "side": "attack",
+      "severity": "soft",
+      "reason": "Tiene mucho volumen pero resultados flojos (KD 0.87, WR 43.6%). Jugar Kali o Thermite en su lugar."
+    }
+  ],
+  "mapPerformance": {
+    "attack": {
+      "kanal": { "rounds": 94, "winRate": 52.1, "kd": 1.10, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["intel", "second-entry", "map-control"], "avoidRoles": ["passive-hard-support"], "tacticalNote": "Permite jugar control de rotaciones sin encerrarse en hard support." },
+      "calypso casino": { "rounds": 87, "winRate": 50.6, "kd": 0.87, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["execute-support", "flex"], "avoidRoles": ["entry"], "tacticalNote": "Gana más por utilidad que por frag." },
+      "chalet": { "rounds": 199, "winRate": 49.2, "kd": 1.36, "classification": "frag-heavy", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["second-entry", "vertical", "aggressive-flex"], "tacticalNote": "Genera ventaja pero cuesta cerrar. Volver al plan de sitio tras matar." },
+      "clubhouse": { "rounds": 163, "winRate": 48.5, "kd": 1.28, "classification": "frag-heavy", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["second-entry", "clear-roam"], "avoidRoles": ["automatic-hard-support"], "tacticalNote": "No cubrir brecha cuando debería generar espacio." },
+      "coastline": { "rounds": 224, "winRate": 47.3, "kd": 1.14, "classification": "frag-heavy", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["second-entry", "intel-aggressive"], "avoidRoles": ["passive-balcony-hold"] },
+      "villa": { "rounds": 195, "winRate": 43.6, "kd": 1.22, "classification": "frag-heavy", "confidence": "high", "source": "tracker-derived", "tacticalNote": "Las kills no se convierten en control de sitio. Jugar más cerca del defuser." },
+      "bank": { "rounds": 155, "winRate": 44.5, "kd": 1.21, "classification": "frag-heavy", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["vertical-flex", "second-entry"], "tacticalNote": "Cierre claro post frag." },
+      "outback": { "rounds": 99, "winRate": 45.5, "kd": 1.17, "classification": "playable", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["map-control", "trade"], "avoidRoles": ["isolated"] },
+      "kafe dostoyevsky": { "rounds": 164, "winRate": 43.3, "kd": 1.06, "classification": "frag-heavy", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["timed-vertical"] },
+      "theme park": { "rounds": 69, "winRate": 39.1, "kd": 0.89, "classification": "weak", "confidence": "medium", "source": "tracker-derived" },
+      "lair": { "rounds": 42, "winRate": 38.1, "kd": 0.77, "classification": "weak", "confidence": "low", "source": "tracker-derived" },
+      "border": { "classification": "weak", "confidence": "high", "source": "tactical-analysis" },
+      "oregon": { "rounds": 196, "winRate": 37.8, "kd": 0.95, "classification": "critical", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["second-entry"], "avoidRoles": ["eternal-roam-clear"], "tacticalNote": "Necesita orden explícita de reagruparse." },
+      "fortress": { "rounds": 69, "winRate": 36.2, "kd": 0.72, "classification": "critical", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["intel", "utility-clear"], "avoidRoles": ["isolated-entry"] },
+      "consulate": { "rounds": 132, "winRate": 31.8, "kd": 1.00, "classification": "critical", "confidence": "high", "source": "tracker-derived", "avoidRoles": ["isolated-roam-clear", "passive-hard-support"], "tacticalNote": "Desastroso ofensivamente. Requiere adaptación automática, jugar pegado." }
+    },
+    "defense": {
+      "theme park": { "rounds": 71, "winRate": 64.8, "kd": 1.88, "classification": "elite", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["aggressive-flex", "roamer"], "avoidRoles": ["passive-anchor"] },
+      "bank": { "rounds": 143, "winRate": 62.9, "kd": 1.45, "classification": "elite", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["intel-fragger", "vertical-roamer"] },
+      "kanal": { "rounds": 105, "winRate": 59.0, "kd": 1.62, "classification": "elite", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["roamer", "intel-flex"] },
+      "fortress": { "rounds": 69, "winRate": 59.4, "kd": 1.25, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["roamer"] },
+      "oregon": { "rounds": 194, "winRate": 58.8, "kd": 1.23, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["bunker-control", "short-roam"] },
+      "chalet": { "rounds": 209, "winRate": 56.9, "kd": 1.17, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": [] },
+      "villa": { "rounds": 200, "winRate": 56.5, "kd": 1.32, "classification": "strong", "confidence": "high", "source": "tracker-derived", "recommendedRoles": ["intel", "prepared-duels"] },
+      "consulate": { "rounds": 140, "winRate": 55.7, "kd": 1.39, "classification": "strong", "confidence": "high", "source": "tracker-derived" },
+      "clubhouse": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" },
+      "kafe dostoyevsky": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" },
+      "nighthaven labs": { "classification": "strong", "confidence": "high", "source": "tactical-analysis" },
+      "outback": { "classification": "playable", "confidence": "high", "source": "tactical-analysis" },
+      "calypso casino": { "classification": "playable", "confidence": "high", "source": "tactical-analysis" },
+      "emerald plains": { "classification": "playable", "confidence": "high", "source": "tactical-analysis" },
+      "coastline": { "rounds": 228, "winRate": 51.8, "kd": 1.14, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "skyscraper": { "rounds": 67, "winRate": 50.7, "kd": 1.00, "classification": "playable", "confidence": "high", "source": "tracker-derived" },
+      "lair": { "rounds": 50, "winRate": 50.0, "kd": 0.79, "classification": "weak", "confidence": "low", "source": "tracker-derived" },
+      "border": { "rounds": 188, "winRate": 46.8, "kd": 0.97, "classification": "critical", "confidence": "high", "source": "tracker-derived", "tacticalNote": "Malo en ataque y defensa. Ban o estrategia específica." }
+    }
+  },
+  "synergies": {
+    "preferredDuoIds": ["hibana-zofia", "thermite-kali"],
+    "preferredTrioIds": ["stable-attack-trio", "breath-var-a"]
+  }
+}
