@@ -4967,6 +4967,97 @@ select option:hover {
 }
 
 /* Expanded Map Agentes Grid */
+.map-card-header[role="button"] {
+  cursor: pointer;
+}
+
+.map-card-header[role="button"]:hover .map-card-icon,
+.map-card-header[role="button"][aria-expanded="true"] .map-card-icon {
+  color: var(--def);
+  border-color: var(--def-border);
+  background: var(--def-dim);
+}
+
+.map-card-header[role="button"][aria-expanded="true"] {
+  background: linear-gradient(90deg, rgba(30, 127, 255, 0.06), transparent 70%);
+}
+
+.map-card-header[role="button"]:focus-visible {
+  outline: 2px solid var(--def);
+  outline-offset: -2px;
+}
+
+.map-player-overview {
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(9, 13, 22, 0.92));
+}
+
+.map-player-overview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--white);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.map-player-overview-heading small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.map-player-overview-heading > strong {
+  color: var(--muted-bright);
+  font-size: 12px;
+}
+
+.map-player-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.map-player-stat-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--pibe-color) 35%, transparent);
+  border-top: 3px solid var(--pibe-color);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.26);
+}
+
+.map-sites-panel {
+  background: rgba(6, 10, 18, 0.42);
+}
+
+.map-player-stat-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: var(--pibe-color);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .map-player-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .map-op-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -5142,6 +5233,11 @@ select option:hover {
   border: 1px solid rgba(245, 158, 11, 0.3);
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+.map-mvp-metrics {
+  color: rgba(254, 240, 138, 0.72);
+  font-weight: 600;
 }
 
 /* Visual Ban Selector & Operator Modal Styles */

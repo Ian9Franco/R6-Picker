@@ -533,38 +533,7 @@ export function Picker() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <OperatorsCatalog
-                currentOperator={displayedRecommendations[0]?.opName ?? ""}
-                onSelectOperator={(opName) => {
-                  setStandardRecs([
-                    {
-                      playerLabel: "Tu Pick",
-                      playerId: "manual",
-                      opName,
-                      operatorProfile: {
-                        name: opName,
-                        side: "attack" as const,
-                        roles: ["support" as any],
-                        position: "flex",
-                        tempo: "flexible",
-                        provides: [],
-                        needs: [],
-                        best_with_roles: [],
-                        duo_plan: "",
-                        trio_plan: "",
-                        player_fit: ["flex"],
-                        difficulty: "medium" as const,
-                      },
-                      role: "Manual",
-                      pickOrderNumber: 1,
-                      score: 50,
-                      scoreBreakdown: { operatorComfort: 0, roleAffinity: 0, compositionNeed: 0, trackerMapPerformance: 0, factosMapContext: 0, activeSupportTransition: 0, pickOrderContext: 0, avoidPatternPenalty: 0, penalties: 0 },
-                      explanation: { positive: ["Selección manual del operador"], negative: [], warnings: [] },
-                    },
-                  ]);
-                  // setActiveTab("picker"); // Remove navigation per user request
-                }}
-              />
+              <OperatorsCatalog />
             </motion.section>
           )}
 
@@ -577,14 +546,7 @@ export function Picker() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <MapsCatalog
-                matchMap={matchMap}
-                onSelectMap={(mapName) => {
-                  setMatchMap(mapName);
-                  // setActiveTab("picker"); // Remove navigation per user request
-                }}
-                randomItem={randomItem}
-              />
+              <MapsCatalog />
             </motion.section>
           )}
 

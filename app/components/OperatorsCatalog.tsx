@@ -11,8 +11,8 @@ import { OperatorIcon } from "./OperatorIcon";
 type FilterSide = Side | "all";
 
 type OperatorsCatalogProps = {
-  currentOperator: string;
-  onSelectOperator: (opName: string) => void;
+  currentOperator?: string;
+  onSelectOperator?: (opName: string) => void;
 };
 
 const PIBE_COLORS: Record<string, string> = {
@@ -139,8 +139,8 @@ function getPibeTrackerStatsForOp(
 }
 
 export function OperatorsCatalog({
-  currentOperator,
-  onSelectOperator,
+  currentOperator: _currentOperator,
+  onSelectOperator: _onSelectOperator,
 }: OperatorsCatalogProps) {
   const [opQuery, setOpQuery] = useState("");
   const [opSideFilter, setOpSideFilter] = useState<FilterSide>("all");
@@ -232,7 +232,6 @@ export function OperatorsCatalog({
   }, [selectedDetailOp]);
 
   const handleCardClick = (opName: string) => {
-    onSelectOperator(opName);
     setSelectedDetailOp(opName);
   };
 
@@ -287,14 +286,13 @@ export function OperatorsCatalog({
       {/* Operator Cards */}
       <div className="ops-grid">
         {filteredOperators.map((item) => {
-          const isSelected = currentOperator === item.name;
           const roleClass = getRoleClass(item.role);
           const ranked = affinityCache[item.name] ?? [];
 
           return (
             <button
               key={item.name}
-              className={`op-card ${isSelected ? "op-selected" : ""}`}
+              className="op-card"
               onClick={() => handleCardClick(item.name)}
             >
               {/* Side stripe */}
@@ -356,11 +354,6 @@ export function OperatorsCatalog({
                 </div>
               </div>
 
-              {isSelected && (
-                <div className="op-selected-badge">
-                  <span style={{ fontSize: "9px", fontWeight: 700 }}>✓</span>
-                </div>
-              )}
             </button>
           );
         })}

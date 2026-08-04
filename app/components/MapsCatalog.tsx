@@ -4,7 +4,6 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  Dice5,
   Filter,
   Flame,
   MapPin,
@@ -22,15 +21,16 @@ import { competitiveMaps, mapBombSites, maps, nonCompetitiveMaps } from "../../d
 import { type TrackerMapStat } from "../../data/trackerParser";
 import { OperatorIcon } from "./OperatorIcon";
 import { getMapStrategies, getRecommendedOpsForPibe } from "../../data/mapStrategies";
+import { getMapPlayerStat } from "../../data/playerMapStats";
 
 type CategoryFilter = "all" | "competitive" | "nonCompetitive";
 type PlayerFilter = "all" | "el_notorious" | "chango_nocturno" | "azusa_cooper09";
 type SortOption = "name" | "winrate" | "rounds";
 
 type MapsCatalogProps = {
-  matchMap: string;
-  onSelectMap: (mapName: string) => void;
-  randomItem: <T>(items: readonly T[]) => T;
+  matchMap?: string;
+  onSelectMap?: (mapName: string) => void;
+  randomItem?: <T>(items: readonly T[]) => T;
 };
 
 export type PlayerMapOpStat = {
@@ -147,7 +147,7 @@ export function normalizePibeId(playerStr: string): string {
   return "el_notorious";
 }
 
-export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogProps) {
+export function MapsCatalog({ matchMap: _matchMap, onSelectMap: _onSelectMap, randomItem: _randomItem }: MapsCatalogProps) {
   const [mapQuery, setMapQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>("all");
@@ -361,15 +361,6 @@ export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogPr
             Stats
           </button>
 
-          <div className="maps-divider" />
-
-          <button
-            className="maps-random-btn"
-            title="Elegir mapa competitivo al azar"
-            onClick={() => onSelectMap(randomItem(competitiveMaps))}
-          >
-            <Dice5 size={15} /> Aleatorio
-          </button>
         </div>
 
         {/* Filters Row: Categories & Player Strengths */}
@@ -449,22 +440,40 @@ export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogPr
         {filteredMaps.map((mapName) => {
           const sites = mapBombSites[mapName] || [];
           const isCompetitive = sites.length > 0;
-          const isSelected = matchMap === mapName;
           const isExpanded = expandedMap === mapName;
 
           const summary = mapSummaries[mapName];
           const allOpStatsForMap = mapStatsData[mapName] || [];
+          const playerOverview = PIBES_CONFIG.flatMap((pibe) => {
+            const stats = getMapPlayerStat(pibe.id, mapName);
+            return stats ? [{ pibe, stats }] : [];
+          });
+          const mapMvp = [...playerOverview].sort(
+            (a, b) => b.stats.winRate - a.stats.winRate || b.stats.kd - a.stats.kd || b.stats.matches - a.stats.matches
+          )[0];
 
           const currentTab = activePanelTab[mapName] || "stats";
 
           return (
             <div
               key={mapName}
-              className={`map-card ${isSelected ? "map-active" : ""} ${
+              className={`map-card ${
                 !isCompetitive ? "map-non-competitive" : ""
               }`}
             >
-              <div className="map-card-header">
+              <div
+                className="map-card-header"
+                role={isCompetitive ? "button" : undefined}
+                tabIndex={isCompetitive ? 0 : undefined}
+                aria-expanded={isCompetitive ? isExpanded : undefined}
+                onClick={() => isCompetitive && setExpandedMap(isExpanded ? null : mapName)}
+                onKeyDown={(event) => {
+                  if (isCompetitive && (event.key === "Enter" || event.key === " ")) {
+                    event.preventDefault();
+                    setExpandedMap(isExpanded ? null : mapName);
+                  }
+                }}
+              >
                 <div className={`map-card-icon ${!isCompetitive ? "icon-disabled" : ""}`}>
                   <MapPin size={22} />
                 </div>
@@ -478,77 +487,41 @@ export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogPr
                       <span className="map-badge-noncomp">NO COMPETITIVO</span>
                     )}
 
-                    {summary?.mvpPibe && (
-                      <span className="map-mvp-badge" title={`Pibe más fuerte en este mapa: ${summary.mvpPibe.pibeName}`}>
-                        <Sparkles size={11} /> MVP: {summary.mvpPibe.pibeName} ({summary.mvpPibe.winRate}%)
+                    {mapMvp && (
+                      <span
+                        className="map-mvp-badge"
+                        title={`Mejor rendimiento general: ${mapMvp.stats.winRate.toFixed(1)}% WR · ${mapMvp.stats.kd.toFixed(2)} K/D`}
+                      >
+                        <Sparkles size={11} /> MVP: {mapMvp.pibe.name}
+                        <span className="map-mvp-metrics">
+                          {mapMvp.stats.winRate.toFixed(1)}% · {mapMvp.stats.kd.toFixed(2)} K/D
+                        </span>
                       </span>
                     )}
+
                   </div>
 
                   <div className="map-card-meta">
                     {isCompetitive ? (
                       <>
                         <span>{sites.length} zonas de bomba oficiales</span>
-                        {summary && (
-                          <span style={{ marginLeft: "12px", color: "var(--muted-bright)" }}>
-                            • Squad WR: <strong style={{ color: "#10b981" }}>{summary.avgWinRate}%</strong> ({summary.totalRounds} rondas)
-                          </span>
-                        )}
                       </>
                     ) : (
                       "Sin zonas para ranked"
                     )}
                   </div>
 
-                  {/* Summary Row: Best Op per Pibe on this Map */}
-                  {isCompetitive && summary && (
-                    <div className="map-pibes-summary-row">
-                      {PIBES_CONFIG.map((pibe) => {
-                        const topPick = summary.pibeTopPicks[pibe.id];
-                        if (!topPick?.bestOp) return null;
-                        const best = topPick.bestOp;
-
-                        return (
-                          <div key={pibe.id} className="pibe-map-chip" style={{ borderLeft: `3px solid ${pibe.color}` }}>
-                            <span className="pibe-chip-name" style={{ color: pibe.color }}>
-                              {pibe.name}:
-                            </span>
-                            <div className="pibe-chip-op-group">
-                              <span className="pibe-chip-op-badge">
-                                <OperatorIcon name={best.operator} size={14} />
-                                <span style={{ fontWeight: 700 }}>{best.operator}</span>
-                                <span className="pibe-chip-wr">{best.winRate}%</span>
-                                {best.kd > 0 && <span className="pibe-chip-kd">({best.kd} K/D)</span>}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
 
                 <div className="map-card-actions">
-                  {isCompetitive ? (
-                    <button
-                      className="map-select-btn"
-                      onClick={() => onSelectMap(mapName)}
-                    >
-                      {isSelected ? "✓ Activo" : "Elegir"}
-                    </button>
-                  ) : (
-                    <button
-                      className="map-select-btn map-btn-disabled"
-                      disabled
-                    >
-                      No elegible
-                    </button>
-                  )}
-
                   {isCompetitive && (
                     <button
                       className="map-sites-toggle"
-                      onClick={() => setExpandedMap(isExpanded ? null : mapName)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setExpandedMap(isExpanded ? null : mapName);
+                      }}
+                      aria-label={`${isExpanded ? "Cerrar" : "Ver"} estadísticas de ${mapName}`}
                     >
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
@@ -562,7 +535,7 @@ export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogPr
                   {/* Expanded Sub-tabs Navigation */}
                   <div className="map-panel-nav">
                     <button
-                      className={`map-panel-tab ${currentTab === "strategies" || currentTab === "stats" ? "active" : ""}`}
+                      className={`map-panel-tab ${currentTab === "strategies" ? "active" : ""}`}
                       onClick={() => setActivePanelTab((prev) => ({ ...prev, [mapName]: "strategies" }))}
                     >
                       <Sparkles size={14} /> Estrategias & Jugadas
@@ -571,7 +544,7 @@ export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogPr
                       className={`map-panel-tab ${currentTab === "stats" ? "active" : ""}`}
                       onClick={() => setActivePanelTab((prev) => ({ ...prev, [mapName]: "stats" }))}
                     >
-                      <Award size={14} /> Agentes Fuertes ({allOpStatsForMap.length})
+                      <Award size={14} /> Rendimiento ({playerOverview.length})
                     </button>
                     <button
                       className={`map-panel-tab ${currentTab === "sites" ? "active" : ""}`}
@@ -676,6 +649,45 @@ export function MapsCatalog({ matchMap, onSelectMap, randomItem }: MapsCatalogPr
                   {/* TAB 1: PIBES OPERATOR STATS FOR THIS MAP */}
                   {currentTab === "stats" && (
                     <div>
+                      <section className="map-player-overview" aria-label={`Rendimiento por jugador en ${mapName}`}>
+                        <div className="map-player-overview-heading">
+                          <div>
+                            <span>Rendimiento general por pibe</span>
+                            <small>R6 Tracker · Y9S3 en adelante</small>
+                          </div>
+                          <strong>{mapName}</strong>
+                        </div>
+                        <div className="map-player-overview-grid">
+                          {playerOverview
+                            .filter(({ pibe }) => panelPlayerFilter === "all" || panelPlayerFilter === pibe.id)
+                            .map(({ pibe, stats }) => {
+                              const wrClass = stats.winRate >= 55 ? "wr-high" : stats.winRate >= 45 ? "wr-mid" : "wr-low";
+                              const kdClass = stats.kd >= 1.2 ? "kd-high" : stats.kd >= 0.9 ? "kd-mid" : "kd-low";
+                              return (
+                                <article key={pibe.id} className="map-player-stat-card" style={{ "--pibe-color": pibe.color } as React.CSSProperties}>
+                                  <div className="map-player-stat-name">
+                                    <User size={14} /> {pibe.fullName}
+                                  </div>
+                                  <div className="op-metrics-grid">
+                                    <div className="metric-item">
+                                      <span className="metric-label">K/D</span>
+                                      <span className={`metric-value ${kdClass}`}>{stats.kd.toFixed(2)}</span>
+                                    </div>
+                                    <div className="metric-item">
+                                      <span className="metric-label">Winrate</span>
+                                      <span className={`metric-value ${wrClass}`}>{stats.winRate.toFixed(1)}%</span>
+                                    </div>
+                                    <div className="metric-item">
+                                      <span className="metric-label">Partidas</span>
+                                      <span className="metric-value">{stats.matches}</span>
+                                    </div>
+                                  </div>
+                                </article>
+                              );
+                            })}
+                        </div>
+                      </section>
+
                       {/* Filter Controls within Map Panel */}
                       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "12px", alignItems: "center" }}>
                         <div style={{ display: "flex", gap: "4px" }}>
