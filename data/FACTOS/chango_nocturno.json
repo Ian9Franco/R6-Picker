@@ -128,11 +128,12 @@
     }
   },
   "identityOperators": [
-    { "operatorId": "hibana", "side": "attack", "reason": "Mejores resultados relativos que Thermite; permite conservar movilidad y abrir múltiples zonas." },
+    { "operatorId": "thermite", "side": "attack", "reason": "Mejor brecha dura estructural y apertura directa de sitio." },
     { "operatorId": "tubarao", "side": "defense", "reason": "Su pick más completo. Combina utilidad estructural, capacidad de pelea y control temporal." }
   ],
   "comfortOperators": [
     { "operatorId": "thermite", "side": "attack", "matches": 313, "winRate": 41.5, "kd": 0.65 },
+    { "operatorId": "ace", "side": "attack", "matches": 180, "winRate": 45.0, "kd": 0.75 },
     { "operatorId": "thatcher", "side": "attack", "matches": 150, "winRate": 48.0, "kd": 0.62 },
     { "operatorId": "bandit", "side": "defense", "matches": 303, "winRate": 53.8, "kd": 0.81 },
     { "operatorId": "mute", "side": "defense", "matches": 242, "winRate": 57.0, "kd": 0.86 },
@@ -149,7 +150,7 @@
   ],
   "avoidOperators": [
     { "operatorId": "ash", "side": "attack", "severity": "strong", "reason": "Requiere entry fragging activo, opuesto a su estilo." },
-    { "operatorId": "ace", "side": "attack", "severity": "medium", "reason": "Picks automáticos de Ace sin ventaja concreta. Usar Hibana/Thermite primero." },
+    { "operatorId": "hibana", "side": "attack", "severity": "medium", "reason": "No es su opción primaria de brecha dura; prefiere Thermite o Ace." },
     { "operatorId": "caveira", "side": "defense", "severity": "strong", "reason": "Roaming aislado de alto riesgo." }
   ],
   "mapPerformance": {

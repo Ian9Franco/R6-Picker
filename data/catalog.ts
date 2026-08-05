@@ -524,6 +524,66 @@ export const mapBombSites: Record<string, BombSite[]> = {
       },
     },
   ],
+  "Villa": [
+    {
+      floor: "2.º piso", name: "Aviator / Games",
+      requirements: {
+        attack:  ["hard-breach", "anti-gadget", "entry-frag"],
+        defense: ["anti-gadget-def", "objective-anchor", "intel-def"],
+      },
+    },
+    {
+      floor: "2.º piso", name: "Trophy / Statuary",
+      requirements: {
+        attack:  ["soft-breach", "entry-frag", "intel"],
+        defense: ["roamer", "trap-setter", "objective-anchor"],
+      },
+    },
+    {
+      floor: "1.er piso", name: "Dining Room / Kitchen",
+      requirements: {
+        attack:  ["hard-breach", "soft-breach", "anti-gadget"],
+        defense: ["anti-gadget-def", "access-denial", "objective-anchor"],
+      },
+    },
+    {
+      floor: "1.er piso", name: "Living Room / Library",
+      requirements: {
+        attack:  ["soft-breach", "zone-control", "intel"],
+        defense: ["trap-setter", "roamer", "access-denial"],
+      },
+    },
+  ],
+  "Theme Park": [
+    {
+      floor: "2.º piso", name: "Initiation Room / Office",
+      requirements: {
+        attack:  ["intel", "entry-frag", "zone-control"],
+        defense: ["access-denial", "roamer", "intel-def"],
+      },
+    },
+    {
+      floor: "2.º piso", name: "Bunk / Day Care",
+      requirements: {
+        attack:  ["soft-breach", "intel", "zone-control"],
+        defense: ["anti-gadget-def", "objective-anchor", "trap-setter"],
+      },
+    },
+    {
+      floor: "1.er piso", name: "Armory Room / Throne Room",
+      requirements: {
+        attack:  ["hard-breach", "anti-gadget", "zone-control"],
+        defense: ["anti-gadget-def", "objective-anchor", "zone-deny"],
+      },
+    },
+    {
+      floor: "1.er piso", name: "Lab / Storage",
+      requirements: {
+        attack:  ["soft-breach", "intel", "entry-frag"],
+        defense: ["objective-anchor", "intel-def", "access-denial"],
+      },
+    },
+  ],
   "Calypso Casino": [
     {
       floor: "2.º piso", name: "Sala de puros / Piscina",

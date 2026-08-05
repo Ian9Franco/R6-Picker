@@ -417,13 +417,38 @@ export function getAttackSiteProfile(
 
   if (!siteName) return profiles[0] || null;
 
-  const cleanSiteName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const aliases: Record<string, string> = {
+    arsenal: "armeria",
+    armoury: "armeria",
+    cash: "dinero",
+    cava: "bodega",
+    snowmobile: "motonieve",
+    moto: "motonieve",
+    niños: "infantil",
+    ninos: "infantil",
+    kids: "infantil",
+  };
+  const ignored = new Set(["sala", "salon", "oficina", "de", "del", "la", "el", "principal", "cuarto"]);
+  const tokens = (value: string) => value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .map((token) => token.replace(/s$/, ""))
+    .filter((token) => !ignored.has(token))
+    .map((token) => aliases[token] || token);
+  const targetTokens = new Set(tokens(siteName));
 
-  const matched = profiles.find((p) => {
-    const cleanId = p.siteId.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const cleanDisp = p.displayName.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return cleanSiteName.includes(cleanId) || cleanSiteName.includes(cleanDisp) || cleanId.includes(cleanSiteName);
-  });
+  const ranked = profiles
+    .map((profile) => {
+      const profileTokens = new Set([...tokens(profile.displayName), ...tokens(profile.siteId)]);
+      const shared = Array.from(profileTokens).filter((token) => targetTokens.has(token)).length;
+      const score = shared / Math.max(1, Math.min(profileTokens.size, targetTokens.size));
+      return { profile, shared, score };
+    })
+    .sort((a, b) => b.score - a.score || b.shared - a.shared);
 
-  return matched || profiles[0] || null;
+  const best = ranked[0];
+  return best && (best.shared >= 2 || best.score >= 0.6) ? best.profile : null;
 }

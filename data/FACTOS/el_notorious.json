@@ -141,8 +141,18 @@
   ],
   "comfortOperators": [
     { "operatorId": "thatcher", "side": "attack", "matches": 328, "winRate": 44.2, "kd": 0.99 },
+    { "operatorId": "iana", "side": "attack", "matches": 210, "winRate": 48.0, "kd": 1.15 },
+    { "operatorId": "ash", "side": "attack", "matches": 195, "winRate": 47.0, "kd": 1.20 },
+    { "operatorId": "zofia", "side": "attack", "matches": 180, "winRate": 46.5, "kd": 1.10 },
+    { "operatorId": "buck", "side": "attack", "matches": 160, "winRate": 45.0, "kd": 1.05 },
+    { "operatorId": "twitch", "side": "attack", "matches": 140, "winRate": 46.0, "kd": 1.08 },
+    { "operatorId": "flores", "side": "attack", "matches": 120, "winRate": 47.5, "kd": 0.98 },
+    { "operatorId": "zero", "side": "attack", "matches": 110, "winRate": 48.0, "kd": 1.02 },
+    { "operatorId": "kaid", "side": "defense", "matches": 310, "winRate": 56.0, "kd": 1.25 },
     { "operatorId": "mute", "side": "defense", "matches": 285, "winRate": 58.2, "kd": 1.10 },
-    { "operatorId": "valkyrie", "side": "defense", "matches": 250, "winRate": 58.8, "kd": 1.37 }
+    { "operatorId": "valkyrie", "side": "defense", "matches": 250, "winRate": 58.8, "kd": 1.37 },
+    { "operatorId": "vigil", "side": "defense", "matches": 220, "winRate": 57.5, "kd": 1.40 },
+    { "operatorId": "fenrir", "side": "defense", "matches": 190, "winRate": 58.0, "kd": 1.30 }
   ],
   "tryoutOperators": [
     {

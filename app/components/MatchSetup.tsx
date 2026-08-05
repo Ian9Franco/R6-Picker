@@ -9,8 +9,8 @@ import { useState } from "react";
 type MatchSetupProps = {
   mode: "default" | "pibes";
   setMode: (mode: "default" | "pibes") => void;
-  partySize: 1 | 2 | 3;
-  setPartySize: (size: 1 | 2 | 3) => void;
+  partySize: 2 | 3;
+  setPartySize: (size: 2 | 3) => void;
   activePibeIds: string[];
   setActivePibeIds: (ids: string[]) => void;
   pibes: PibeProfile[];
@@ -43,7 +43,7 @@ export function MatchSetup({
   const [showPibesManager, setShowPibesManager] = useState(false);
 
   // The start button is blocked in pibes mode when no pibe is selected
-  const isStartBlocked = mode === "pibes" && activePibeIds.length === 0;
+  const isStartBlocked = mode === "pibes" && activePibeIds.length !== partySize;
 
   const togglePibeActive = (pibeId: string) => {
     const isActive = activePibeIds.includes(pibeId);
@@ -72,13 +72,21 @@ export function MatchSetup({
               className={mode === "default" ? "active" : ""}
               onClick={() => setMode("default")}
             >
-              <Dice5 size={16} /> Modo Estándar
+              <Dice5 size={17} />
+              <span className="mode-option-copy">
+                <strong>Estándar táctico</strong>
+                <small>Trío o dúo coherente, sin perfiles personales</small>
+              </span>
             </button>
             <button
               className={mode === "pibes" ? "active active-pibes" : ""}
               onClick={() => setMode("pibes")}
             >
-              <UserCheck size={16} /> Modo "Los Pibes"
+              <UserCheck size={17} />
+              <span className="mode-option-copy">
+                <strong>Los Pibes</strong>
+                <small>Mismo plan, asignado por mains y afinidad</small>
+              </span>
             </button>
           </div>
 
@@ -86,19 +94,6 @@ export function MatchSetup({
             <span>¿Cuántos juegan en Squad?</span>
           </div>
           <div className="party-selector">
-            <button
-              className={`party-card ${partySize === 1 ? "active" : ""}`}
-              onClick={() => {
-                setPartySize(1);
-                // Only trim excess; never auto-fill
-                if (activePibeIds.length > 1) setActivePibeIds([activePibeIds[0]]);
-              }}
-            >
-              <Users size={18} />
-              <span className="party-title">Solo</span>
-              <span className="party-sub">1 Jugador</span>
-            </button>
-
             <button
               className={`party-card ${partySize === 2 ? "active" : ""}`}
               onClick={() => {
@@ -236,11 +231,11 @@ export function MatchSetup({
         className={`start-match-btn ${isStartBlocked ? "start-blocked" : ""}`}
         onClick={isStartBlocked ? undefined : onStartMatch}
         disabled={isStartBlocked}
-        title={isStartBlocked ? "Seleccioná al menos 1 pibe para iniciar" : undefined}
+        title={isStartBlocked ? `Seleccioná exactamente ${partySize} pibes para iniciar` : undefined}
       >
         <Dice5 size={20} />
         {isStartBlocked
-          ? "Seleccioná pibes para iniciar"
+          ? `Seleccioná ${partySize} pibes para iniciar`
           : `Iniciar en ${matchMap}`}
       </button>
 

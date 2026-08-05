@@ -1,0 +1,311 @@
+{
+  "version": "1.0.0",
+  "map": "Villa",
+  "basis": {
+    "mapVersion": "modernized-2026",
+    "source": "Ubisoft Villa blueprints",
+    "sourceUrl": "https://www.ubisoft.com/en-us/game/rainbow-six/siege/game-info/maps/villa",
+    "note": "Las rutas y composiciones son análisis táctico propio construido sobre el plano oficial; no representan una estrategia oficial de Ubisoft."
+  },
+  "sites": [
+    {
+      "id": "aviator-games",
+      "name": "Aviator / Games",
+      "aliases": ["Aviator/Games", "Aviator Room / Games Room", "Sala del aviador / Sala de juegos"],
+      "floor": "2F",
+      "attack": {
+        "doctrine": "Study primero, brecha después, ejecución por 90 y Vault",
+        "objective": "Tomar Study, abrir la pared de Aviator y cortar la respuesta desde 90/Vault antes de plantar.",
+        "approach": [
+          "Dronar Study y Piano antes de exponer al breacher.",
+          "Limpiar la utilidad de la pared Study-Aviator y abrir una brecha transitable.",
+          "Fijar 90/Vault con info o presión mientras el tercer jugador ejecuta sobre Games.",
+          "Plantar sólo cuando Study y una de las dos rotaciones interiores estén controladas."
+        ],
+        "keyAreas": ["Study", "90", "Vault", "Games"],
+        "requiredRoles": ["hard-breach", "anti-gadget", "intel"],
+        "avoid": ["asomar Study sin dron", "gastar toda la utilidad en la pared", "entrar por una sola puerta en los últimos 20 segundos"],
+        "suggestedPicks": [
+          { "operator": "Ace", "priority": "core", "task": "Abrir Study-Aviator desde cobertura y conservar humo para la ejecución." },
+          { "operator": "Twitch", "priority": "core", "task": "Limpiar denial y utilidad de Vault/90 antes de acompañar la brecha." },
+          { "operator": "Iana", "priority": "core", "task": "Dronar con Gemini, tomar Study y ser la primera entrada hacia 90." },
+          { "operator": "Thatcher", "priority": "safe", "task": "Garantizar la apertura de Study y apoyar con EMP la entrada final." },
+          { "operator": "Nomad", "priority": "safe", "task": "Cerrar flancos de escaleras y sostener el postplant desde Study." },
+          { "operator": "Flores", "priority": "alternate", "task": "Forzar escudos y utilidad de ancla en Vault/Games antes de ejecutar." },
+          { "operator": "Zofia", "priority": "alternate", "task": "Desalojar posiciones de 90 y convertir la info en entrada." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Ace", "Iana"],
+            "safe": ["Ace", "Thatcher"],
+            "breathing": ["Flores", "Zofia"]
+          },
+          "trio": {
+            "primary": ["Ace", "Twitch", "Iana"],
+            "safe": ["Ace", "Thatcher", "Nomad"],
+            "breathing": ["Hibana", "Flores", "Zofia"]
+          }
+        }
+      },
+      "defense": {
+        "doctrine": "Negar Study, sostener 90 y guardar cierre de ronda",
+        "objective": "Evitar una brecha limpia desde Study y hacer que el ataque pague tiempo por cada metro entre 90, Vault y Games.",
+        "approach": [
+          "Negar drones y brecha sobre Study-Aviator.",
+          "Proteger la posición de 90/Vault contra proyectiles.",
+          "Jugar un ancla con utilidad reservada para el plantado y un jugador capaz de responder corto.",
+          "Replegarse a sitio antes de perder simultáneamente Study y 90."
+        ],
+        "keyAreas": ["Study wall", "90", "Vault", "Games rotate"],
+        "requiredRoles": ["anti-gadget-def", "objective-anchor", "intel-def"],
+        "avoid": ["tres anclas dentro de bomba", "pelear Study sin ruta de regreso", "gastar el denial de plantado antes del último minuto"],
+        "suggestedPicks": [
+          { "operator": "Mute", "priority": "core", "task": "Negar drones y la apertura de Study; preparar rotación segura entre bombas." },
+          { "operator": "Wamai", "priority": "core", "task": "Proteger Vault/90 y al ancla de granadas y proyectiles." },
+          { "operator": "Smoke", "priority": "core", "task": "Anclar Games y conservar gas para cortar plantado o cruce final." },
+          { "operator": "Kaid", "priority": "safe", "task": "Ocultar la garra que protege Study y obligar a gastar anti-gadget." },
+          { "operator": "Valkyrie", "priority": "safe", "task": "Dar información de Study, 90 y escaleras para decidir el repliegue." },
+          { "operator": "Azami", "priority": "alternate", "task": "Reconstruir cobertura en 90/Vault y sostener ángulos cruzados." },
+          { "operator": "Goyo", "priority": "alternate", "task": "Quemar los cruces de Games y Vault durante la ejecución." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Mute", "Smoke"],
+            "safe": ["Kaid", "Smoke"],
+            "breathing": ["Azami", "Goyo"]
+          },
+          "trio": {
+            "primary": ["Mute", "Wamai", "Smoke"],
+            "safe": ["Kaid", "Valkyrie", "Smoke"],
+            "breathing": ["Azami", "Goyo", "Mozzie"]
+          }
+        }
+      }
+    },
+    {
+      "id": "trophy-statuary",
+      "name": "Trophy / Statuary",
+      "aliases": ["Trophy/Statuary", "Trophy Room / Statuary Room", "Sala de trofeos / Sala de estatuas"],
+      "floor": "2F",
+      "attack": {
+        "doctrine": "Master y Astro aislados antes de tocar el site",
+        "objective": "Ganar Master/Closet, abrir hacia Statuary y cortar Astro para ejecutar sin quedar atrapados en una puerta.",
+        "approach": [
+          "Limpiar Master y el entorno de Bathroom con drones.",
+          "Resolver la pared reforzada que conecta la toma de Master con Statuary.",
+          "Aislar Astro y Red Stairs con flank watch o utilidad de desplazamiento.",
+          "Ejecutar sobre Statuary mientras un jugador sostiene la rotación de Trophy."
+        ],
+        "keyAreas": ["Master Bedroom", "Bathroom", "Astro", "Red Stairs"],
+        "requiredRoles": ["hard-breach", "anti-gadget", "zone-control"],
+        "avoid": ["entrar directo por Astro sin presión de Master", "dejar Red Stairs libre", "duplicar breachers sin control de rotación"],
+        "suggestedPicks": [
+          { "operator": "Ace", "priority": "core", "task": "Abrir Statuary desde Master sin regalar el cuerpo al cruce de Astro." },
+          { "operator": "Flores", "priority": "core", "task": "Limpiar escudos, denial y cobertura utilitaria de Astro/Statuary." },
+          { "operator": "Nomad", "priority": "core", "task": "Cerrar Red y rutas de retake; sostener el plantado desde Master." },
+          { "operator": "Thermite", "priority": "safe", "task": "Crear una apertura completa cuando Master esté consolidado." },
+          { "operator": "Thatcher", "priority": "safe", "task": "Asegurar la brecha y desactivar utilidad durante el empuje final." },
+          { "operator": "Gridlock", "priority": "safe", "task": "Bloquear Astro y Red durante plantado y postplant." },
+          { "operator": "Maverick", "priority": "alternate", "task": "Resolver la pared sin depender de electrónica y abrir líneas sobre Statuary." },
+          { "operator": "Ying", "priority": "alternate", "task": "Cegar Trophy/Statuary para convertir la brecha en ejecución rápida." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Ace", "Flores"],
+            "safe": ["Thermite", "Thatcher"],
+            "breathing": ["Maverick", "Ying"]
+          },
+          "trio": {
+            "primary": ["Ace", "Flores", "Nomad"],
+            "safe": ["Thermite", "Thatcher", "Gridlock"],
+            "breathing": ["Maverick", "Iana", "Ying"]
+          }
+        }
+      },
+      "defense": {
+        "doctrine": "Retener Astro, proteger Master y negar el plantado en Statuary",
+        "objective": "Hacer costosa la toma de Master y conservar una línea de respuesta entre Astro, Trophy y Statuary.",
+        "approach": [
+          "Proteger las paredes de Master/Statuary con denial difícil de limpiar.",
+          "Construir cobertura en Astro y preservar una ruta de repliegue.",
+          "Usar el ancla para negar el plantado mientras el flex responde desde Trophy.",
+          "No morir en Master cuando la pared ya está perdida."
+        ],
+        "keyAreas": ["Master wall", "Astro", "Trophy", "Red Stairs"],
+        "requiredRoles": ["anti-gadget-def", "objective-anchor", "access-denial"],
+        "avoid": ["sobreextender Master", "dejar Astro sin utilidad", "cerrar las rotaciones del propio equipo"],
+        "suggestedPicks": [
+          { "operator": "Kaid", "priority": "core", "task": "Proteger Master/Statuary con garra escondida y consumir tiempo de limpieza." },
+          { "operator": "Azami", "priority": "core", "task": "Fortificar Astro y reparar cobertura cuando se abran líneas." },
+          { "operator": "Smoke", "priority": "core", "task": "Anclar Statuary y negar el plantado en la ejecución." },
+          { "operator": "Mute", "priority": "safe", "task": "Negar drones de Master y retrasar la apertura temprana." },
+          { "operator": "Wamai", "priority": "safe", "task": "Proteger Astro y al ancla contra proyectiles." },
+          { "operator": "Lesion", "priority": "alternate", "task": "Marcar entradas de Red/Astro y jugar el repliegue corto." },
+          { "operator": "Valkyrie", "priority": "alternate", "task": "Dar calls sobre Master, Astro y Red para coordinar el swing." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Kaid", "Smoke"],
+            "safe": ["Mute", "Smoke"],
+            "breathing": ["Azami", "Lesion"]
+          },
+          "trio": {
+            "primary": ["Kaid", "Azami", "Smoke"],
+            "safe": ["Mute", "Wamai", "Smoke"],
+            "breathing": ["Azami", "Lesion", "Valkyrie"]
+          }
+        }
+      }
+    },
+    {
+      "id": "dining-kitchen",
+      "name": "Dining Room / Kitchen",
+      "aliases": ["Dining/Kitchen", "Dining Room/Kitchen", "Comedor / Cocina"],
+      "floor": "1F",
+      "attack": {
+        "doctrine": "Vertical primero, accesos aislados, caída coordinada",
+        "objective": "Expulsar anclas desde Trophy/Statuary, cortar las rotaciones de Pantry y ejecutar sobre Kitchen/Dining.",
+        "approach": [
+          "Tomar Trophy/Statuary arriba antes de abrir el piso.",
+          "Usar vertical para desplazar anclas y destruir denial de sitio.",
+          "Cerrar escaleras y la ruta de Pantry para impedir el retake.",
+          "Bajar o entrar sólo cuando la vertical haya creado un espacio de plantado."
+        ],
+        "keyAreas": ["Trophy vertical", "Statuary vertical", "Pantry", "Main Stairs"],
+        "requiredRoles": ["soft-breach", "intel", "zone-control"],
+        "avoid": ["ejecutar abajo sin controlar arriba", "hacer vertical sin flank watch", "bajar solo por una escalera"],
+        "suggestedPicks": [
+          { "operator": "Buck", "priority": "core", "task": "Abrir vertical desde Trophy/Statuary y convertirla en presión sobre anclas." },
+          { "operator": "Ace", "priority": "core", "task": "Abrir accesos útiles desde cobertura y aportar humo al plantado." },
+          { "operator": "Nomad", "priority": "core", "task": "Cerrar escaleras y Pantry mientras sostiene la ejecución." },
+          { "operator": "Sledge", "priority": "safe", "task": "Crear vertical controlada y conservar granadas para posiciones profundas." },
+          { "operator": "Iana", "priority": "safe", "task": "Limpiar roam arriba y dar info antes de cada apertura vertical." },
+          { "operator": "Gridlock", "priority": "safe", "task": "Sellar retakes y transformar el plantado en una defensa cruzada." },
+          { "operator": "Ram", "priority": "alternate", "task": "Abrir una franja vertical amplia para expulsar al ancla de Kitchen." },
+          { "operator": "Capitão", "priority": "alternate", "task": "Quemar posiciones de Kitchen y cubrir el cruce final con humo." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Buck", "Ace"],
+            "safe": ["Sledge", "Iana"],
+            "breathing": ["Ram", "Capitão"]
+          },
+          "trio": {
+            "primary": ["Buck", "Ace", "Nomad"],
+            "safe": ["Sledge", "Iana", "Gridlock"],
+            "breathing": ["Ram", "Zero", "Capitão"]
+          }
+        }
+      },
+      "defense": {
+        "doctrine": "Extensión vertical corta y regreso temprano al sitio",
+        "objective": "Negar la vertical el tiempo suficiente, conservar información de caída y cerrar Kitchen/Dining con C4 y gas.",
+        "approach": [
+          "Negar drones y preparar una extensión defendible en Trophy/Statuary.",
+          "Mantener información sobre la vertical en vez de regalar duelos arriba.",
+          "Replegar el flex antes de quedar cortado por las escaleras.",
+          "Guardar C4/gas para la caída o el plantado, no para daño temprano sin confirmación."
+        ],
+        "keyAreas": ["Trophy extension", "Statuary extension", "Pantry", "Kitchen execute"],
+        "requiredRoles": ["objective-anchor", "intel-def", "anti-gadget-def"],
+        "avoid": ["morir arriba después de perder la vertical", "dos roamers profundos sin ancla", "usar C4 sin información"],
+        "suggestedPicks": [
+          { "operator": "Mute", "priority": "core", "task": "Negar drones arriba y proteger la preparación del sitio abajo." },
+          { "operator": "Pulse", "priority": "core", "task": "Leer la vertical y el plantado para usar C4 con información confirmada." },
+          { "operator": "Smoke", "priority": "core", "task": "Anclar Kitchen/Dining y reservar gas para caída o plantado." },
+          { "operator": "Mozzie", "priority": "safe", "task": "Robar drones y sostener la extensión superior con ruta de repliegue." },
+          { "operator": "Valkyrie", "priority": "safe", "task": "Dar visión de escaleras y accesos para coordinar el C4 y el regreso." },
+          { "operator": "Azami", "priority": "alternate", "task": "Crear cobertura contra la vertical y reparar líneas abiertas." },
+          { "operator": "Goyo", "priority": "alternate", "task": "Demorar Pantry y accesos de plantado en el último tramo." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Pulse", "Smoke"],
+            "safe": ["Mute", "Smoke"],
+            "breathing": ["Azami", "Goyo"]
+          },
+          "trio": {
+            "primary": ["Mute", "Pulse", "Smoke"],
+            "safe": ["Mozzie", "Valkyrie", "Smoke"],
+            "breathing": ["Azami", "Goyo", "Lesion"]
+          }
+        }
+      }
+    },
+    {
+      "id": "living-library",
+      "name": "Living Room / Library",
+      "aliases": ["Living/Library", "Living Room/Library", "Sala de estar / Biblioteca"],
+      "floor": "1F",
+      "attack": {
+        "doctrine": "Control superior, vertical selectiva y cierre de pasillos",
+        "objective": "Dominar el piso superior, abrir líneas sobre Library/Living y bloquear las rotaciones largas antes de ejecutar.",
+        "approach": [
+          "Limpiar el roam del piso superior con info reutilizable.",
+          "Abrir sólo la vertical que expulsa posiciones clave sin destruir la cobertura de plantado.",
+          "Cerrar escaleras y pasillos largos con utilidad persistente.",
+          "Ejecutar con dos accesos sincronizados para que Library no se convierta en un embudo."
+        ],
+        "keyAreas": ["2F roam", "Library vertical", "Main Stairs", "Long Hall"],
+        "requiredRoles": ["soft-breach", "intel", "zone-control"],
+        "avoid": ["bajar antes de limpiar el roam", "abrir todo el piso sin propósito", "entrar los tres por el mismo pasillo"],
+        "suggestedPicks": [
+          { "operator": "Buck", "priority": "core", "task": "Crear vertical selectiva y mantener capacidad de entrada al final." },
+          { "operator": "Iana", "priority": "core", "task": "Liderar la limpieza superior con Gemini y convertir info en espacio." },
+          { "operator": "Gridlock", "priority": "core", "task": "Cerrar escaleras/pasillos y asegurar el postplant." },
+          { "operator": "Sledge", "priority": "safe", "task": "Abrir vertical precisa desde posiciones ya controladas." },
+          { "operator": "Zero", "priority": "safe", "task": "Mantener cámaras sobre flancos y sitio durante el descenso." },
+          { "operator": "Nomad", "priority": "safe", "task": "Bloquear escaleras y proteger al jugador vertical." },
+          { "operator": "Ram", "priority": "alternate", "task": "Forzar desplazamientos amplios cuando la defensa se encierra en Library." },
+          { "operator": "Ying", "priority": "alternate", "task": "Romper el embudo de entrada con Candelas sincronizadas." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Buck", "Iana"],
+            "safe": ["Sledge", "Zero"],
+            "breathing": ["Ram", "Ying"]
+          },
+          "trio": {
+            "primary": ["Buck", "Iana", "Gridlock"],
+            "safe": ["Sledge", "Zero", "Nomad"],
+            "breathing": ["Ram", "Dokkaebi", "Ying"]
+          }
+        }
+      },
+      "defense": {
+        "doctrine": "Moldear accesos, detectar la bajada y negar el embudo",
+        "objective": "Consumir utilidad en Library/Living, mantener información del piso superior y castigar la ejecución por pasillos estrechos.",
+        "approach": [
+          "Usar paneles o barreras para definir por dónde puede entrar el ataque.",
+          "Mantener cámaras o trampas en escaleras para saber cuándo termina la limpieza superior.",
+          "Preservar un ancla con denial de plantado y un flex con ruta corta de respuesta.",
+          "Ceder la extensión superior a tiempo y jugar la utilidad acumulada en sitio."
+        ],
+        "keyAreas": ["Library doors", "Living execute", "Main Stairs", "Long Hall"],
+        "requiredRoles": ["access-denial", "intel-def", "objective-anchor"],
+        "avoid": ["paneles que bloquean la rotación propia", "roam profundo sin información", "pelear arriba cuando el sitio queda vacío"],
+        "suggestedPicks": [
+          { "operator": "Castle", "priority": "core", "task": "Moldear accesos largos sin bloquear la rotación del equipo." },
+          { "operator": "Valkyrie", "priority": "core", "task": "Dar información de escaleras, vertical y momento de ejecución." },
+          { "operator": "Smoke", "priority": "core", "task": "Anclar la entrada de plantado y guardar gas para el embudo final." },
+          { "operator": "Azami", "priority": "safe", "task": "Crear cobertura dinámica ante la vertical y los ángulos largos." },
+          { "operator": "Wamai", "priority": "safe", "task": "Proteger las posiciones remodeladas contra proyectiles." },
+          { "operator": "Mozzie", "priority": "alternate", "task": "Negar la limpieza con drones y sostener un roam corto." },
+          { "operator": "Goyo", "priority": "alternate", "task": "Cerrar pasillos y puertas cuando comienza la ejecución." }
+        ],
+        "lineups": {
+          "duo": {
+            "primary": ["Castle", "Valkyrie"],
+            "safe": ["Azami", "Smoke"],
+            "breathing": ["Mozzie", "Goyo"]
+          },
+          "trio": {
+            "primary": ["Castle", "Valkyrie", "Smoke"],
+            "safe": ["Azami", "Wamai", "Smoke"],
+            "breathing": ["Mozzie", "Goyo", "Lesion"]
+          }
+        }
+      }
+    }
+  ]
+}

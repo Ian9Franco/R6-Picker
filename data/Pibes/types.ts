@@ -128,6 +128,7 @@ export type PlayerPick = {
   playerId: string;
   opName: string;
   backupOpName?: string;
+  alternativeOps?: string[];
   trackerHighlight?: string;
   operatorProfile: OperatorProfile;
   role: string;
@@ -167,6 +168,22 @@ export type ConfidenceInfo = {
   reasons: string[];
 };
 
+export type TacticalCompositionPlan = {
+  playerAgnostic: true;
+  strategy: "primary" | "safe" | "breathing" | "experimental";
+  doctrine: string;
+  operatorNames: string[];
+  score: number;
+  coveredRoles: string[];
+  coveredNeeds: string[];
+  missingNeeds: string[];
+  summary: string;
+  operatorTasks?: Record<string, string>;
+  siteObjective?: string;
+  siteApproach?: string[];
+  avoid?: string[];
+};
+
 export type SquadRecommendation = {
   title: string;
   picks: PlayerPick[];
@@ -177,6 +194,7 @@ export type SquadRecommendation = {
   responsibilities: SquadResponsibilities;
   warnings: TacticalWarning[];
   confidence: ConfidenceInfo;
+  tacticalComposition: TacticalCompositionPlan;
   breathingType?: "none" | "scheduled" | "adaptive";
   breathingReason?: string;
 };
@@ -185,4 +203,5 @@ export type RecommendationEngineOutput = {
   primary: SquadRecommendation;
   safeVariant: SquadRecommendation;
   breathingVariant?: SquadRecommendation;
+  experimentalVariant?: SquadRecommendation;
 };

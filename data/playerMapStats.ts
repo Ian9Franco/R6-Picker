@@ -111,3 +111,84 @@ Yacht|2|100.0|0.00
 export function getMapPlayerStat(playerId: string, mapName: string): PlayerMapStat | undefined {
   return statsByPlayer[playerId]?.[normalize(mapName)];
 }
+
+export type SquadMapAffinity = {
+  mapName: string;
+  winChance: number;
+  tier: "favorable" | "neutral" | "risky";
+  label: string;
+  positiveFactors: string[];
+  negativeFactors: string[];
+  playerStats: {
+    playerId: string;
+    displayName: string;
+    winRate: number;
+    kd: number;
+    matches: number;
+  }[];
+};
+
+export function calculateSquadMapWinChance(
+  mapName: string,
+  pibes: { id: string; displayName: string }[]
+): SquadMapAffinity {
+  const pibeStats = pibes.map((p) => {
+    const stat = getMapPlayerStat(p.id, mapName) ?? { matches: 0, winRate: 50, kd: 1.0 };
+    return {
+      playerId: p.id,
+      displayName: p.displayName,
+      winRate: stat.winRate,
+      kd: stat.kd,
+      matches: stat.matches,
+    };
+  });
+
+  const totalMatches = pibeStats.reduce((sum, s) => sum + s.matches, 0);
+
+  let weightedWinRate = 50;
+  if (totalMatches > 0) {
+    const sumWeightedWR = pibeStats.reduce((sum, s) => sum + s.winRate * Math.max(1, s.matches), 0);
+    weightedWinRate = sumWeightedWR / pibeStats.reduce((sum, s) => sum + Math.max(1, s.matches), 0);
+  } else if (pibeStats.length > 0) {
+    weightedWinRate = pibeStats.reduce((sum, s) => sum + s.winRate, 0) / pibeStats.length;
+  }
+
+  const positiveFactors: string[] = [];
+  const negativeFactors: string[] = [];
+
+  pibeStats.forEach((s) => {
+    if (s.winRate >= 54) {
+      positiveFactors.push(`${s.displayName}: ${s.winRate}% WR (${s.matches} PJ)`);
+    } else if (s.winRate <= 44) {
+      negativeFactors.push(`${s.displayName}: ${s.winRate}% WR (${s.matches} PJ)`);
+    }
+
+    if (s.kd >= 1.15 && s.matches >= 15) {
+      positiveFactors.push(`${s.displayName}: ${s.kd} K/D`);
+    } else if (s.kd <= 0.75 && s.matches >= 15) {
+      negativeFactors.push(`${s.displayName}: ${s.kd} K/D`);
+    }
+  });
+
+  const winChance = Math.max(20, Math.min(85, Math.round(weightedWinRate)));
+
+  let tier: "favorable" | "neutral" | "risky" = "neutral";
+  let label = "Equilibrado";
+  if (winChance >= 53) {
+    tier = "favorable";
+    label = "Mapa Favorable";
+  } else if (winChance <= 46) {
+    tier = "risky";
+    label = "Alto Riesgo";
+  }
+
+  return {
+    mapName,
+    winChance,
+    tier,
+    label,
+    positiveFactors,
+    negativeFactors,
+    playerStats: pibeStats,
+  };
+}

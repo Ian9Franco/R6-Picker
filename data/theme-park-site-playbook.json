@@ -1,0 +1,212 @@
+{
+  "version": "1.0.0",
+  "map": "Theme Park",
+  "basis": {
+    "source": "Playbooks tácticos aportados por el usuario",
+    "note": "Trono/Armería e Iniciación/Oficina conservan las composiciones y alternativas por ban del documento. Bunk/Day Care y Lab/Storage completan el mapa con el mismo criterio táctico."
+  },
+  "sites": [
+    {
+      "id": "initiation-office",
+      "name": "Initiation Room / Office",
+      "aliases": ["Initiation / Office", "Initiation/Office", "Iniciación / Oficina"],
+      "floor": "2F",
+      "attack": {
+        "doctrine": "Dronar cada cruce, cortar una retirada y ejecutar al caer la extensión",
+        "objective": "Eliminar el roam cercano sin limpiar todo el mapa, controlar escaleras y atacar antes de que la defensa recupere espacio.",
+        "approach": ["Dronar delante del entry.", "Aislar una sola ruta de repliegue.", "Romper Castle o Azami sólo donde bloquean el plan.", "Entrar al sitio inmediatamente después de expulsar la extensión."],
+        "keyAreas": ["Cash corridor", "Dragon", "Yellow Stairs", "Office"],
+        "requiredRoles": ["intel", "entry-frag", "zone-control"],
+        "avoid": ["limpiar todo el mapa", "entrar sin control de escalera", "dar tiempo para que la extensión vuelva al sitio"],
+        "suggestedPicks": [
+          { "operator": "Lion", "priority": "core", "task": "Congelar la retirada cuando Iana localiza al defensor extendido." },
+          { "operator": "Iana", "priority": "core", "task": "Dronar cada cruce y liderar la entrada sobre la extensión." },
+          { "operator": "Gridlock", "priority": "core", "task": "Cerrar escaleras y pasillos antes de la ejecución." },
+          { "operator": "Zofia", "priority": "safe", "task": "Reemplazar la entrada de Iana con limpieza y presión directa." },
+          { "operator": "Nomad", "priority": "alternate", "task": "Bloquear flancos cuando falta el control global de Lion." },
+          { "operator": "Deimos", "priority": "alternate", "task": "Localizar al roamer y forzar su salida hacia el corte." },
+          { "operator": "Ying", "priority": "alternate", "task": "Convertir el control de pasillos en una entrada explosiva." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Lion", "Iana"], "safe": ["Iana", "Gridlock"], "breathing": ["Deimos", "Ying"] },
+          "trio": { "primary": ["Lion", "Iana", "Gridlock"], "safe": ["Lion", "Zofia", "Gridlock"], "breathing": ["Nomad", "Deimos", "Ying"] }
+        },
+        "banLineups": {
+          "Iana": { "duo": ["Lion", "Zofia"], "trio": ["Lion", "Zofia", "Gridlock"] },
+          "Lion": { "duo": ["Nomad", "Deimos"], "trio": ["Nomad", "Deimos", "Ying"] }
+        }
+      },
+      "defense": {
+        "doctrine": "Barreras, roam corto y ralentización con regreso previsto",
+        "objective": "Consumir tiempo en pasillos y escaleras sin perder la capacidad de volver a Initiation/Office.",
+        "approach": ["Canalizar con Castle.", "Negar drones durante el roam corto.", "Marcar el avance con ralentización.", "Replegarse al perder el primer sector."],
+        "keyAreas": ["Cash corridor", "Dragon", "Yellow Stairs", "Office rotate"],
+        "requiredRoles": ["access-denial", "roamer", "intel-def"],
+        "avoid": ["roam profundo", "paneles que bloquean el regreso", "morir fuera del sitio sin consumir tiempo"],
+        "suggestedPicks": [
+          { "operator": "Castle", "priority": "core", "task": "Canalizar el ataque y definir la extensión sin cerrar rotaciones propias." },
+          { "operator": "Vigil", "priority": "core", "task": "Consumir drones y tiempo en el roam cercano." },
+          { "operator": "Melusi", "priority": "core", "task": "Ralentizar los cruces que conectan la extensión con el sitio." },
+          { "operator": "Mozzie", "priority": "safe", "task": "Reemplazar a Vigil negando drones y jugando cerca del sitio." },
+          { "operator": "Lesion", "priority": "alternate", "task": "Mantener movilidad y avisos progresivos si Castle no está." },
+          { "operator": "Wamai", "priority": "alternate", "task": "Proteger las posiciones clave contra proyectiles." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Castle", "Vigil"], "safe": ["Castle", "Mozzie"], "breathing": ["Lesion", "Wamai"] },
+          "trio": { "primary": ["Castle", "Vigil", "Melusi"], "safe": ["Castle", "Mozzie", "Melusi"], "breathing": ["Lesion", "Vigil", "Wamai"] }
+        },
+        "banLineups": {
+          "Vigil": { "duo": ["Castle", "Mozzie"], "trio": ["Castle", "Mozzie", "Melusi"] },
+          "Castle": { "duo": ["Lesion", "Vigil"], "trio": ["Lesion", "Vigil", "Wamai"] }
+        }
+      }
+    },
+    {
+      "id": "bunk-day-care",
+      "name": "Bunk / Day Care",
+      "aliases": ["Bunk/Day Care", "Bunk / Daycare", "Literas / Guardería"],
+      "floor": "2F",
+      "attack": {
+        "doctrine": "Control de Café y escaleras antes de comprimir Bunk",
+        "objective": "Tomar Café/Arcade, cortar las dos escaleras y desplazar las posiciones profundas de Bunk antes de entrar.",
+        "approach": ["Dronar Café y Arcade.", "Cerrar Yellow y Dragon.", "Usar destrucción blanda sobre posiciones profundas.", "Ejecutar desde dos accesos sincronizados."],
+        "keyAreas": ["Café", "Arcade", "Yellow Stairs", "Dragon Stairs"],
+        "requiredRoles": ["soft-breach", "intel", "zone-control"],
+        "avoid": ["saltar ventanas sin info", "dejar una escalera libre", "entrar de a uno en Bunk"],
+        "suggestedPicks": [
+          { "operator": "Buck", "priority": "core", "task": "Abrir posiciones y ángulos sobre Bunk sin perder capacidad de entry." },
+          { "operator": "Iana", "priority": "core", "task": "Limpiar Café/Arcade con Gemini y liderar la entrada." },
+          { "operator": "Nomad", "priority": "core", "task": "Cerrar escaleras y asegurar el postplant." },
+          { "operator": "Sledge", "priority": "safe", "task": "Destruir cobertura de Bunk desde espacio controlado." },
+          { "operator": "Lion", "priority": "safe", "task": "Sincronizar el cruce final y congelar rotaciones." },
+          { "operator": "Ying", "priority": "alternate", "task": "Cegar posiciones profundas para romper el embudo." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Buck", "Iana"], "safe": ["Sledge", "Lion"], "breathing": ["Deimos", "Ying"] },
+          "trio": { "primary": ["Buck", "Iana", "Nomad"], "safe": ["Sledge", "Lion", "Gridlock"], "breathing": ["Deimos", "Zofia", "Ying"] }
+        }
+      },
+      "defense": {
+        "doctrine": "Negar información, proteger Bunk y responder desde escaleras",
+        "objective": "Hacer costosa la toma de Café/Arcade y conservar un cierre fuerte dentro de Bunk/Day Care.",
+        "approach": ["Negar drones en accesos.", "Proteger al ancla de proyectiles.", "Jugar un roam corto entre escaleras.", "Guardar gas o trampas para la entrada final."],
+        "keyAreas": ["Café", "Arcade", "Yellow Stairs", "Bunk door"],
+        "requiredRoles": ["anti-gadget-def", "objective-anchor", "trap-setter"],
+        "avoid": ["dos roamers profundos", "abandonar Day Care", "gastar el denial final en el primer minuto"],
+        "suggestedPicks": [
+          { "operator": "Mute", "priority": "core", "task": "Negar drones y proteger la preparación de Bunk." },
+          { "operator": "Wamai", "priority": "core", "task": "Proteger posiciones profundas y escudo contra proyectiles." },
+          { "operator": "Smoke", "priority": "core", "task": "Anclar Day Care y negar la entrada final." },
+          { "operator": "Lesion", "priority": "safe", "task": "Marcar escaleras y accesos para el repliegue." },
+          { "operator": "Mozzie", "priority": "alternate", "task": "Robar drones y sostener el roam corto." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Mute", "Smoke"], "safe": ["Wamai", "Smoke"], "breathing": ["Mozzie", "Lesion"] },
+          "trio": { "primary": ["Mute", "Wamai", "Smoke"], "safe": ["Mute", "Lesion", "Smoke"], "breathing": ["Mozzie", "Goyo", "Lesion"] }
+        }
+      }
+    },
+    {
+      "id": "armory-throne",
+      "name": "Armory Room / Throne Room",
+      "aliases": ["Throne / Armory", "Throne/Armory", "Trono / Armería", "Armory / Throne"],
+      "floor": "1F",
+      "attack": {
+        "doctrine": "Pared, anti-denial y ejecución fuerte con segunda presión",
+        "objective": "Abrir la pared crítica, quemar anti-proyectiles y destruir escudos antes de plantar con cobertura.",
+        "approach": ["Localizar el denial.", "Abrir la pared principal.", "Quemar Jäger/Wamai antes de lanzar explosivos.", "Presionar una segunda entrada y ejecutar con cobertura."],
+        "keyAreas": ["Maintenance wall", "Throne", "Armory", "Barrels"],
+        "requiredRoles": ["hard-breach", "anti-gadget", "zone-control"],
+        "avoid": ["intentar plantar con la pared cerrada", "lanzar utilidad contra anti-proyectiles activo", "ejecutar por un solo embudo"],
+        "suggestedPicks": [
+          { "operator": "Thermite", "priority": "core", "task": "Abrir la pared principal y sostener la línea del plantado." },
+          { "operator": "Kali", "priority": "core", "task": "Eliminar denial y castigar líneas profundas tras la apertura." },
+          { "operator": "Ying", "priority": "core", "task": "Cegar las posiciones profundas y liderar la ejecución." },
+          { "operator": "Ace", "priority": "safe", "task": "Reemplazar la apertura principal desde distancia." },
+          { "operator": "Zofia", "priority": "safe", "task": "Limpiar escudos y aportar presión sobre la segunda entrada." },
+          { "operator": "Osa", "priority": "safe", "task": "Sostener el plantado desde la brecha abierta." },
+          { "operator": "Twitch", "priority": "alternate", "task": "Limpiar gadgets cuando Kali no está disponible." },
+          { "operator": "Capitão", "priority": "alternate", "task": "Expulsar posiciones profundas y cubrir el plantado." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Thermite", "Kali"], "safe": ["Ace", "Osa"], "breathing": ["Twitch", "Capitão"] },
+          "trio": { "primary": ["Thermite", "Kali", "Ying"], "safe": ["Ace", "Zofia", "Osa"], "breathing": ["Thermite", "Twitch", "Capitão"] }
+        },
+        "banLineups": {
+          "Thermite": { "duo": ["Ace", "Osa"], "trio": ["Ace", "Zofia", "Osa"] },
+          "Kali": { "duo": ["Thermite", "Twitch"], "trio": ["Thermite", "Twitch", "Capitão"] }
+        }
+      },
+      "defense": {
+        "doctrine": "Pared protegida, escudos vivos y negación reservada para el final",
+        "objective": "Consumir el anti-denial del ataque y mantener posiciones profundas protegidas hasta la ejecución.",
+        "approach": ["Proteger paredes críticas.", "Cubrir escudos con anti-proyectiles.", "Mantener una respuesta sobre la segunda entrada.", "Guardar negación para el plantado."],
+        "keyAreas": ["Maintenance wall", "Throne", "Armory", "Barrels"],
+        "requiredRoles": ["anti-gadget-def", "objective-anchor", "zone-deny"],
+        "avoid": ["asomar la brecha sin cobertura", "gastar gas temprano", "dejar escudos sin anti-proyectiles"],
+        "suggestedPicks": [
+          { "operator": "Kaid", "priority": "core", "task": "Proteger las paredes críticas con una garra difícil de localizar." },
+          { "operator": "Wamai", "priority": "core", "task": "Proteger escudos y posiciones profundas de proyectiles." },
+          { "operator": "Smoke", "priority": "core", "task": "Anclar y negar el plantado durante el cierre." },
+          { "operator": "Bandit", "priority": "safe", "task": "Reemplazar la protección eléctrica de Kaid." },
+          { "operator": "Tubarão", "priority": "alternate", "task": "Retrasar la brecha y ganar tiempo para el cierre." },
+          { "operator": "Echo", "priority": "alternate", "task": "Reemplazar el gas con negación remota de plantado." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Kaid", "Smoke"], "safe": ["Bandit", "Smoke"], "breathing": ["Tubarão", "Echo"] },
+          "trio": { "primary": ["Kaid", "Wamai", "Smoke"], "safe": ["Bandit", "Wamai", "Smoke"], "breathing": ["Tubarão", "Wamai", "Echo"] }
+        },
+        "banLineups": {
+          "Kaid": { "duo": ["Bandit", "Smoke"], "trio": ["Bandit", "Wamai", "Smoke"] },
+          "Smoke": { "duo": ["Tubarão", "Echo"], "trio": ["Tubarão", "Wamai", "Echo"] }
+        }
+      }
+    },
+    {
+      "id": "lab-storage",
+      "name": "Lab / Storage",
+      "aliases": ["Lab/Storage", "Laboratory / Storage", "Laboratorio / Almacén"],
+      "floor": "1F",
+      "attack": {
+        "doctrine": "Limpiar arriba, abrir vertical útil y ejecutar sin perder escaleras",
+        "objective": "Expulsar la extensión superior, crear vertical sobre Lab/Storage y convertirla rápidamente en plantado.",
+        "approach": ["Aislar el piso superior.", "Abrir vertical sobre posiciones clave.", "Cerrar escaleras.", "Entrar desde una puerta mientras la vertical desplaza al ancla."],
+        "keyAreas": ["Upper floor", "Arcade Stairs", "Lab", "Storage"],
+        "requiredRoles": ["soft-breach", "intel", "entry-frag"],
+        "avoid": ["perseguir al roamer por todo el mapa", "hacer vertical sin flank watch", "demorar el plantado tras dividir el sitio"],
+        "suggestedPicks": [
+          { "operator": "Buck", "priority": "core", "task": "Crear vertical y mantener presión de entrada." },
+          { "operator": "Iana", "priority": "core", "task": "Limpiar la extensión superior con info reutilizable." },
+          { "operator": "Gridlock", "priority": "core", "task": "Cerrar escaleras y asegurar el plantado." },
+          { "operator": "Ram", "priority": "safe", "task": "Abrir vertical persistente sobre las posiciones de sitio." },
+          { "operator": "Lion", "priority": "safe", "task": "Coordinar la limpieza y congelar el repliegue." },
+          { "operator": "Osa", "priority": "alternate", "task": "Dar cobertura física al plantado desde la puerta." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Buck", "Iana"], "safe": ["Ram", "Lion"], "breathing": ["Deimos", "Osa"] },
+          "trio": { "primary": ["Buck", "Iana", "Gridlock"], "safe": ["Ram", "Lion", "Nomad"], "breathing": ["Deimos", "Zofia", "Osa"] }
+        }
+      },
+      "defense": {
+        "doctrine": "Extensión superior breve, información de escaleras y cierre en sitio",
+        "objective": "Negar la vertical el tiempo suficiente y replegarse con utilidad para defender Lab/Storage.",
+        "approach": ["Negar drones arriba.", "Mantener una ruta de repliegue.", "Dar información de escaleras.", "Guardar negación para la caída y el plantado."],
+        "keyAreas": ["Upper extension", "Arcade Stairs", "Lab", "Storage"],
+        "requiredRoles": ["objective-anchor", "intel-def", "access-denial"],
+        "avoid": ["morir arriba tras perder la vertical", "dejar el sitio sin ancla", "usar C4 sin información"],
+        "suggestedPicks": [
+          { "operator": "Mute", "priority": "core", "task": "Negar drones de la extensión y preparar el sitio." },
+          { "operator": "Pulse", "priority": "core", "task": "Leer la vertical y confirmar el C4 sobre el plantador." },
+          { "operator": "Smoke", "priority": "core", "task": "Cerrar Lab/Storage con gas en la ejecución." },
+          { "operator": "Castle", "priority": "safe", "task": "Canalizar accesos y sostener la extensión corta." },
+          { "operator": "Valkyrie", "priority": "safe", "task": "Dar información de escaleras y momento de repliegue." },
+          { "operator": "Azami", "priority": "alternate", "task": "Reparar cobertura destruida por la vertical." }
+        ],
+        "lineups": {
+          "duo": { "primary": ["Pulse", "Smoke"], "safe": ["Mute", "Smoke"], "breathing": ["Castle", "Azami"] },
+          "trio": { "primary": ["Mute", "Pulse", "Smoke"], "safe": ["Castle", "Valkyrie", "Smoke"], "breathing": ["Azami", "Goyo", "Lesion"] }
+        }
+      }
+    }
+  ]
+}

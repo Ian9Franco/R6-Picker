@@ -12,8 +12,9 @@ import {
 } from "../data/catalog";
 import {
   DEFAULT_PIBES,
+  getAgnosticRecommendations,
   getPibesRecommendations,
-  getStandardRecommendations,
+  normalizeOperator,
   type PibeProfile,
   type PlayerPick,
   type RecommendationEngineOutput,
@@ -43,8 +44,8 @@ export function Picker() {
   const [activeTab, setActiveTab] = useState<Tab>("picker");
 
   // Mode & Squad Setup
-  const [mode, setMode] = useState<"default" | "pibes">("pibes");
-  const [partySize, setPartySize] = useState<1 | 2 | 3>(3);
+  const [mode, setMode] = useState<"default" | "pibes">("default");
+  const [partySize, setPartySize] = useState<2 | 3>(3);
   const [pibes, setPibes] = useState<PibeProfile[]>(DEFAULT_PIBES);
   // Active pibes selected by default for 3-player squad
   const [activePibeIds, setActivePibeIds] = useState<string[]>([
@@ -57,6 +58,7 @@ export function Picker() {
   const [matchState, setMatchState] = useState<"setup" | "active" | "finished">("setup");
   const [matchMap, setMatchMap] = useState<string>("Clubhouse");
   const [startingSide, setStartingSide] = useState<Side>("attack");
+
 
   // Active Match Stats
   const [myScore, setMyScore] = useState<number>(0);
@@ -74,7 +76,7 @@ export function Picker() {
 
   // Current Round Recommendations Engine Output
   const [engineOutput, setEngineOutput] = useState<RecommendationEngineOutput | null>(null);
-  const [activeVariantTab, setActiveVariantTab] = useState<"primary" | "safe" | "breathing">("primary");
+  const [activeVariantTab, setActiveVariantTab] = useState<"primary" | "safe" | "breathing" | "experimental">("primary");
   const [standardRecs, setStandardRecs] = useState<PlayerPick[]>([]);
   const [opRoll, setOpRoll] = useState<number>(0);
 
@@ -124,21 +126,35 @@ export function Picker() {
 
   // Active Squad Recommendation computed from activeVariantTab
   const currentSquadRecommendation: SquadRecommendation | undefined = useMemo(() => {
-    if (mode !== "pibes" || !engineOutput) return undefined;
+    if (!engineOutput) return undefined;
     if (activeVariantTab === "safe") return engineOutput.safeVariant;
     if (activeVariantTab === "breathing" && engineOutput.breathingVariant) {
       return engineOutput.breathingVariant;
     }
+    if (activeVariantTab === "experimental" && engineOutput.experimentalVariant) {
+      return engineOutput.experimentalVariant;
+    }
     return engineOutput.primary;
-  }, [mode, engineOutput, activeVariantTab]);
+  }, [engineOutput, activeVariantTab]);
 
   // Picks displayed in UI
   const displayedRecommendations: PlayerPick[] = useMemo(() => {
-    if (mode === "pibes" && currentSquadRecommendation) {
-      return currentSquadRecommendation.picks;
-    }
-    return standardRecs;
-  }, [mode, currentSquadRecommendation, standardRecs]);
+    const picks = currentSquadRecommendation
+      ? currentSquadRecommendation.picks
+      : standardRecs;
+    const operatorKey = (value: string) => value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+    const allowed = new Set((currentSide === "attack" ? attackers : defenders).map((op) => operatorKey(op.name)));
+
+    return picks.map((pick) => {
+      const backupKey = pick.backupOpName ? operatorKey(pick.backupOpName) : "";
+      const validBackup = backupKey && allowed.has(backupKey) && backupKey !== operatorKey(pick.opName);
+      return validBackup ? pick : { ...pick, backupOpName: undefined };
+    });
+  }, [currentSquadRecommendation, standardRecs, currentSide]);
 
   // Update a Pibe profile
   const handleUpdatePibe = (updated: PibeProfile) => {
@@ -151,7 +167,7 @@ export function Picker() {
 
   const handleSelectRoute = (routeId: string) => {
     setSelectedRouteId(routeId);
-    rollRecommendationsForSide(currentSide, currentBombSiteObj, ourBans, enemyBans, routeId, observedDefenseIds);
+    rollRecommendationsForSide(currentSide, currentBombSiteObj, routeId, observedDefenseIds);
   };
 
   const handleToggleObservedDefense = (defId: string) => {
@@ -159,27 +175,22 @@ export function Picker() {
       ? observedDefenseIds.filter((id) => id !== defId)
       : [...observedDefenseIds, defId];
     setObservedDefenseIds(next);
-    rollRecommendationsForSide(currentSide, currentBombSiteObj, ourBans, enemyBans, selectedRouteId, next);
+    rollRecommendationsForSide(currentSide, currentBombSiteObj, selectedRouteId, next);
   };
 
   // Roll operator recommendations for current round side
   const rollRecommendationsForSide = (
     sideToUse: Side,
     siteOverride?: BombSite,
-    customOurBans?: string[],
-    customEnemyBans?: string[],
     routeIdOverride?: string,
     obsIdsOverride?: string[]
   ) => {
     const site = siteOverride ?? currentBombSiteObj;
-    const bansToUse = [
-      ...(customOurBans ?? ourBans),
-      ...(customEnemyBans ?? enemyBans),
-    ];
     const routeToUse = routeIdOverride ?? selectedRouteId;
     const obsToUse = obsIdsOverride ?? observedDefenseIds;
 
     const nextRoll = opRoll + 1;
+    const allBans = [...ourBans, ...enemyBans];
     if (mode === "pibes" && activePibeProfiles.length > 0) {
       const output = getPibesRecommendations(
         sideToUse,
@@ -187,21 +198,40 @@ export function Picker() {
         site,
         currentRoundNum,
         matchMap,
-        bansToUse,
+        allBans,
         routeToUse,
         obsToUse,
         nextRoll
       );
       setEngineOutput(output);
     } else {
-      const recs = getStandardRecommendations(
+      const output = getAgnosticRecommendations(
         sideToUse,
-        Math.max(1, activePibeProfiles.length || partySize)
+        partySize,
+        site,
+        currentRoundNum,
+        matchMap,
+        routeToUse,
+        obsToUse,
+        nextRoll
       );
-      setStandardRecs(recs);
-      setEngineOutput(null);
+      setEngineOutput(output);
+      setStandardRecs([]);
     }
     setOpRoll(nextRoll);
+  };
+
+  const rollTacticalVariant = () => {
+    rollRecommendationsForSide(currentSide);
+  };
+
+  const selectSiteAndReplan = (siteName: string) => {
+    const site = allMapSites.find((candidate) => candidate.name === siteName);
+    setSelectedSiteName(siteName);
+    setSelectedRouteId("auto");
+    setObservedDefenseIds([]);
+    setActiveVariantTab("primary");
+    rollRecommendationsForSide(currentSide, site, "auto", []);
   };
 
   // Toggle Ban handler
@@ -226,41 +256,121 @@ export function Picker() {
     setOurBans(nextOur);
     setEnemyBans(nextEnemy);
 
-    rollRecommendationsForSide(currentSide, undefined, nextOur, nextEnemy);
+    // Immediately recalculate recommendations with the updated ban set
+    const updatedBans = [...nextOur, ...nextEnemy];
+    if (mode === "pibes" && activePibeProfiles.length > 0) {
+      const output = getPibesRecommendations(
+        currentSide,
+        activePibeProfiles,
+        currentBombSiteObj,
+        currentRoundNum,
+        matchMap,
+        updatedBans,
+        selectedRouteId,
+        observedDefenseIds,
+        opRoll
+      );
+      setEngineOutput(output);
+    }
   };
 
   // Re-roll single player pick
   const rollSinglePlayer = (index: number) => {
     const pool = currentSide === "attack" ? attackers : defenders;
-    const currentRecs = displayedRecommendations;
-    const used = new Set(currentRecs.map((r) => r.opName));
-    const available = pool.filter((op) => !used.has(op.name));
-    const fallback = available.length > 0 ? available : pool;
-    const newOp = randomItem(fallback).name;
+    const operatorKey = (value: string) => value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
 
-    if (mode === "pibes" && engineOutput) {
-      // Create a shallow copy with modified pick
+    const allBans = new Set([...ourBans, ...enemyBans].map(operatorKey));
+    const currentRecs = displayedRecommendations;
+    const used = new Set(
+      currentRecs
+        .filter((_, i) => i !== index)
+        .map((r) => operatorKey(r.opName))
+    );
+
+    const available = pool.filter((op) => {
+      const key = operatorKey(op.name);
+      return !used.has(key) && !allBans.has(key) && key !== operatorKey(currentRecs[index]?.opName || "");
+    });
+
+    const fallback = available.length > 0 ? available : pool.filter((op) => !allBans.has(operatorKey(op.name)));
+    if (fallback.length === 0) return;
+
+    const newOp = randomItem(fallback).name;
+    const newProfile = normalizeOperator(newOp);
+
+    if (engineOutput) {
       setEngineOutput((prev) => {
         if (!prev) return null;
-        const currentTarget = activeVariantTab === "safe"
-          ? prev.safeVariant
-          : activeVariantTab === "breathing" && prev.breathingVariant
-          ? prev.breathingVariant
-          : prev.primary;
+        const updatePicks = (variant: SquadRecommendation): SquadRecommendation => {
+          const updatedPicks = variant.picks.map((rec, i) =>
+            i === index
+              ? {
+                  ...rec,
+                  opName: newOp,
+                  backupOpName: undefined,
+                  operatorProfile: newProfile,
+                  explanation: {
+                    positive: [`Re-sorteado individualmente para ${rec.playerLabel}`],
+                    negative: [],
+                    warnings: [],
+                  },
+                }
+              : rec
+          );
+          return { ...variant, picks: updatedPicks };
+        };
 
-        const updatedPicks = currentTarget.picks.map((rec, i) =>
-          i === index ? { ...rec, opName: newOp } : rec
-        );
+        if (activeVariantTab === "safe") return { ...prev, safeVariant: updatePicks(prev.safeVariant) };
+        if (activeVariantTab === "breathing" && prev.breathingVariant) return { ...prev, breathingVariant: updatePicks(prev.breathingVariant) };
+        if (activeVariantTab === "experimental" && prev.experimentalVariant) return { ...prev, experimentalVariant: updatePicks(prev.experimentalVariant) };
+        return { ...prev, primary: updatePicks(prev.primary) };
+      });
+    }
+  };
 
-        const updatedTarget = { ...currentTarget, picks: updatedPicks };
+  // Swap specific player operator to a selected alternative
+  const handleSelectAlternative = (index: number, newOpName: string) => {
+    const newProfile = normalizeOperator(newOpName);
+    if (engineOutput) {
+      setEngineOutput((prev) => {
+        if (!prev) return null;
+        const updatePicks = (variant: SquadRecommendation): SquadRecommendation => {
+          const updatedPicks = variant.picks.map((rec, i) => {
+            if (i !== index) return rec;
+            const remainingAlts = (rec.alternativeOps || []).filter(
+              (name) => name.toLowerCase() !== newOpName.toLowerCase()
+            );
+            if (!remainingAlts.includes(rec.opName)) {
+              remainingAlts.unshift(rec.opName);
+            }
+            return {
+              ...rec,
+              opName: newOpName,
+              alternativeOps: remainingAlts.slice(0, 3),
+              backupOpName: undefined,
+              operatorProfile: newProfile,
+              explanation: {
+                positive: [`Variante elegida manualmente para ${rec.playerLabel}`],
+                negative: [],
+                warnings: [],
+              },
+            };
+          });
+          return { ...variant, picks: updatedPicks };
+        };
 
-        if (activeVariantTab === "safe") return { ...prev, safeVariant: updatedTarget };
-        if (activeVariantTab === "breathing") return { ...prev, breathingVariant: updatedTarget };
-        return { ...prev, primary: updatedTarget };
+        if (activeVariantTab === "safe") return { ...prev, safeVariant: updatePicks(prev.safeVariant) };
+        if (activeVariantTab === "breathing" && prev.breathingVariant) return { ...prev, breathingVariant: updatePicks(prev.breathingVariant) };
+        if (activeVariantTab === "experimental" && prev.experimentalVariant) return { ...prev, experimentalVariant: updatePicks(prev.experimentalVariant) };
+        return { ...prev, primary: updatePicks(prev.primary) };
       });
     } else {
       setStandardRecs((prev) =>
-        prev.map((rec, i) => (i === index ? { ...rec, opName: newOp } : rec))
+        prev.map((rec, i) => (i === index ? { ...rec, opName: newOpName, backupOpName: undefined, operatorProfile: newProfile } : rec))
       );
     }
   };
@@ -269,7 +379,7 @@ export function Picker() {
   const rollAvailableSite = () => {
     const pool = availableSites.length > 0 ? availableSites : allMapSites;
     if (pool.length > 0) {
-      setSelectedSiteName(randomItem(pool).name);
+      selectSiteAndReplan(randomItem(pool).name);
     }
   };
 
@@ -280,6 +390,7 @@ export function Picker() {
     setHistory([]);
     setLockedSites([]);
     setEnemyLockedSites([]);
+    setActiveVariantTab("primary");
     setMatchState("active");
 
     const firstPool = mapBombSites[matchMap] || [];
@@ -373,13 +484,18 @@ export function Picker() {
             : "attack";
       }
 
-      rollRecommendationsForSide(nextSide);
-
       const currentLocks = nextSide === "defense" ? nextLocked : nextEnemyLocked;
       const nextAvail = allMapSites.filter((s) => !currentLocks.includes(s.name));
       const pool = nextAvail.length > 0 ? nextAvail : allMapSites;
+      setActiveVariantTab("primary");
       if (pool.length > 0) {
-        setSelectedSiteName(pool[0].name);
+        const nextSite = pool[0];
+        setSelectedSiteName(nextSite.name);
+        setSelectedRouteId("auto");
+        setObservedDefenseIds([]);
+        rollRecommendationsForSide(nextSide, nextSite, "auto", []);
+      } else {
+        rollRecommendationsForSide(nextSide, undefined, "auto", []);
       }
     }
   };
@@ -425,8 +541,11 @@ export function Picker() {
     }
 
     const last = history[history.length - 1];
-    rollRecommendationsForSide(last.side);
+    setActiveVariantTab("primary");
+    rollRecommendationsForSide(last.side, last.bombSite, "auto", []);
     if (last.bombSite) setSelectedSiteName(last.bombSite.name);
+    setSelectedRouteId("auto");
+    setObservedDefenseIds([]);
   };
 
   // Reset / New Match
@@ -440,6 +559,7 @@ export function Picker() {
     setOurBans([]);
     setEnemyBans([]);
     setSelectedSiteName("");
+    setActiveVariantTab("primary");
   };
 
   return (
@@ -479,11 +599,13 @@ export function Picker() {
               {matchState === "active" && (
                 <ActiveMatch
                   matchMap={matchMap}
+                  activePibeProfiles={activePibeProfiles}
                   myScore={myScore}
                   opponentScore={opponentScore}
                   currentRoundNum={currentRoundNum}
                   isOvertime={isOvertime}
                   currentSide={currentSide}
+                  personalized={mode === "pibes"}
                   ourBans={ourBans}
                   enemyBans={enemyBans}
                   onToggleBan={toggleBan}
@@ -501,11 +623,11 @@ export function Picker() {
                   lockedSites={lockedSites}
                   enemyLockedSites={enemyLockedSites}
                   selectedSiteName={selectedSiteName}
-                  setSelectedSiteName={setSelectedSiteName}
+                  setSelectedSiteName={selectSiteAndReplan}
                   history={history}
                   onRecordRound={recordRound}
                   onUndoLastRound={undoLastRound}
-                  onRollOperator={() => rollRecommendationsForSide(currentSide)}
+                  onRollOperator={rollTacticalVariant}
                   onRollSinglePlayer={rollSinglePlayer}
                   onRollAvailableSite={rollAvailableSite}
                 />

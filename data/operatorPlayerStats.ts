@@ -221,3 +221,54 @@ Deimos|1|0.0|0.00
 export function getOperatorPlayerStat(playerId: string, operatorName: string): OperatorPlayerStat | undefined {
   return statsByPlayer[playerId]?.[normalize(operatorName)];
 }
+
+export function getPlayerTop4MostPlayed(
+  playerId: string,
+  side: "attack" | "defense",
+  avoidOps: string[] = [],
+  bannedOps: string[] = []
+): string[] {
+  const pStats = statsByPlayer[playerId] || {};
+  const avoidSet = new Set(avoidOps.map(normalize));
+  const bannedSet = new Set(bannedOps.map(normalize));
+
+  const entries = Object.entries(pStats)
+    .filter(([opName, stat]) => !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches > 0)
+    .sort((a, b) => b[1].matches - a[1].matches);
+
+  return entries.slice(0, 8).map(([opName]) => opName);
+}
+
+export function getPlayerTop4WinRate(
+  playerId: string,
+  side: "attack" | "defense",
+  avoidOps: string[] = [],
+  bannedOps: string[] = []
+): string[] {
+  const pStats = statsByPlayer[playerId] || {};
+  const avoidSet = new Set(avoidOps.map(normalize));
+  const bannedSet = new Set(bannedOps.map(normalize));
+
+  const entries = Object.entries(pStats)
+    .filter(([opName, stat]) => !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches >= 10)
+    .sort((a, b) => b[1].winRate - a[1].winRate || b[1].matches - a[1].matches);
+
+  return entries.slice(0, 8).map(([opName]) => opName);
+}
+
+export function getPlayerExperimentalOps(
+  playerId: string,
+  side: "attack" | "defense",
+  avoidOps: string[] = [],
+  bannedOps: string[] = []
+): string[] {
+  const pStats = statsByPlayer[playerId] || {};
+  const avoidSet = new Set(avoidOps.map(normalize));
+  const bannedSet = new Set(bannedOps.map(normalize));
+
+  const entries = Object.entries(pStats)
+    .filter(([opName, stat]) => !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches > 0 && stat.matches < 15)
+    .sort((a, b) => a[1].winRate - b[1].winRate || a[1].kd - b[1].kd || a[1].matches - b[1].matches);
+
+  return entries.slice(0, 8).map(([opName]) => opName);
+}

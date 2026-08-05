@@ -142,7 +142,7 @@
       },
 
       "comfortOperators": {
-        "attack": ["Hibana", "Ace", "Gridlock", "Blitz"],
+        "attack": ["Ace", "Gridlock", "Blitz"],
         "defense": ["Mute", "Bandit", "Kaid", "Frost", "Tachanka", "Ela"]
       },
 
@@ -160,7 +160,7 @@
       },
 
       "avoidOperators": {
-        "attack": ["Ash", "Amaru", "Nøkk"],
+        "attack": ["Ash", "Amaru", "Nøkk", "Hibana"],
         "defense": ["Caveira", "Oryx", "Vigil"]
       },
 
@@ -177,7 +177,7 @@
         "Puede quedar demasiado pasivo después de utilizar su utilidad."
       ],
 
-      "attackMains": ["Thermite", "Thatcher", "Hibana", "Blitz", "Fuze"],
+      "attackMains": ["Thermite", "Ace", "Thatcher", "Blitz", "Fuze"],
       "defenseMains": ["Tubarão", "Thorn", "Mute", "Bandit", "Kapkan"],
 
       "teamUsage": {
@@ -254,7 +254,7 @@
       },
 
       "avoidOperators": {
-        "attack": ["Ace", "Ash"],
+        "attack": ["Ash", "Buck"],
         "defense": ["Caveira", "Oryx"]
       },
 

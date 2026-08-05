@@ -141,9 +141,17 @@
   "comfortOperators": [
     { "operatorId": "montagne", "side": "attack", "matches": 206, "winRate": 43.2, "kd": 0.35 },
     { "operatorId": "blitz", "side": "attack", "matches": 200, "winRate": 44.0, "kd": 0.66 },
+    { "operatorId": "thatcher", "side": "attack", "matches": 150, "winRate": 48.0, "kd": 0.62 },
+    { "operatorId": "thermite", "side": "attack", "matches": 140, "winRate": 45.0, "kd": 0.55 },
+    { "operatorId": "twitch", "side": "attack", "matches": 110, "winRate": 46.0, "kd": 0.60 },
+    { "operatorId": "fuze", "side": "attack", "matches": 95, "winRate": 47.0, "kd": 0.58 },
+    { "operatorId": "lion", "side": "attack", "matches": 80, "winRate": 49.0, "kd": 0.62 },
     { "operatorId": "mute", "side": "defense", "matches": 185, "winRate": 58.4, "kd": 0.69 },
     { "operatorId": "kaid", "side": "defense", "matches": 165, "winRate": 53.9, "kd": 0.66 },
-    { "operatorId": "thorn", "side": "defense", "matches": 155, "winRate": 55.5, "kd": 0.86 }
+    { "operatorId": "thorn", "side": "defense", "matches": 155, "winRate": 55.5, "kd": 0.86 },
+    { "operatorId": "smoke", "side": "defense", "matches": 140, "winRate": 56.0, "kd": 0.72 },
+    { "operatorId": "bandit", "side": "defense", "matches": 130, "winRate": 52.0, "kd": 0.75 },
+    { "operatorId": "kapkan", "side": "defense", "matches": 115, "winRate": 54.0, "kd": 0.80 }
   ],
   "tryoutOperators": [
     {
@@ -201,6 +209,12 @@
       "side": "attack",
       "severity": "strong",
       "reason": "El antítesis de su estilo. Su valor está en la ejecución estructurada, no en entry fragging."
+    },
+    {
+      "operatorId": "buck",
+      "side": "attack",
+      "severity": "strong",
+      "reason": "0 partidas jugadas. No se adapta a su rol de soporte frontal ni ancla."
     }
   ],
   "mapPerformance": {

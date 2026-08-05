@@ -4,7 +4,7 @@ import azusaCooper09Raw from "../FACTOS/azusa_cooper09.json";
 import { type PibeProfile, type TryoutOpInfo } from "./types";
 import { type AttackRole, type DefenseRole, type TacticalRole } from "../roles";
 import operatorRolesRaw from "../operator-roles.json";
-import { attackers } from "../catalog";
+import { attackers, defenders } from "../catalog";
 import { type OperatorSide, type OperatorProfile } from "./types";
 
 const rawOpDictionary = operatorRolesRaw as Record<string, any>;
@@ -16,6 +16,7 @@ export function normalizeOperator(name: string): OperatorProfile {
   
   const lowerName = name.toLowerCase();
   const isAtk = attackers.some((a) => a.name.toLowerCase() === lowerName);
+  const isDef = defenders.some((a) => a.name.toLowerCase() === lowerName);
   
   if (!raw) {
     return {
@@ -34,8 +35,13 @@ export function normalizeOperator(name: string): OperatorProfile {
     };
   }
 
-  const side: OperatorSide =
-    raw.side ?? (isAtk ? "attack" : "defense");
+  // The game catalog is authoritative. Profile metadata may be stale or
+  // incorrectly tagged, but an operator can never change sides.
+  const side: OperatorSide = isAtk
+    ? "attack"
+    : isDef
+      ? "defense"
+      : raw.side ?? "defense";
   const roles: TacticalRole[] =
     raw.roles ?? (side === "attack" ? raw.attack : raw.defense) ?? [];
 

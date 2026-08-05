@@ -1,76 +1,84 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import React from "react";
 import {
-  AlertTriangle,
-  Ban,
+  Side,
+  RoundLog,
+  OperatorRecommendation,
+  BombSite,
+  PibeProfile,
+  AttackSiteProfile,
+  SquadRecommendation,
+  AdaptiveEngineOutput,
+  VariantTabKey,
+} from "@/app/types";
+import {
+  Shield,
+  Swords,
+  Layers,
+  Shuffle,
+  Lock,
   Check,
   Compass,
   Flame,
-  Layers,
-  Lock,
-  MapPin,
-  RefreshCw,
-  RotateCcw,
-  Shield,
-  Shuffle,
-  Star,
-  Swords,
-  Target,
   XCircle,
+  RefreshCw,
 } from "lucide-react";
-import { attackers, defenders, operators, type BombSite, type Side } from "../../data/catalog";
+
+import { MapAffinityHud } from "./MapAffinityHud";
+import { QuickBanManager } from "./QuickBanManager";
+import { TacticalPlayBanner } from "./TacticalPlayBanner";
+import { OperatorRecommendationsList } from "./OperatorRecommendationsList";
+import { MatchHistorySection } from "./MatchHistorySection";
 import { OperatorIcon } from "./OperatorIcon";
-import type {
-  PlayerPick,
-  RecommendationEngineOutput,
-  SquadRecommendation,
-} from "../../data/pibes";
-import { getAttackSiteProfile } from "../../data/siteTactics";
-import { getMapStrategies, getSiteStrategy } from "../../data/mapStrategies";
 
-type RoundLog = {
-  roundNum: number;
-  side: Side;
-  operator: string;
-  bombSite?: BombSite;
-  result: "win" | "loss";
-};
+const MAX_SCORE = 4;
 
-type ActiveMatchProps = {
+export type ActiveMatchProps = {
   matchMap: string;
   myScore: number;
   opponentScore: number;
   currentRoundNum: number;
-  isOvertime: boolean;
+  isOvertime?: boolean;
   currentSide: Side;
   ourBans: string[];
   enemyBans: string[];
-  onToggleBan: (side: "our" | "enemy", opName: string) => void;
-  selectedRouteId: string;
-  setSelectedRouteId: (routeId: string) => void;
-  observedDefenseIds: string[];
-  onToggleObservedDefense: (defId: string) => void;
-  recommendations: PlayerPick[];
-  squadRecommendation?: SquadRecommendation;
-  engineOutput?: RecommendationEngineOutput | null;
-  activeVariantTab?: "primary" | "safe" | "breathing";
-  setActiveVariantTab?: (tab: "primary" | "safe" | "breathing") => void;
-  opRoll: number;
-  allMapSites: BombSite[];
-  lockedSites: string[];
-  enemyLockedSites: string[];
   selectedSiteName: string;
-  setSelectedSiteName: (name: string) => void;
+  lockedSites: string[];
+  enemyLockedSites?: string[];
   history: RoundLog[];
+  recommendations: OperatorRecommendation[];
+  squadRecommendation?: SquadRecommendation | null;
+  personalized?: boolean;
+  opRoll: number;
+  isMulti?: boolean;
+  allMapSites: BombSite[];
+
+  // Site Profile & Tactical Controls
+  siteProfile?: AttackSiteProfile;
+  selectedRouteId: string;
+  observedDefenseIds: string[];
+  setSelectedRouteId: (routeId: string) => void;
+  onToggleObservedDefense: (defenseId: string) => void;
+
+  // Handlers
   onRecordRound: (result: "win" | "loss") => void;
   onUndoLastRound: () => void;
+  onToggleBan: (side: "our" | "enemy", opName: string) => void;
+  onClearBans?: () => void;
+  setSelectedSiteName: (siteName: string) => void;
+  onRollAvailableSite: () => void;
   onRollOperator: () => void;
   onRollSinglePlayer: (index: number) => void;
-  onRollAvailableSite: () => void;
-};
+  onSelectAlternative?: (playerIndex: number, newOpName: string) => void;
+  activePibeProfiles?: PibeProfile[];
 
-const MAX_SCORE = 5;
+  // Dynamic Engine Variants
+  engineOutput?: AdaptiveEngineOutput | null;
+  activeVariantTab?: VariantTabKey;
+  setActiveVariantTab?: (tab: VariantTabKey) => void;
+  hasBreathingVariant?: boolean;
+};
 
 export function ActiveMatch({
   matchMap,
@@ -79,61 +87,54 @@ export function ActiveMatch({
   currentRoundNum,
   isOvertime,
   currentSide,
-  ourBans = [],
-  enemyBans = [],
-  onToggleBan,
-  selectedRouteId = "auto",
-  setSelectedRouteId,
-  observedDefenseIds = [],
-  onToggleObservedDefense,
+  ourBans,
+  enemyBans,
+  selectedSiteName,
+  lockedSites,
+  enemyLockedSites = [],
+  history,
   recommendations,
   squadRecommendation,
-  engineOutput,
-  activeVariantTab = "primary",
-  setActiveVariantTab,
+  personalized,
   opRoll,
+  isMulti,
   allMapSites,
-  lockedSites,
-  enemyLockedSites,
-  selectedSiteName,
-  setSelectedSiteName,
-  history,
+  siteProfile,
+  selectedRouteId,
+  observedDefenseIds,
+  setSelectedRouteId,
+  onToggleObservedDefense,
   onRecordRound,
   onUndoLastRound,
+  onToggleBan,
+  onClearBans,
+  setSelectedSiteName,
+  onRollAvailableSite,
   onRollOperator,
   onRollSinglePlayer,
-  onRollAvailableSite,
+  onSelectAlternative,
+  activePibeProfiles,
+  engineOutput,
+  activeVariantTab,
+  setActiveVariantTab,
+  hasBreathingVariant,
 }: ActiveMatchProps) {
-  const isMulti = recommendations.length > 1;
-  const hasBreathingVariant = Boolean(engineOutput?.breathingVariant);
-  const allOps = [...attackers, ...defenders];
-
-  // Resolver perfil de sitio táctico
-  const siteProfile = getAttackSiteProfile(matchMap, selectedSiteName);
-
   return (
     <div className="tab-panel">
       {/* Scoreboard HUD */}
       <div className="scoreboard-hud">
         <div className="scoreboard-top">
-          <div className="map-tag">
-            <MapPin size={12} />
-            {matchMap}
-          </div>
-          <div className="round-tag">
-            {isOvertime ? (
-              <span className="ot-tag">
-                <Flame size={13} /> PRÓRROGA · R{currentRoundNum}
-              </span>
-            ) : (
-              <span style={{ color: "var(--muted-bright)" }}>
-                Ronda {currentRoundNum} / 6
-              </span>
-            )}
+          <MapAffinityHud
+            matchMap={matchMap}
+            activePibeProfiles={activePibeProfiles}
+          />
+          <div className="round-badge">
+            Ronda {currentRoundNum} · {currentSide === "attack" ? "Ataque" : "Defensa"}
           </div>
         </div>
 
-        <div className="scoreboard-scores">
+        <div className="scoreboard-main" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: 16 }}>
+          {/* NOSOTROS */}
           <div className="score-side us">
             <span className="score-label">Nosotros</span>
             <span className="score-num">{myScore}</span>
@@ -144,8 +145,156 @@ export function ActiveMatch({
             </div>
           </div>
 
-          <div className="score-center">—</div>
+          {/* DYNAMIC SQUAD PICKS & VARIANTS HEADER CENTER */}
+          <div
+            className="score-center-hud"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 18px",
+              background: "rgba(255,255,255,0.025)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 12,
+            }}
+          >
+            {/* Squad Operators Icons Bar */}
+            {recommendations && recommendations.length > 0 ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+                {recommendations.map((rec, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "4px 8px",
+                      background: "rgba(0,0,0,0.4)",
+                      borderRadius: 8,
+                      border: "1px solid rgba(255,255,255,0.1)",
+                    }}
+                    title={`${rec.playerLabel}: ${rec.opName}`}
+                  >
+                    <OperatorIcon name={rec.opName} size={22} />
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "var(--white)", lineHeight: 1 }}>
+                        {rec.opName}
+                      </span>
+                      <span style={{ fontSize: 9, color: "var(--muted)", fontWeight: 700 }}>
+                        {rec.playerLabel}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>Sin recomendación activa</div>
+            )}
 
+            {/* Quick Actions & Variant Tabs Bar */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+              {engineOutput && setActiveVariantTab && (
+                <div style={{ display: "inline-flex", gap: 4, background: "rgba(0,0,0,0.4)", padding: 3, borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveVariantTab("primary")}
+                    style={{
+                      padding: "3px 9px",
+                      borderRadius: 6,
+                      border: "none",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      background: activeVariantTab === "primary" ? "#3b82f6" : "transparent",
+                      color: activeVariantTab === "primary" ? "#fff" : "var(--muted-bright)",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    🔥 Principal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveVariantTab("safe")}
+                    style={{
+                      padding: "3px 9px",
+                      borderRadius: 6,
+                      border: "none",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      background: activeVariantTab === "safe" ? "#10b981" : "transparent",
+                      color: activeVariantTab === "safe" ? "#fff" : "var(--muted-bright)",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    🛡️ Segura
+                  </button>
+                  {hasBreathingVariant && (
+                    <button
+                      type="button"
+                      onClick={() => setActiveVariantTab("breathing")}
+                      style={{
+                        padding: "3px 9px",
+                        borderRadius: 6,
+                        border: "none",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        background: activeVariantTab === "breathing" ? "#8b5cf6" : "transparent",
+                        color: activeVariantTab === "breathing" ? "#fff" : "var(--muted-bright)",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      🔄 Rotación
+                    </button>
+                  )}
+                  {engineOutput?.experimentalVariant && (
+                    <button
+                      type="button"
+                      onClick={() => setActiveVariantTab("experimental")}
+                      style={{
+                        padding: "3px 9px",
+                        borderRadius: 6,
+                        border: "none",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        background: activeVariantTab === "experimental" ? "#f59e0b" : "transparent",
+                        color: activeVariantTab === "experimental" ? "#fff" : "var(--muted-bright)",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      🧪 Experimental
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={onRollOperator}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "4px 10px",
+                  background: "rgba(59,130,246,0.15)",
+                  border: "1px solid rgba(59,130,246,0.35)",
+                  borderRadius: 7,
+                  color: "#60a5fa",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <Shuffle size={11} /> Re-sortear
+              </button>
+            </div>
+          </div>
+
+          {/* RIVALES */}
           <div className="score-side them">
             <span className="score-label">Rivales</span>
             <span className="score-num">{opponentScore}</span>
@@ -158,144 +307,16 @@ export function ActiveMatch({
         </div>
       </div>
 
-      {/* Interactive Match Bans Bar */}
-      <div className="bans-bar-container">
-        <div className="bans-bar-header">
-          <span className="bans-bar-title">
-            <Ban size={14} /> Bans en Partida
-          </span>
-          <span style={{ fontSize: 11, color: "var(--muted-bright)" }}>
-            Los operadores baneados se excluyen automáticamente de las recomendaciones
-          </span>
-        </div>
-        <div className="bans-groups-grid">
-          {/* Nuestros Bans */}
-          <div className="ban-group">
-            <span className="ban-group-title">
-              <Shield size={11} /> Nuestros Bans ({ourBans.length})
-            </span>
-            <div className="ban-chips">
-              {ourBans.map((op) => (
-                <span key={op} className="ban-chip" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px" }}>
-                  <OperatorIcon name={op} size={20} />
-                  <span>{op}</span>
-                  <span
-                    className="ban-chip-remove"
-                    onClick={() => onToggleBan("our", op)}
-                    title="Quitar Ban"
-                  >
-                    ×
-                  </span>
-                </span>
-              ))}
-              <select
-                className="add-ban-select"
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) {
-                    onToggleBan("our", e.target.value);
-                    e.target.value = "";
-                  }
-                }}
-              >
-                <option value="">+ Banear Operador...</option>
-                <optgroup label="── ATACANTES ──">
-                  {attackers
-                    .slice()
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((op) => (
-                      <option
-                        key={op.name}
-                        value={op.name}
-                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
-                      >
-                        {op.name} ({op.role})
-                      </option>
-                    ))}
-                </optgroup>
-                <optgroup label="── DEFENSORES ──">
-                  {defenders
-                    .slice()
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((op) => (
-                      <option
-                        key={op.name}
-                        value={op.name}
-                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
-                      >
-                        {op.name} ({op.role})
-                      </option>
-                    ))}
-                </optgroup>
-              </select>
-            </div>
-          </div>
+      {/* Dynamic Fast-Access Bans Manager */}
+      <QuickBanManager
+        currentSide={currentSide}
+        ourBans={ourBans}
+        enemyBans={enemyBans}
+        onToggleBan={onToggleBan}
+        onClearBans={onClearBans}
+      />
 
-          {/* Bans Rivales */}
-          <div className="ban-group">
-            <span className="ban-group-title">
-              <Swords size={11} /> Bans Rivales ({enemyBans.length})
-            </span>
-            <div className="ban-chips">
-              {enemyBans.map((op) => (
-                <span key={op} className="ban-chip" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px" }}>
-                  <OperatorIcon name={op} size={20} />
-                  <span>{op}</span>
-                  <span
-                    className="ban-chip-remove"
-                    onClick={() => onToggleBan("enemy", op)}
-                    title="Quitar Ban"
-                  >
-                    ×
-                  </span>
-                </span>
-              ))}
-              <select
-                className="add-ban-select"
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) {
-                    onToggleBan("enemy", e.target.value);
-                    e.target.value = "";
-                  }
-                }}
-              >
-                <option value="">+ Banear Operador...</option>
-                <optgroup label="── ATACANTES ──">
-                  {attackers
-                    .slice()
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((op) => (
-                      <option
-                        key={op.name}
-                        value={op.name}
-                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
-                      >
-                        {op.name} ({op.role})
-                      </option>
-                    ))}
-                </optgroup>
-                <optgroup label="── DEFENSORES ──">
-                  {defenders
-                    .slice()
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((op) => (
-                      <option
-                        key={op.name}
-                        value={op.name}
-                        disabled={ourBans.includes(op.name) || enemyBans.includes(op.name)}
-                      >
-                        {op.name} ({op.role})
-                      </option>
-                    ))}
-                </optgroup>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bomb Sites */}
+      {/* Bomb Sites Grid */}
       {allMapSites.length > 0 && (
         <div className="sites-section">
           <div className="sites-header">
@@ -329,7 +350,13 @@ export function ActiveMatch({
                   className={`site-card ${stateClass}`}
                   onClick={() => setSelectedSiteName(site.name)}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
                     <span className="site-card-floor">{site.floor}</span>
                     {isLocked ? (
                       <span className="site-card-status site-status-locked">
@@ -344,15 +371,15 @@ export function ActiveMatch({
                   <span className="site-card-name">{site.name}</span>
                   <div className="site-card-status">
                     {isLocked ? (
-                      <span className="site-status-locked" style={{ fontSize: 10, fontFamily: "Rajdhani,sans-serif", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                      <span className="site-status-locked" style={{ fontSize: 10, fontFamily: "Rajdhani,sans-serif" }}>
                         Bloqueada
                       </span>
                     ) : isSelected ? (
-                      <span className="site-status-chosen" style={{ fontSize: 10, fontFamily: "Rajdhani,sans-serif", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                      <span className="site-status-chosen" style={{ fontSize: 10, fontFamily: "Rajdhani,sans-serif" }}>
                         Elegida
                       </span>
                     ) : (
-                      <span className="site-status-free" style={{ fontSize: 10, fontFamily: "Rajdhani,sans-serif", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                      <span className="site-status-free" style={{ fontSize: 10, fontFamily: "Rajdhani,sans-serif" }}>
                         Disponible
                       </span>
                     )}
@@ -364,52 +391,55 @@ export function ActiveMatch({
         </div>
       )}
 
-      {/* Site Tactical Routes & Drone Observed Defense Controls */}
+      {/* Tactical Route & Drone Controls */}
       {currentSide === "attack" && (
         <div className="tactical-site-controls">
           {siteProfile && siteProfile.attackRoutes.length > 0 && (
             <div>
               <div className="tac-ctrl-header" style={{ marginBottom: 8 }}>
-                <span><Compass size={12} style={{ display: "inline", marginRight: 4 }} /> Ruta de Ataque Planeada</span>
+                <span>
+                  <Compass size={12} style={{ display: "inline", marginRight: 4 }} />
+                  Ruta de Ataque Planeada
+                </span>
               </div>
-              <div className="route-buttons-grid">
-                <button
-                  className={`route-btn ${selectedRouteId === "auto" ? "active" : ""}`}
-                  onClick={() => setSelectedRouteId("auto")}
-                >
-                  ⚡ Automático (Adaptativo)
-                </button>
-                {siteProfile.attackRoutes.map((route) => (
-                  <button
-                    key={route.id}
-                    className={`route-btn ${selectedRouteId === route.id ? "active" : ""}`}
-                    onClick={() => setSelectedRouteId(route.id)}
-                    title={route.description}
-                  >
-                    {route.name}
-                  </button>
-                ))}
+              <div className="tactical-routes-grid">
+                {siteProfile.attackRoutes.map((route) => {
+                  const isSelected = selectedRouteId === route.id;
+                  return (
+                    <button
+                      key={route.id}
+                      className={`tac-route-card ${isSelected ? "active" : ""}`}
+                      onClick={() => setSelectedRouteId(route.id)}
+                    >
+                      <div className="tac-route-title">{route.name}</div>
+                      <div className="tac-route-desc">{route.description}</div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {siteProfile && siteProfile.commonDefenses.length > 0 && (
-            <div>
+            <div style={{ marginTop: 12 }}>
               <div className="tac-ctrl-header" style={{ marginBottom: 8 }}>
-                <span><Flame size={12} style={{ display: "inline", marginRight: 4 }} /> Ajuste Post-Dron (Defensa Observada del Rival)</span>
+                <span>
+                  <Flame size={12} style={{ display: "inline", marginRight: 4 }} />
+                  Defensa Rival Observada en Dron
+                </span>
               </div>
-              <div className="defense-obs-pills">
+              <div className="observed-defenses-grid">
                 {siteProfile.commonDefenses.map((def) => {
-                  const isChecked = observedDefenseIds.includes(def.id);
+                  const isObserved = observedDefenseIds.includes(def.id);
                   return (
-                    <div
+                    <button
                       key={def.id}
-                      className={`obs-pill ${isChecked ? "checked" : ""}`}
+                      className={`obs-def-card ${isObserved ? "observed" : ""}`}
                       onClick={() => onToggleObservedDefense(def.id)}
                     >
-                      <span>{isChecked ? "☑" : "☐"}</span>
                       <span>{def.name}</span>
-                    </div>
+                      {isObserved ? <XCircle size={12} /> : null}
+                    </button>
                   );
                 })}
               </div>
@@ -419,331 +449,52 @@ export function ActiveMatch({
       )}
 
       {/* Map Tactical Play Banner */}
-      {(() => {
-        const matchingPlay = getSiteStrategy(matchMap, currentSide, selectedSiteName);
-        if (!matchingPlay) return null;
-
-        const keyWallsStr = matchingPlay.keyWalls?.length ? matchingPlay.keyWalls.join(", ") : undefined;
-        const keyAreasStr = matchingPlay.keyAreas?.length ? matchingPlay.keyAreas.join(", ") : undefined;
-        const antiGadget = matchingPlay.antiGadgetPlan;
-
-        return (
-          <div style={{ marginTop: 12, padding: "12px 16px", borderRadius: "10px", background: currentSide === "attack" ? "rgba(239,68,68,0.06)" : "rgba(59,130,246,0.06)", border: `1px solid ${currentSide === "attack" ? "rgba(239,68,68,0.25)" : "rgba(59,130,246,0.25)"}` }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <span style={{ fontSize: "11px", fontWeight: 700, color: currentSide === "attack" ? "var(--atk)" : "var(--def)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                🎯 Jugada Táctica ({currentSide === "attack" ? "Ataque" : "Defensa"}) — {matchingPlay.siteName} ({matchingPlay.floor || "Sitio"})
-              </span>
-            </div>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--white)" }}>{matchingPlay.playTitle}</div>
-            <p style={{ fontSize: "11px", color: "var(--fg-dim, #cbd5e1)", margin: "4px 0 6px 0", lineHeight: 1.4 }}>{matchingPlay.objective}</p>
-
-            {/* Strategic Tags Row */}
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", fontSize: "10px", marginTop: "6px" }}>
-              {keyWallsStr && (
-                <span style={{ padding: "2px 7px", borderRadius: "4px", background: "rgba(255,255,255,0.08)", color: "#f8fafc" }}>
-                  🧱 Paredes clave: <strong>{keyWallsStr}</strong>
-                </span>
-              )}
-              {keyAreasStr && (
-                <span style={{ padding: "2px 7px", borderRadius: "4px", background: "rgba(255,255,255,0.08)", color: "#f8fafc" }}>
-                  🗺️ Áreas clave: <strong>{keyAreasStr}</strong>
-                </span>
-              )}
-              {antiGadget?.primary?.length && (
-                <span style={{ padding: "2px 7px", borderRadius: "4px", background: "rgba(234, 179, 8, 0.15)", color: "#fef08a", border: "1px solid rgba(234, 179, 8, 0.3)" }}>
-                  ⚡ Anti-Gadget: <strong>{antiGadget.primary.join(", ")}</strong>
-                </span>
-              )}
-            </div>
-
-            {matchingPlay.proTip && (
-              <div style={{ marginTop: "8px", fontSize: "10px", color: "#fef08a", background: "rgba(254, 240, 138, 0.08)", padding: "4px 8px", borderRadius: "4px" }}>
-                💡 <strong>Pro Tip:</strong> {matchingPlay.proTip}
-              </div>
-            )}
-          </div>
-        );
-      })()}
+      <TacticalPlayBanner
+        matchMap={matchMap}
+        selectedSiteName={selectedSiteName}
+        currentSide={currentSide}
+      />
 
       {/* Operator Recommendations Section */}
-      <div className="operator-section" style={{ marginTop: 16 }}>
-        <div className="operator-header">
-          <span className="operator-round-label">
-            R{currentRoundNum} · {currentSide === "attack" ? "Ataque" : "Defensa"}
-            {" · "}
-            {recommendations.length} {recommendations.length === 1 ? "Pick" : "Picks"}
-          </span>
-          <button className="reroll-btn" onClick={onRollOperator}>
-            <RefreshCw size={12} /> Re-sortear
-          </button>
-        </div>
-
-        {/* Dynamic Engine Variants Tabs */}
-        {engineOutput && setActiveVariantTab && (
-          <div className="variant-tabs-bar">
-            <button
-              className={`variant-tab-btn ${activeVariantTab === "primary" ? "active" : ""}`}
-              onClick={() => setActiveVariantTab("primary")}
-            >
-              <Flame size={12} /> Principal ({engineOutput.primary.confidence.percentage}%)
-            </button>
-            <button
-              className={`variant-tab-btn ${activeVariantTab === "safe" ? "active" : ""}`}
-              onClick={() => setActiveVariantTab("safe")}
-            >
-              <Shield size={12} /> Variante Segura
-            </button>
-            {hasBreathingVariant && (
-              <button
-                className={`variant-tab-btn ${activeVariantTab === "breathing" ? "active" : ""}`}
-                onClick={() => setActiveVariantTab("breathing")}
-              >
-                <RefreshCw size={12} /> Rotación / Tryout
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Order Reason Header */}
-        {squadRecommendation?.orderReason && (
-          <div className="order-reason-banner">
-            <Compass size={13} style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>{squadRecommendation.orderReason}</span>
-          </div>
-        )}
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`op-group-${opRoll}-${activeVariantTab}`}
-            className={isMulti ? "picks-list" : "single-pick-box"}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-          >
-            {recommendations.map((rec, index) => (
-              <div
-                key={`${rec.playerLabel}-${rec.opName}-${index}`}
-                className={`pick-row ${currentSide === "attack" ? "pick-row-atk" : "pick-row-def"}`}
-              >
-                {/* Left stripe */}
-                <div className="pick-row-stripe" />
-
-                {/* Avatar */}
-                <div className="pick-row-avatar">
-                  <OperatorIcon name={rec.opName} size={36} />
-                </div>
-
-                {/* Info */}
-                <div className="pick-row-info">
-                  <div className="pick-row-top" style={{ flexWrap: "wrap", gap: 6 }}>
-                    {rec.pickOrderNumber && (
-                      <span className="pick-order-badge">
-                        {rec.pickOrderNumber}.º PICK
-                      </span>
-                    )}
-                    <span className="pick-player-tag">{rec.playerLabel}</span>
-                    {rec.trackerHighlight && (
-                      <span className="hud-tracker-highlight">
-                        <Flame size={10} /> {rec.trackerHighlight}
-                      </span>
-                    )}
-                    {rec.isMain && (
-                      <span className="main-star-badge">
-                        <Star size={9} /> MAIN
-                      </span>
-                    )}
-                    {rec.isTryout && (
-                      <span className="tryout-badge">
-                        <Flame size={9} /> PRUEBA
-                      </span>
-                    )}
-                    {rec.isBreathing && (
-                      <span className="breathing-badge">
-                        <RefreshCw size={9} /> ROTACIÓN
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="pick-row-op-name" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <span>{rec.opName}</span>
-                    {rec.backupOpName && (
-                      <span className="hud-backup-badge" title="Respaldo si está baneado/tomado" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <OperatorIcon name={rec.backupOpName} size={15} /> #2 Respaldo: {rec.backupOpName}
-                      </span>
-                    )}
-                  </div>
-
-                  {rec.coveredRole ? (
-                    <div className="pick-row-playstyle covered-role-tag">
-                      ✓ Cubre: {rec.coveredRole}
-                    </div>
-                  ) : rec.developmentGoal ? (
-                    <div className="pick-row-playstyle tryout-goal-tag">
-                      🎯 Objetivo: {rec.developmentGoal}
-                    </div>
-                  ) : rec.role ? (
-                    <div className="pick-row-playstyle">{rec.role}</div>
-                  ) : null}
-
-                  {rec.avoidWarning && (
-                    <div className="pick-row-warning">
-                      {rec.avoidWarning}
-                    </div>
-                  )}
-
-                  {rec.tacticalTask && (
-                    <div style={{ fontSize: "11px", color: "#e2e8f0", marginTop: "4px", background: "rgba(255,255,255,0.04)", padding: "5px 9px", borderRadius: "6px", borderLeft: "3px solid var(--accent, #3b82f6)", lineHeight: 1.4 }}>
-                      💡 <strong>Instrucción Táctica en {matchMap}:</strong> {rec.tacticalTask}
-                    </div>
-                  )}
-
-                  {/* Concise 1-2 line reason for HUD speed */}
-                  {rec.explanation?.positive && rec.explanation.positive.length > 0 && (
-                    <div className="pick-explanation-box positive">
-                      {rec.explanation.positive.slice(0, 2).map((reason, rIdx) => (
-                        <div key={rIdx} className="explanation-line pos">
-                          ✨ {reason}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Side badge + reroll */}
-                <div className="pick-row-right">
-                  <div className="pick-side-badge">
-                    {currentSide === "attack" ? (
-                      <><Swords size={10} /> ATK</>
-                    ) : (
-                      <><Shield size={10} /> DEF</>
-                    )}
-                  </div>
-                  {isMulti && (
-                    <button
-                      className="single-reroll-btn"
-                      title={`Re-sortear para ${rec.playerLabel}`}
-                      onClick={() => onRollSinglePlayer(index)}
-                    >
-                      <RefreshCw size={12} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Collapsible Tactical Accordion (Keeps HUD fast & uncluttered) */}
-        {squadRecommendation && (
-          <details className="hud-details-accordion">
-            <summary className="hud-details-summary">
-              <span><Target size={12} style={{ display: "inline", marginRight: 6 }} /> Análisis Táctico & Responsabilidades de Squad</span>
-              <span style={{ fontSize: 11, opacity: 0.7 }}>▼ Ver Plan</span>
-            </summary>
-            <div style={{ padding: 14 }}>
-              <div className="tactical-blocks-grid">
-                <div className="tac-block">
-                  <span className="tac-block-title">
-                    <Target size={11} /> ¿Por qué este pick?
-                  </span>
-                  <p className="tac-block-text">
-                    {squadRecommendation.picks.map((p) => `${p.playerLabel}: ${p.opName} (${p.role})`).join(" · ")}
-                  </p>
-                </div>
-
-                <div className="tac-block">
-                  <span className="tac-block-title">
-                    <Flame size={11} /> ¿Cómo coordinarlo?
-                  </span>
-                  <p className="tac-block-text">
-                    {squadRecommendation.trioPlan || squadRecommendation.duoPlan || "Avanzar con la brecha, tomar espacio y asegurar el plantado."}
-                  </p>
-                </div>
-
-                {squadRecommendation.warnings.length > 0 && (
-                  <div className="tac-block warning-block">
-                    <span className="tac-block-title warning-title">
-                      <AlertTriangle size={11} /> ¿Qué evitar?
-                    </span>
-                    <p className="tac-block-text warning-text">
-                      {squadRecommendation.warnings.map((w) => w.message).join(" ")}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {squadRecommendation.responsibilities && (
-                <div className="responsibilities-bar" style={{ marginTop: 12 }}>
-                  <span className="resp-bar-title">Responsabilidades:</span>
-                  <div className="resp-chips">
-                    {squadRecommendation.responsibilities.shotCaller && (
-                      <span className="resp-chip">🎯 Callouts: {squadRecommendation.responsibilities.shotCaller}</span>
-                    )}
-                    {squadRecommendation.responsibilities.defuserCarrier && (
-                      <span className="resp-chip">💣 Defuser: {squadRecommendation.responsibilities.defuserCarrier}</span>
-                    )}
-                    {squadRecommendation.responsibilities.primaryDrone && (
-                      <span className="resp-chip">📡 Dron: {squadRecommendation.responsibilities.primaryDrone}</span>
-                    )}
-                    {squadRecommendation.responsibilities.firstEntry && (
-                      <span className="resp-chip">⚡ Entry 1: {squadRecommendation.responsibilities.firstEntry}</span>
-                    )}
-                    {squadRecommendation.responsibilities.secondEntry && (
-                      <span className="resp-chip">🛡️ Entry 2: {squadRecommendation.responsibilities.secondEntry}</span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </details>
-        )}
-      </div>
+      <OperatorRecommendationsList
+        currentRoundNum={currentRoundNum}
+        currentSide={currentSide}
+        recommendations={recommendations}
+        onRollOperator={onRollOperator}
+        onSelectAlternative={onSelectAlternative}
+        engineOutput={engineOutput}
+        activeVariantTab={activeVariantTab}
+        setActiveVariantTab={setActiveVariantTab}
+        hasBreathingVariant={hasBreathingVariant}
+        squadRecommendation={squadRecommendation}
+        personalized={personalized}
+        opRoll={opRoll}
+        isMulti={isMulti}
+        matchMap={matchMap}
+        onRollSinglePlayer={onRollSinglePlayer}
+      />
 
       {/* Outcome Buttons */}
       <div className="outcome-section">
         <div className="outcome-label">¿Ganamos la ronda {currentRoundNum}?</div>
         <div className="outcome-buttons">
           <button className="outcome-btn win-btn" onClick={() => onRecordRound("win")}>
-            <Check size={18} /> Ganamos
+            ¡Ganamos la Ronda!
           </button>
           <button className="outcome-btn loss-btn" onClick={() => onRecordRound("loss")}>
-            <XCircle size={18} /> Perdimos
+            Perdimos la Ronda
           </button>
         </div>
+
+        {history.length > 0 && (
+          <button className="undo-btn" onClick={onUndoLastRound}>
+            Deshacer Última Ronda
+          </button>
+        )}
       </div>
 
-      {/* History */}
-      {history.length > 0 && (
-        <div className="history-section">
-          <div className="history-header">
-            <span className="history-label">Historial</span>
-            <button className="undo-btn" onClick={onUndoLastRound}>
-              <RotateCcw size={12} /> Deshacer última
-            </button>
-          </div>
-          <div className="history-rows">
-            {history.map((log) => (
-              <div
-                key={log.roundNum}
-                className={`history-row ${log.result === "win" ? "row-win" : "row-loss"}`}
-              >
-                <span className="row-round-num">R{log.roundNum}</span>
-                <div className="row-result-dot" />
-                <span className="row-op">{log.operator}</span>
-                <span className="row-side-badge">
-                  {log.side === "attack" ? "ATK" : "DEF"}
-                </span>
-                {log.bombSite && (
-                  <span className="row-site" title={log.bombSite.name}>
-                    {log.bombSite.name}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Match History */}
+      <MatchHistorySection history={history} onUndoLastRound={onUndoLastRound} />
     </div>
   );
 }

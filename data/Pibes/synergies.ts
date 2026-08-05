@@ -46,9 +46,14 @@ export function determineSquadOrder(
   pibes: PibeProfile[],
   side: Side
 ): { orderedPibes: PibeProfile[]; reason: string } {
-  // Try to use the FACTOS pickOrder properties by side
-  // Default positions: 1 for Chango, 2 for Notorious, 3 for Azusa (usually)
   const sortedPibes = [...pibes].sort((a, b) => {
+    // On defense, Notorious leads pick 1 for Kaid/intel setup, Chango 2nd, Azusa 3rd/flex
+    if (side === "defense") {
+      const defOrder: Record<string, number> = { el_notorious: 1, chango_nocturno: 2, azusa_cooper09: 3 };
+      const posA = defOrder[a.id] ?? 2;
+      const posB = defOrder[b.id] ?? 2;
+      return posA - posB;
+    }
     const posA = a.pickOrder?.[side]?.preferredPosition ?? 2;
     const posB = b.pickOrder?.[side]?.preferredPosition ?? 2;
     return posA - posB;

@@ -1,6 +1,7 @@
 import { type OperatorProfile, type PibeProfile, type ScoreBreakdown, type ScoreExplanation, type MapPerformanceEntry } from "./types";
 import { type TacticalNeedId, NEED_OPERATORS_MAP, TACTICAL_NEED_LABELS } from "../siteTactics";
 import { getSiteStrategy } from "../mapStrategies";
+import { getOperatorPlayerStat } from "../operatorPlayerStats";
 
 const MAP_MODIFIERS: Record<string, number> = {
   elite: 12,
@@ -122,35 +123,68 @@ export function scoreAndExplainPick(
     breakdown.roleAffinity = Math.round(0.5 * CONFIDENCE_MULTIPLIERS.low * 20);
   }
 
-  // 2. Tracker Map Performance
+  // 2. Global & Map R6 Tracker Operator Performance
+  const globalStat = getOperatorPlayerStat(pibe.id, op.name);
+  const trackerDataUsed = Boolean(globalStat && globalStat.matches >= 5);
+  if (globalStat) {
+    // 2a. Volumen de Experiencia Real (Partidas jugadas en Tracker)
+    if (globalStat.matches >= 150) {
+      breakdown.trackerMapPerformance += 25;
+      positive.push(`🔥 R6 TRACKER EXPERIENCIA: Dominio de ${op.name} (${globalStat.matches} partidas jugadas)`);
+    } else if (globalStat.matches >= 80) {
+      breakdown.trackerMapPerformance += 18;
+      positive.push(`🔥 R6 TRACKER EXPERIENCIA: Gran rodaje con ${op.name} (${globalStat.matches} partidas)`);
+    } else if (globalStat.matches >= 30) {
+      breakdown.trackerMapPerformance += 12;
+      positive.push(`📊 R6 TRACKER EXPERIENCIA: Experiencia sólida con ${op.name} (${globalStat.matches} partidas)`);
+    } else if (globalStat.matches >= 10) {
+      breakdown.trackerMapPerformance += 6;
+      positive.push(`📊 R6 TRACKER EXPERIENCIA: Muestra base con ${op.name} (${globalStat.matches} partidas)`);
+    } else if (globalStat.matches === 0) {
+      breakdown.penalties -= 40;
+      negative.push(`⚠️ FACTO R6 TRACKER: 0 partidas jugadas con ${op.name} por ${pibe.displayName}`);
+    }
+
+    // 2b. Winrate Global del Tracker
+    if (globalStat.matches >= 10) {
+      if (globalStat.winRate >= 55) {
+        const wrBonus = Math.min(25, Math.round((globalStat.winRate - 50) * 2));
+        breakdown.trackerMapPerformance += wrBonus;
+        positive.push(`🏆 R6 TRACKER WINRATE: ${globalStat.winRate}% WR en ${globalStat.matches} partidas`);
+      } else if (globalStat.winRate < 42) {
+        const wrPenalty = Math.min(20, Math.round((50 - globalStat.winRate) * 1.5));
+        breakdown.trackerMapPerformance -= wrPenalty;
+        negative.push(`⚠️ R6 TRACKER WINRATE: Rendimiento bajo del ${globalStat.winRate}% WR`);
+      }
+    }
+
+    // 2c. K/D Global del Tracker
+    if (globalStat.matches >= 15) {
+      if (globalStat.kd >= 1.20) {
+        breakdown.trackerMapPerformance += 10;
+        positive.push(`🎯 R6 TRACKER K/D (${globalStat.kd.toFixed(2)}): Alta letalidad comprobada`);
+      } else if (globalStat.kd < 0.70) {
+        breakdown.trackerMapPerformance -= 8;
+        negative.push(`⚠️ R6 TRACKER K/D (${globalStat.kd.toFixed(2)}): Conversión baja de frags`);
+      }
+    }
+
+    trackerHighlight = `${globalStat.winRate}% WR · ${globalStat.kd.toFixed(2)} KD (${globalStat.matches} partidas)`;
+  }
+
+  // 2d. Rendimiento Específico por Mapa si está disponible
   const trackerMapStat = getMapStatForPick(pibe.id, op.side, op.name, matchMap);
-  const matches = trackerMapStat?.matchesOrRounds || 0;
-  const trackerDataUsed = matches >= 5;
-
-  if (trackerDataUsed && matchMap) {
+  const matchesOnMap = trackerMapStat?.matchesOrRounds || 0;
+  if (matchesOnMap >= 5 && matchMap) {
     if (trackerMapStat.winRate >= 50) {
-      const bonus = Math.min(30, Math.round((trackerMapStat.winRate - 45) * 1.5));
+      const bonus = Math.min(15, Math.round((trackerMapStat.winRate - 45) * 1.0));
       breakdown.trackerMapPerformance += bonus;
-      positive.push(`🔥 TRACKER (${matches} rondas): ${trackerMapStat.winRate}% WR en ${matchMap}`);
+      positive.push(`🔥 MAPA (${matchesOnMap} rondas): ${trackerMapStat.winRate}% WR en ${matchMap}`);
     } else if (trackerMapStat.winRate < 45) {
-      const penalty = Math.min(20, Math.round((50 - trackerMapStat.winRate) * 1.5));
+      const penalty = Math.min(15, Math.round((50 - trackerMapStat.winRate) * 1.0));
       breakdown.trackerMapPerformance -= penalty;
-      negative.push(`⚠️ TRACKER (${matches} rondas): Winrate bajo del ${trackerMapStat.winRate}% en ${matchMap}`);
+      negative.push(`⚠️ MAPA (${matchesOnMap} rondas): Winrate bajo en ${matchMap}`);
     }
-
-    // Impacto de K/D del Tracker
-    if (trackerMapStat.kd >= 1.2) {
-      const kdBonus = Math.min(15, Math.round((trackerMapStat.kd - 1.0) * 12));
-      breakdown.trackerMapPerformance += kdBonus;
-      positive.push(`🎯 HIGH K/D (${trackerMapStat.kd.toFixed(2)}): Excelente letalidad con ${op.name} en ${matchMap}`);
-    } else if (trackerMapStat.kd < 0.8 && matches >= 5) {
-      breakdown.trackerMapPerformance -= 10;
-      negative.push(`⚠️ LOW K/D (${trackerMapStat.kd.toFixed(2)}): Dificultad para convertir frags con ${op.name}`);
-    }
-
-    trackerHighlight = `${trackerMapStat.winRate}% WR · ${trackerMapStat.kd.toFixed(2)} KD (${matches} rondas)`;
-  } else if (trackerMapStat && matches > 0 && matches < 5) {
-    trackerHighlight = `Muestra insuficiente (<5 partidas)`;
   }
 
   // 2b. Bonus por Coincidencia con Roles Secundarios del Pibe
@@ -169,12 +203,13 @@ export function scoreAndExplainPick(
       const confMult = CONFIDENCE_MULTIPLIERS[factosMap.confidence] ?? 0.4;
       let factosScore = classModifier * confMult;
 
+      const trackerMapDataUsed = Boolean(trackerMapStat && matchesOnMap >= 5);
       switch (factosMap.source) {
         case "tracker-derived":
-          factosScore *= trackerDataUsed ? 0.5 : 1;
+          factosScore *= trackerMapDataUsed ? 0.5 : 1;
           break;
         case "mixed":
-          factosScore *= trackerDataUsed ? 0.75 : 1;
+          factosScore *= trackerMapDataUsed ? 0.75 : 1;
           break;
         case "tactical-analysis":
         case "manual":
@@ -288,7 +323,17 @@ export function scoreAndExplainPick(
     }
   }
 
-  // 7. Comfort / Avoid
+  // 7. Comfort / Avoid / Known Pool
+  const mains = isAttack ? pibe.attackMains : pibe.defenseMains;
+  const tryouts = (isAttack ? pibe.tryoutAttack : pibe.tryoutDefense).map((t) => t.operatorId);
+  const hasKnownPool = mains.length > 0 || tryouts.length > 0 || (pibe.comfortOperators?.length ?? 0) > 0 || (pibe.identityOperators?.length ?? 0) > 0;
+  const isKnown =
+    !hasKnownPool ||
+    pibe.comfortOperators.includes(op.name) ||
+    pibe.identityOperators.includes(op.name) ||
+    mains.includes(op.name) ||
+    tryouts.includes(op.name);
+
   if (pibe.comfortOperators.includes(op.name)) {
     breakdown.operatorComfort += 5;
     positive.push(`+5 operador de confort`);
@@ -300,6 +345,88 @@ export function scoreAndExplainPick(
   if (pibe.avoidOperators.includes(op.name)) {
     breakdown.penalties -= 12;
     negative.push(`-12 operador desaconsejado para ${pibe.displayName}`);
+  }
+  if (!isKnown) {
+    breakdown.penalties -= 50;
+    negative.push(`⚠️ -50 operador sin experiencia previa de ${pibe.displayName}`);
+  }
+
+  // 8. Subrole Alignment & Facto Roles (from op.md & op+.md)
+  const opNameLower = op.name.toLowerCase();
+  if (pibe.id === "el_notorious" || pibe.identity?.primaryRoles?.includes("flex")) {
+    if (opNameLower === "kaid") {
+      breakdown.operatorComfort += 22;
+      positive.push(`🔥 FACTO: Kaid main real y firma defensiva de Notorious (408 partidas, 53.4% WR)`);
+    } else if (["thermite", "kali"].includes(opNameLower)) {
+      breakdown.operatorComfort += 20;
+      positive.push(`🔥 FACTO: Notorious breacher / sniper de apertura (${op.name})`);
+    } else if (["grim", "iana", "ram", "zofia", "zero", "brava", "flores"].includes(opNameLower) && siteReqs.includes("anti-gadget")) {
+      breakdown.operatorComfort += 16;
+      positive.push(`⚡ FACTO: Notorious Flex multifunción con EMP secundario (${op.name})`);
+    } else if (op.roles.includes("hard-breach")) {
+      breakdown.operatorComfort += 14;
+      positive.push(`🔥 FACTO: Notorious breacher activo flex (${op.name}) - 2/5 apertura de brecha`);
+    } else if (op.roles.some((r) => ["entry-frag", "intel", "soft-breach", "anti-gadget"].includes(r))) {
+      breakdown.operatorComfort += 12;
+      positive.push(`⚡ FACTO: Notorious fragger / entry liberado para ganar espacio (${op.name})`);
+    }
+  }
+
+  if (pibe.id === "chango_nocturno" || pibe.identity?.primaryRoles?.includes("hard-support")) {
+    if (["thermite", "ace"].includes(opNameLower)) {
+      breakdown.operatorComfort += 20;
+      positive.push(`🔥 FACTO: Chango hard breacher de preferencia (${op.name}) - 3/5 brecha dura principal`);
+    } else if (["thorn", "kapkan"].includes(opNameLower)) {
+      breakdown.operatorComfort += 20;
+      positive.push(`🛡️ FACTO: Chango especialista en trampas y control de flancos (${op.name}) (316+ partidas, 56%+ WR)`);
+    } else if (op.roles.some((r) => ["anti-gadget", "zone-control", "trap-setter", "access-denial", "intel-def"].includes(r))) {
+      breakdown.operatorComfort += 15;
+      positive.push(`🛡️ FACTO: Chango soporte de estructura, trampas y control de flancos (${op.name})`);
+    }
+  }
+
+  if (pibe.id === "azusa_cooper09" || pibe.identity?.primaryRoles?.includes("frontline-support")) {
+    if (["thorn", "kapkan", "tachanka"].includes(opNameLower)) {
+      breakdown.operatorComfort += 20;
+      positive.push(`🛡️ FACTO: Azusa ancla de objetivo y trampas (${op.name}) (55%+ WR)`);
+    } else if (op.roles.some((r) => ["zone-control", "support", "objective-anchor"].includes(r))) {
+      breakdown.operatorComfort += 14;
+      positive.push(`🛡️ FACTO: Azusa protección frontal y soporte de ejecución (${op.name})`);
+    } else if (op.roles.includes("hard-breach")) {
+      breakdown.operatorComfort += 12;
+      positive.push(`🎯 FACTO: Azusa brecha dura de objetivo flex (${op.name}) - 1/5 soporte de brecha`);
+    }
+  }
+
+  // 9. High Ban Risk Operators & Counter Dynamics
+  const HIGH_BAN_RISK_OPS = new Set([
+    "dokkaebi", "maestro", "vigil", "fenrir", "solis",
+    "thatcher", "valkyrie", "jackal", "mira", "kaid"
+  ]);
+
+  const OP_HARD_COUNTERS: Record<string, string[]> = {
+    dokkaebi: ["mute", "iq", "echo", "solis"],
+    maestro: ["brava", "twitch", "sledge", "flores", "iana"],
+    vigil: ["lion", "dokkaebi", "iq"],
+    fenrir: ["twitch", "brava", "thatcher", "iq"],
+    thatcher: ["kaid", "bandit", "tubarao"],
+    mira: ["twitch", "hibana", "ace", "flores"],
+    valkyrie: ["iq", "brava", "dokkaebi"],
+    jackal: ["caveira", "solis", "mute"],
+    kaid: ["thatcher", "kali", "flores", "twitch"],
+    solis: ["iq", "dokkaebi", "jackal"],
+  };
+
+  if (HIGH_BAN_RISK_OPS.has(opNameLower)) {
+    const hardCounters = OP_HARD_COUNTERS[opNameLower] || [];
+    const isCounterObserved = observedDefenseCounters?.some((c) =>
+      hardCounters.includes(c.toLowerCase().replace(/[^a-z0-9]/g, ""))
+    );
+
+    if (isCounterObserved) {
+      breakdown.avoidPatternPenalty -= 30;
+      negative.push(`⚠️ COUNTER ACTIVO RIVAL: Counter (${hardCounters.join("/")}) activo. Usar variante alternativa.`);
+    }
   }
 
   // Sum everything
