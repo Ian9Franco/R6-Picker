@@ -1,0 +1,146 @@
+================================================================================
+          RESUMEN Y ANÁLISIS DE LA LÓGICA Y RENDIMIENTO DE CADA PIBE
+================================================================================
+
+1. RESUMEN DE PERFIL POR PIBE: PICKS, PREFERIDOS, MEJOR WR Y MEJOR KD
+--------------------------------------------------------------------------------
+
+[EL_NOTORIOUS] (el_notorious)
+- Perfil: Flex Utilitario / Intel Fragger. Agresivo, adaptable y analítico.
+- Roles: Flex (Main) | Ataque: Utility-Flex / 2nd Entry | Defensa: Intel-Fragger
+- Picks Identidad:
+  * Ataque: Kali, Thatcher, Ash
+  * Defensa: Kaid, Valkyrie, Vigil
+- Picks Preferidos (Comfort):
+  * Ataque: Thermite, Ying, Ace, Ram, Iana
+  * Defensa: Mute, Bandit, Fenrir, Pulse, Mozzie
+- Picks a Evitar (Avoid): Deimos (Atq), Caveira (Def)
+- Picks Más Jugados:
+  * Ataque: Thatcher (328 PJ), Ace (289 PJ), Kali (222 PJ), Thermite (209 PJ), Ying (194 PJ), Ash (134 PJ)
+  * Defensa: Kaid (408 PJ), Mute (285 PJ), Valkyrie (250 PJ), Bandit (247 PJ), Vigil (196 PJ), Fenrir (174 PJ)
+- Mejor Win Rate (>=10 PJ):
+  * Ataque: Maverick (55.9%), Nomad (54.5%), Capitão (56.5%), Ash (50.7%), Brava (50.0%)
+  * Defensa: Rook (75.0%), Mozzie (68.8%), Castle (68.6%), Jäger (67.2%), Caveira (61.8%), Echo (60.8%), Vigil (59.7%), Valkyrie (58.8%), Mute (58.2%), Bandit (57.9%)
+- Mejor K/D Ratio (>=10 PJ):
+  * Ataque: Brava (1.62 K/D), Ram (1.53 K/D), Deimos (1.50 K/D), Ash (1.49 K/D), Kali (1.46 K/D)
+  * Defensa: Pulse (1.91 K/D), Caveira (1.60 K/D), Vigil (1.49 K/D), Fenrir (1.39 K/D), Valkyrie (1.37 K/D)
+
+[CHANGONOCTURENO] (chango_nocturno)
+- Perfil: Support Estructural & Utility Anchor. Paciente, metódico y ordenado.
+- Roles: Hard Support (Main) | Ataque: Breach-Support | Defensa: Utility-Anchor
+- Picks Identidad:
+  * Ataque: Thermite, Thatcher, Fuze
+  * Defensa: Tubarão, Thorn, Kapkan
+- Picks Preferidos (Comfort):
+  * Ataque: Ace, Gridlock, Blitz
+  * Defensa: Mute, Bandit, Kaid, Frost, Tachanka, Ela
+- Picks a Evitar (Avoid): Ash, Amaru, Nøkk, Hibana (Atq) | Caveira, Oryx, Vigil (Def)
+- Picks Más Jugados:
+  * Ataque: Thermite (461 PJ), Thatcher (241 PJ), Blitz (195 PJ), Ace (141 PJ), Gridlock (136 PJ), Fuze (126 PJ)
+  * Defensa: Bandit (357 PJ), Thorn (316 PJ), Mute (193 PJ), Tubarão (167 PJ), Kaid (151 PJ), Kapkan (95 PJ)
+- Mejor Win Rate (>=10 PJ):
+  * Ataque: Brava (62.5%), Finka (54.5%), Hibana (53.1%), Lion (50.6%), Ace (47.5%)
+  * Defensa: Ela (71.1%), Rook (68.8%), Tachanka (63.2%), Frost (61.1%), Kapkan (58.9%), Tubarão (56.3%), Mute (56.0%), Thorn (56.0%)
+- Mejor K/D Ratio (>=10 PJ):
+  * Ataque: Fuze (1.05 K/D), Lion (0.95 K/D), Hibana (0.94 K/D), Blitz (0.88 K/D), Ace (0.85 K/D)
+  * Defensa: Tubarão (1.25 K/D), Kapkan (1.15 K/D), Ela (1.00 K/D), Thorn (0.98 K/D), Mute (0.98 K/D)
+
+[AZUSACOOPER09] (azusa_cooper09)
+- Perfil: Frontline Support / Shield Specialist / Objective Anchor. Absorbe presión.
+- Roles: Frontline-Support (Main) | Ataque: Shield-Execute | Defensa: Site-Control
+- Picks Identidad:
+  * Ataque: Montagne, Blitz, Thermite
+  * Defensa: Mute, Tachanka, Thorn
+- Picks Preferidos (Comfort):
+  * Ataque: Thatcher, Fuze, Lion, Dokkaebi, Twitch
+  * Defensa: Kaid, Bandit, Kapkan, Smoke, Castle, Valkyrie, Melusi
+- Picks a Evitar (Avoid): Ash, Buck (Atq) | Caveira, Oryx (Def)
+- Picks Más Jugados:
+  * Ataque: Montagne (206 PJ), Blitz (200 PJ), Thatcher (156 PJ), Fuze (136 PJ), Thermite (117 PJ), Dokkaebi (90 PJ)
+  * Defensa: Mute (186 PJ), Kaid (165 PJ), Thorn (155 PJ), Bandit (154 PJ), Tachanka (129 PJ), Kapkan (68 PJ)
+- Mejor Win Rate (>=10 PJ):
+  * Ataque: Ram (66.7%), Lion (50.8%), Thermite (48.7%), Iana (48.7%), Jackal (48.1%)
+  * Defensa: Caveira (69.6%), Valkyrie (62.8%), Castle (60.4%), Melusi (60.0%), Ela (59.1%), Mute (58.6%), Smoke (58.6%), Kapkan (57.4%)
+- Mejor K/D Ratio (>=10 PJ):
+  * Ataque: Ram (1.20 K/D), Twitch (1.13 K/D), Brava (0.93 K/D), Dokkaebi (0.87 K/D), Kali (0.87 K/D)
+  * Defensa: Rook (1.05 K/D), Aruni (1.00 K/D), Bandit (0.96 K/D), Kapkan (0.92 K/D), Thorn (0.86 K/D), Smoke (0.86 K/D)
+
+
+2. LOS 5 MEJORES OPERADORES REALES SEGÚN DATOS DE RENDIMIENTO (5 ATAQ / 5 DEF)
+--------------------------------------------------------------------------------
+
+[EL_NOTORIOUS]
+  Ataque (5 Atq):
+  1. Ash        (134 PJ | 50.7% WR | 1.49 K/D) -> Entry letal, máxima efectividad en fragging.
+  2. Kali       (222 PJ | 47.3% WR | 1.46 K/D) -> Icono personal con gran impacto a distancia.
+  3. Brava      (50 PJ  | 50.0% WR | 1.62 K/D) -> Su K/D ofensivo más elevado y control de dispositivos.
+  4. Thermite   (209 PJ | 45.0% WR | 1.19 K/D) -> Brecha dura con excelente aporte en duelos.
+  5. Maverick   (34 PJ  | 55.9% WR | 1.04 K/D) -> Su mayor tasa de victorias en brecha.
+
+  Defensa (5 Def):
+  1. Vigil      (196 PJ | 59.7% WR | 1.49 K/D) -> Roamer dominante con casi 60% WR.
+  2. Valkyrie   (250 PJ | 58.8% WR | 1.37 K/D) -> Intel + Fragger letal con 250 PJ.
+  3. Mute       (285 PJ | 58.2% WR | 1.10 K/D) -> Control de drones y brecha muy sólido.
+  4. Bandit     (247 PJ | 57.9% WR | 1.17 K/D) -> Anti-brecha activo con casi 58% WR.
+  5. Kaid       (408 PJ | 53.4% WR | 1.21 K/D) -> El más jugado con enorme regularidad.
+
+[CHANGONOCTURENO]
+  Ataque (5 Atq):
+  1. Fuze       (126 PJ | 46.8% WR | 1.05 K/D) -> Su único atacante frecuente con K/D > 1.0.
+  2. Thermite   (461 PJ | 45.8% WR | 0.74 K/D) -> Pilar estructural de brecha indispensable.
+  3. Lion       (89 PJ  | 50.6% WR | 0.95 K/D) -> Control global que fija al rival en plantados.
+  4. Blitz      (195 PJ | 45.6% WR | 0.88 K/D) -> Presión frontal pesada en entradas.
+  5. Ace        (141 PJ | 47.5% WR | 0.85 K/D) -> Brecha remota secundaria más ligera.
+
+  Defensa (5 Def):
+  1. Thorn      (316 PJ | 56.0% WR | 0.98 K/D) -> Especialista en trampas insignia (316 PJ).
+  2. Tubarão    (167 PJ | 56.3% WR | 1.25 K/D) -> Su mejor K/D defensivo (1.25) frenando pushes.
+  3. Kapkan     (95 PJ  | 58.9% WR | 1.15 K/D) -> Altísima letalidad con trampas y 58.9% WR.
+  4. Mute       (193 PJ | 56.0% WR | 0.98 K/D) -> Anclaje y denegación de intel consistente.
+  5. Bandit     (357 PJ | 51.3% WR | 0.92 K/D) -> Paredes electrificadas con mayor volumen.
+
+[AZUSACOOPER09]
+  Ataque (5 Atq):
+  1. Ram        (18 PJ  | 66.7% WR | 1.20 K/D) -> Desempeño excepcional en brecha blanda vertical.
+  2. Dokkaebi   (90 PJ  | 47.8% WR | 0.87 K/D) -> Llamadas e intel activa constante.
+  3. Thatcher   (156 PJ | 46.8% WR | 0.67 K/D) -> Soporte desactivador clave para habilitar brecha.
+  4. Lion       (59 PJ  | 50.8% WR | 0.80 K/D) -> Presión global para congelar rotaciones.
+  5. Blitz      (200 PJ | 44.0% WR | 0.66 K/D) -> Tanque de espacio frontal e identidad de escudos.
+
+  Defensa (5 Def):
+  1. Bandit     (154 PJ | 53.9% WR | 0.96 K/D) -> Su defensor más balanceado entre pared y K/D.
+  2. Mute       (186 PJ | 58.6% WR | 0.70 K/D) -> Su pick #1 defensivo en victorias (58.6% WR).
+  3. Thorn      (155 PJ | 55.5% WR | 0.86 K/D) -> Trampas y daño en zonas de paso.
+  4. Kapkan     (95 PJ  | 57.4% WR | 0.92 K/D) -> Daño pasivo en entradas con casi 58% WR.
+  5. Smoke      (58 PJ  | 58.6% WR | 0.86 K/D) -> Denegación de tiempo en sitio de plantado.
+
+
+3. SUS 3 MEJORES MAPAS EN RENDIMIENTO (WR, KD & PARTIDAS)
+--------------------------------------------------------------------------------
+
+[EL_NOTORIOUS]
+  1. Bank             (57.7% WR | 1.31 K/D | 52 PJ)
+  2. Chalet           (56.9% WR | 1.25 K/D | 72 PJ)
+  3. Kanal            (54.1% WR | 1.36 K/D | 37 PJ)
+
+[CHANGONOCTURENO]
+  1. Outback          (65.5% WR | 1.06 K/D | 29 PJ)
+  2. Nighthaven Labs  (57.1% WR | 0.92 K/D | 21 PJ)
+  3. Theme Park       (50.0% WR | 1.04 K/D | 22 PJ)
+
+[AZUSACOOPER09]
+  1. Outback          (59.3% WR | 0.77 K/D | 27 PJ)
+  2. Calypso Casino   (58.8% WR | 0.74 K/D | 17 PJ)
+  3. Chalet           (55.2% WR | 0.75 K/D | 58 PJ)
+
+
+4. CONCLUSIONES TÁCTICAS PARA MEJORAR EL MODO PARTIDO (ActiveMatch / Engine)
+--------------------------------------------------------------------------------
+- Asignación de Roles Más Flexible: El_Notorious no debe ser encasillado como Hard
+  Support constante; rinde drásticamente mejor con fraggers o intel activa (Vigil,
+  Valkyrie, Ash, Brava).
+- Revalorización de Picks Ocultos: Fuze/Lion en Chango y Ram/Dokkaebi en Azusa poseen
+  tasa de victoria y K/D muy por encima de sus promedios. El motor debe sugerirlos más.
+- Bonos por Rendimiento Real en Scoring: Agregar bonificación dinámica en scoring.ts
+  cuando un jugador tenga WR >= 55% y K/D >= 1.15 con un operador en dicho mapa.
+================================================================================

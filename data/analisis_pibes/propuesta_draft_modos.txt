@@ -1,0 +1,73 @@
+================================================================================
+  PROPUESTA DE MODOS DE DRAFT Y RECOMENDACIÓN POR PIBE (EXPANDIDO A 7 PICKS)
+================================================================================
+
+1. DEFINICIÓN DE LOS 3 MODOS DE DRAFT (7 PICKS POR BANDO)
+--------------------------------------------------------------------------------
+1) DRAFT SEGURO:
+   - 100% de prioridad a los 7 Mejores Operadores Reales de cada pibe (Ataque y Defensa).
+   - Máximo confort y efectividad en partidos decisivos.
+
+2) MODO EXPERIMENTAL:
+   - Exclusión total (0%) de los 7 Mejores Reales de cada uno.
+   - Recomienda 7 operadores similares en rol con más de 0 partidas jugadas (>0 PJ).
+   - Evita la monotonía sin forzar jamás un operador de 0 partidas.
+
+3) DRAFT PRINCIPAL (POOL DE 14 OPERADORES):
+   - Pool combinado: 7 Fijos (Top 7 Reales) + 7 Similares/Secundarios.
+   - Regla estricta: Exclusión absoluta de cualquier operador con 0 partidas.
+
+
+2. SUGERENCIAS EXPANDIDAS POR PIBE SEGÚN MODO (7 ATAQUE / 7 DEFENSA)
+--------------------------------------------------------------------------------
+
+[EL_NOTORIOUS] (el_notorious) - Flex Utilitario / Intel Fragger
+
+  A) DRAFT SEGURO (Top 7 Reales):
+     - Ataque: Ash (134 PJ), Kali (222 PJ), Brava (50 PJ), Thermite (209 PJ), Maverick (34 PJ), Ying (194 PJ), Thatcher (328 PJ)
+     - Defensa: Vigil (196 PJ), Valkyrie (250 PJ), Kaid (408 PJ), Bandit (247 PJ), Mute (285 PJ), Fenrir (174 PJ), Pulse (48 PJ)
+
+  B) MODO EXPERIMENTAL (Excluye Top 7, >0 PJ, Rol Similar):
+     - Ataque: Ram (46 PJ), IQ (58 PJ), Fuze (88 PJ), Iana (42 PJ), Ace (289 PJ), Nomad (22 PJ), Sledge (57 PJ)
+     - Defensa: Rook (28 PJ), Smoke (68 PJ), Maestro (90 PJ), Castle (35 PJ), Mozzie (32 PJ), Doc (7 PJ), Caveira (34 PJ)
+
+  C) DRAFT PRINCIPAL (Pool de 14, estrictamente >0 PJ):
+     - Pool Ataque: Ash, Kali, Brava, Thermite, Maverick, Ying, Thatcher + Ram, IQ, Fuze, Iana, Ace, Nomad, Sledge
+     - Pool Defensa: Vigil, Valkyrie, Kaid, Bandit, Mute, Fenrir, Pulse + Rook, Smoke, Maestro, Castle, Mozzie, Doc, Caveira
+
+
+[CHANGONOCTURENO] (chango_nocturno) - Hard Support / Utility Anchor
+
+  A) DRAFT SEGURO (Top 7 Reales):
+     - Ataque: Fuze (126 PJ), Thermite (461 PJ), Lion (89 PJ), Blitz (195 PJ), Ace (141 PJ), Thatcher (241 PJ), Hibana (49 PJ)
+     - Defensa: Thorn (316 PJ), Tubarão (167 PJ), Kapkan (95 PJ), Mute (193 PJ), Bandit (357 PJ), Ela (45 PJ), Frost (54 PJ)
+
+  B) MODO EXPERIMENTAL (Excluye Top 7, >0 PJ, Rol Similar):
+     - Ataque: Gridlock (136 PJ), Dokkaebi (67 PJ), Brava (16 PJ), Ying (71 PJ), Nomad (50 PJ), Capitão (117 PJ), Twitch (6 PJ)
+     - Defensa: Kaid (151 PJ), Mira (46 PJ), Maestro (93 PJ), Alibi (18 PJ), Rook (16 PJ), Tachanka (76 PJ), Wamai (35 PJ)
+
+  C) DRAFT PRINCIPAL (Pool de 14, estrictamente >0 PJ):
+     - Pool Ataque: Fuze, Thermite, Lion, Blitz, Ace, Thatcher, Hibana + Gridlock, Dokkaebi, Brava, Ying, Nomad, Capitão, Twitch
+     - Pool Defensa: Thorn, Tubarão, Kapkan, Mute, Bandit, Ela, Frost + Kaid, Mira, Maestro, Alibi, Rook, Tachanka, Wamai
+
+
+[AZUSACOOPER09] (azusa_cooper09) - Frontline Support / Objective Anchor
+
+  A) DRAFT SEGURO (Top 7 Reales):
+     - Ataque: Ram (18 PJ), Dokkaebi (90 PJ), Thatcher (156 PJ), Lion (59 PJ), Blitz (200 PJ), Twitch (35 PJ), Brava (46 PJ)
+     - Defensa: Bandit (154 PJ), Mute (186 PJ), Thorn (155 PJ), Kapkan (68 PJ), Smoke (58 PJ), Kaid (165 PJ), Rook (31 PJ)
+
+  B) MODO EXPERIMENTAL (Excluye Top 7, >0 PJ, Rol Similar):
+     - Ataque: Montagne (206 PJ), Thermite (117 PJ), Fuze (136 PJ), Iana (39 PJ), Kali (34 PJ), Finka (74 PJ), Amaru (20 PJ)
+     - Defensa: Castle (48 PJ), Melusi (45 PJ), Ela (44 PJ), Mira (60 PJ), Tachanka (129 PJ), Denari (62 PJ), Mozzie (57 PJ)
+
+  C) DRAFT PRINCIPAL (Pool de 14, estrictamente >0 PJ):
+     - Pool Ataque: Ram, Dokkaebi, Thatcher, Lion, Blitz, Twitch, Brava + Montagne, Thermite, Fuze, Iana, Kali, Finka, Amaru
+     - Pool Defensa: Bandit, Mute, Thorn, Kapkan, Smoke, Kaid, Rook + Castle, Melusi, Ela, Mira, Tachanka, Denari, Mozzie
+
+
+3. REGLAS DE VALIDACIÓN APLICADAS
+--------------------------------------------------------------------------------
+- Todos los 14 operadores listados por jugador poseen mas de 0 partidas jugadas (>0 PJ) en Tracker.
+- Se filtran de forma absoluta los operadores sin experiencia registrada.
+================================================================================
