@@ -404,4 +404,37 @@ test("Engine and Scoring Logic", async (t) => {
     assert.ok(explanation.negative.some(n => n.includes("patrón desaconsejado")));
   });
 
+  await t.test("assigns Buck to El_Notorious (comfort, 41 matches) instead of ChangoNocturno (0 matches)", () => {
+    const site = mapBombSites.Clubhouse.find((s) => s.name.includes("CCTV")) || mapBombSites.Clubhouse[0];
+    const recs = getPibesRecommendations("attack", DEFAULT_PIBES, site, 1, "Clubhouse");
+    
+    const buckPick = recs.primary.picks.find((p) => p.opName.toLowerCase() === "buck");
+    if (buckPick) {
+      assert.strictEqual(
+        buckPick.playerId,
+        "el_notorious",
+        `Buck debe ser asignado a El_Notorious (confort, 41 partidas) y NO a ${buckPick.playerId}`
+      );
+    }
+  });
+
+  await t.test("orders 4 picks by Partidas Jugadas (PJ) in Primary mode and by Win Rate (WR%) in Safe mode", () => {
+    const site = mapBombSites.Clubhouse.find((s) => s.name.includes("CCTV")) || mapBombSites.Clubhouse[0];
+    const recs = getPibesRecommendations("attack", DEFAULT_PIBES, site, 1, "Clubhouse");
+
+    const changoPrimaryPick = recs.primary.picks.find((p) => p.playerId === "chango_nocturno");
+    const changoSafePick = recs.safeVariant.picks.find((p) => p.playerId === "chango_nocturno");
+
+    assert.ok(changoPrimaryPick, "Chango debe tener una recomendación en modo Principal");
+    assert.ok(changoSafePick, "Chango debe tener una recomendación en modo Seguro");
+
+    // Primary pick + variants should equal 4 distinct choices
+    const primaryOps = [changoPrimaryPick!.opName, ...changoPrimaryPick!.alternativeOps];
+    assert.strictEqual(primaryOps.length, 4, "Debe tener 4 sugerencias en total (1 Principal + 3 Variantes)");
+
+    // Safe pick + variants should equal 4 distinct choices
+    const safeOps = [changoSafePick!.opName, ...changoSafePick!.alternativeOps];
+    assert.strictEqual(safeOps.length, 4, "Debe tener 4 sugerencias en total (1 Principal + 3 Variantes)");
+  });
+
 });

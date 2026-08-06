@@ -1,3 +1,5 @@
+import { attackers, defenders } from "./catalog";
+
 export type OperatorPlayerStat = { matches: number; winRate: number; kd: number };
 
 type PlayerStats = Record<string, OperatorPlayerStat>;
@@ -222,6 +224,12 @@ export function getOperatorPlayerStat(playerId: string, operatorName: string): O
   return statsByPlayer[playerId]?.[normalize(operatorName)];
 }
 
+function isOperatorOnSide(opName: string, side: "attack" | "defense"): boolean {
+  const norm = normalize(opName);
+  const pool = side === "attack" ? attackers : defenders;
+  return pool.some((op) => normalize(op.name) === norm);
+}
+
 export function getPlayerTop4MostPlayed(
   playerId: string,
   side: "attack" | "defense",
@@ -233,7 +241,7 @@ export function getPlayerTop4MostPlayed(
   const bannedSet = new Set(bannedOps.map(normalize));
 
   const entries = Object.entries(pStats)
-    .filter(([opName, stat]) => !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches > 0)
+    .filter(([opName, stat]) => isOperatorOnSide(opName, side) && !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches > 0)
     .sort((a, b) => b[1].matches - a[1].matches);
 
   return entries.slice(0, 8).map(([opName]) => opName);
@@ -250,7 +258,7 @@ export function getPlayerTop4WinRate(
   const bannedSet = new Set(bannedOps.map(normalize));
 
   const entries = Object.entries(pStats)
-    .filter(([opName, stat]) => !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches >= 10)
+    .filter(([opName, stat]) => isOperatorOnSide(opName, side) && !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches >= 10)
     .sort((a, b) => b[1].winRate - a[1].winRate || b[1].matches - a[1].matches);
 
   return entries.slice(0, 8).map(([opName]) => opName);
@@ -267,7 +275,7 @@ export function getPlayerExperimentalOps(
   const bannedSet = new Set(bannedOps.map(normalize));
 
   const entries = Object.entries(pStats)
-    .filter(([opName, stat]) => !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches > 0 && stat.matches < 15)
+    .filter(([opName, stat]) => isOperatorOnSide(opName, side) && !avoidSet.has(opName) && !bannedSet.has(opName) && stat.matches > 0 && stat.matches < 15)
     .sort((a, b) => a[1].winRate - b[1].winRate || a[1].kd - b[1].kd || a[1].matches - b[1].matches);
 
   return entries.slice(0, 8).map(([opName]) => opName);

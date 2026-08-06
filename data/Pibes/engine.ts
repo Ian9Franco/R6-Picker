@@ -242,20 +242,55 @@ function generateSquadPicks(
           index + 1,
           currentSiteName
         );
-        const mains = side === "attack" ? pibe.attackMains : pibe.defenseMains;
+        const mains = (side === "attack" ? pibe.attackMains : pibe.defenseMains) || [];
         const comfort = pibe.comfortOperators || [];
         const identity = pibe.identityOperators || [];
-        const tryouts = (side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense).map((t: any) => t.operatorId || t.operator);
-        const knownSet = new Set([...mains, ...comfort, ...identity, ...tryouts].map(operatorKey));
-        const isKnownByPibe = knownSet.size === 0 || knownSet.has(operatorKey(profile.name));
-        const isAvoided = (pibe.avoidOperators || []).some((a) => a.toLowerCase() === profile.name.toLowerCase());
+        const tryouts = (side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense).map((t: any) => typeof t === "string" ? t : t.operatorId || t.operator || "");
+
+        const opKey = operatorKey(profile.name);
+        const isMain = mains.some((m) => operatorKey(m) === opKey);
+        const isComfort = comfort.some((c) => operatorKey(c) === opKey);
+        const isIdentity = identity.some((i) => operatorKey(i) === opKey);
+        const isTryout = tryouts.some((t: any) => operatorKey(t) === opKey);
+        const isAvoided = (pibe.avoidOperators || []).some((a) => operatorKey(a) === opKey);
+
         const pStat = getOperatorPlayerStat(pibe.id, profile.name);
-        // Permutation scoring: find optimal pibe→op assignment for the planned lineup.
-        // Stats gates are NOT applied here — they only filter the free-choice candidateOps below.
-        // Only penalize avoided ops so they go to the pibe with the least aversion.
-        const isZeroWinRate = Boolean(pStat && pStat.matches > 0 && pStat.winRate === 0);
-        const fitPenalty = (isAvoided || isZeroWinRate) ? -100 : (!isKnownByPibe ? -20 : 0);
-        return total + result.score + fitPenalty;
+        const matches = pStat?.matches ?? 0;
+        const winRate = pStat?.winRate ?? 0;
+
+        let fitAdjustment = 0;
+
+        if (isAvoided) {
+          fitAdjustment -= 500;
+        } else {
+          if (isIdentity || isComfort || isMain) {
+            fitAdjustment += 120;
+          } else if (isTryout) {
+            fitAdjustment += 30;
+          } else if (matches === 0) {
+            fitAdjustment -= 250;
+          }
+
+          if (matches >= 100) {
+            fitAdjustment += 60;
+          } else if (matches >= 30) {
+            fitAdjustment += 40;
+          } else if (matches >= 10) {
+            fitAdjustment += 20;
+          }
+
+          if (matches >= 10 && winRate >= 55) {
+            fitAdjustment += 30;
+          } else if (matches >= 10 && winRate < 40) {
+            fitAdjustment -= 30;
+          }
+
+          if (pStat && matches > 0 && winRate === 0) {
+            fitAdjustment -= 200;
+          }
+        }
+
+        return total + result.score + fitAdjustment;
       }, 0);
       if (assignmentScore > bestAssignmentScore) {
         bestAssignmentScore = assignmentScore;
@@ -428,18 +463,25 @@ function generateSquadPicks(
             const isPrimary = primaryMains.includes(opName);
             const mainBonus = isPrimary ? 8 : 0;
             const stratBonus = strategyBonusOps.has(opName) ? 25 : 0;
-            const jitter = rng() * 24 - 12;
-            return { opName, score, totalScore: score + mainBonus + stratBonus + jitter, isPrimary };
+            const pStat = getOperatorPlayerStat(pibe.id, opName);
+            const matches = pStat?.matches ?? 0;
+            const winRate = pStat?.winRate ?? 0;
+            return { opName, score, mainBonus, stratBonus, matches, winRate, isPrimary };
           })
-          .sort((a, b) => b.totalScore - a.totalScore);
+          .sort((a, b) => {
+            if (strategy === "primary") {
+              if (b.matches !== a.matches) return b.matches - a.matches;
+              return (b.score + b.stratBonus) - (a.score + a.stratBonus);
+            } else if (strategy === "safe") {
+              if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+              if (b.matches !== a.matches) return b.matches - a.matches;
+              return (b.score + b.stratBonus) - (a.score + a.stratBonus);
+            }
+            return (b.score + b.stratBonus + b.mainBonus) - (a.score + a.stratBonus + a.mainBonus);
+          });
 
-        if (strategy === "safe" && scoredCandidates.length > 1) {
-          chosenOpName = scoredCandidates[1].opName;
-          backupOpName = scoredCandidates[0].opName;
-        } else {
-          chosenOpName = scoredCandidates[0].opName;
-          backupOpName = scoredCandidates[1]?.opName || scoredCandidates[2]?.opName;
-        }
+        chosenOpName = scoredCandidates[0].opName;
+        backupOpName = scoredCandidates[1]?.opName || scoredCandidates[2]?.opName;
         isMain = primaryMains.includes(chosenOpName);
       } else {
         const uniquePool = fullPool.filter((op) => !usedOps.has(op.name) && !isBanned(op.name));
@@ -516,11 +558,11 @@ function generateSquadPicks(
       altSourceOps = getPlayerTop4MostPlayed(pibe.id, side, pibe.avoidOperators, bannedOps);
     } else if (strategy === "safe") {
       altSourceOps = getPlayerTop4WinRate(pibe.id, side, pibe.avoidOperators, bannedOps);
-    } else if (strategy === "breathing") {
+    } else if (strategy === "experimental" || strategy === "breathing") {
       const topUsed = new Set(getPlayerTop4MostPlayed(pibe.id, side, pibe.avoidOperators, bannedOps).map(operatorKey));
       const topWin = new Set(getPlayerTop4WinRate(pibe.id, side, pibe.avoidOperators, bannedOps).map(operatorKey));
       altSourceOps = (side === "attack" ? pibe.tryoutAttack : pibe.tryoutDefense)
-        .map((t: any) => t.operatorId || t.operator)
+        .map((t: any) => typeof t === "string" ? t : t.operatorId || t.operator)
         .filter((op) => op && !topUsed.has(operatorKey(op)) && !topWin.has(operatorKey(op)));
     }
     if (altSourceOps.length === 0) {

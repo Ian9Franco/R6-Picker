@@ -86,9 +86,13 @@ export function buildPibeProfiles(): PibeProfile[] {
     const tryoutAttack = raw.tryoutOperators?.filter((op: any) => op.side === "attack") || [];
     const tryoutDefense = raw.tryoutOperators?.filter((op: any) => op.side === "defense") || [];
 
-    const identityOperators = raw.identityOperators?.map((op: any) => op.operatorId) || [];
-    const comfortOperators = raw.comfortOperators?.map((op: any) => op.operatorId) || [];
-    const avoidOperators = raw.avoidOperators?.map((op: any) => op.operatorId) || [];
+    const identityOperators = (raw.identityOperators || []).map((op: any) => typeof op === "string" ? op : op.operatorId || op.operator || "");
+    const comfortOperators = (raw.comfortOperators || []).map((op: any) => typeof op === "string" ? op : op.operatorId || op.operator || "");
+    const avoidOperators = Array.isArray(raw.avoidOperators)
+      ? raw.avoidOperators.map((op: any) => typeof op === "string" ? op : op.operatorId || op.operator || "")
+      : raw.avoidOperators && typeof raw.avoidOperators === "object"
+        ? [...(raw.avoidOperators.attack || []), ...(raw.avoidOperators.defense || [])]
+        : [];
 
     const attackRoles = deriveRoles<AttackRole>(attackMains, "attack");
     const defenseRoles = deriveRoles<DefenseRole>(defenseMains, "defense");
